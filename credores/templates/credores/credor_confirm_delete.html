@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Deletar Credor</h1>
+<p>Você tem certeza que quer deletar o credor "{{ object.nome }}"?</p>
+<p>Esta ação não pode ser desfeita.</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Sim, deletar</button>
+    <a href="{% url 'credores:detalhe' object.pk %}">Cancelar</a>
+</form>
+{% endblock %}

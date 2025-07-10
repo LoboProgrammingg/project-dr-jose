@@ -1,0 +1,6 @@
+.env
+venv
+db.sqlite3
+migrations
+__pycache__
+docs

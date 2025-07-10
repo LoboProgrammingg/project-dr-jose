@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Detalhes de {{ credor.nome }}{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        .detail-container {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .page-header a {
+            text-decoration: none;
+            font-size: 1.1em;
+        }
+        .actions-box a {
+             margin-left: 15px;
+        }
+        .summary-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 1.5em;
+            border-radius: 8px;
+            margin-bottom: 2em;
+        }
+        .summary-box h2 {
+            margin-top: 0;
+            color: #343a40;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .summary-box p, .summary-box h3 {
+            margin: 0.5em 0;
+            font-size: 1.1em;
+        }
+        .summary-box .final-balance {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #dc3545; /* Vermelho para dívida */
+        }
+        .positive-value { color: green; }
+        .negative-value { color: red; }
+        .forms-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3em;
+            margin-top: 2em;
+        }
+        .form-section {
+            border: 1px solid #ccc;
+            padding: 1.5em;
+            border-radius: 5px;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 1em; }
+        th, td { padding: 12px; border-bottom: 1px solid #dee2e6; text-align: left; }
+        thead { background-color: #e9ecef; }
+        .messages { list-style: none; padding: 0; }
+        .messages li { padding: 1em; margin-bottom: 1em; border-radius: 5px; }
+        .messages .success { background-color: #d4edda; color: #155724; }
+        .messages .warning { background-color: #fff3cd; color: #856404; }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+
+    <div class="page-header">
+        <h1>{{ credor.nome }}</h1>
+        <div class="actions-box">
+            <a href="{% url 'credores:editar' credor.pk %}">Editar Credor</a>
+            <a href="{% url 'credores:lista' %}">&larr; Voltar para a Lista</a>
+        </div>
+    </div>
+
+    {% if messages %}
+        <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="summary-box">
+        <h2>Resumo da Dívida</h2>
+        <p><strong>Valor Principal Inicial:</strong> R$ {{ credor.valor_inicial|floatformat:2 }}</p>
+        <p><strong>(+) Total de Juros/Taxas Aplicados:</strong> <span class="negative-value">R$ {{ credor.total_juros_aplicados|floatformat:2 }}</span></p>
+        <p><strong>(=) Valor Atualizado da Dívida:</strong> R$ {{ credor.valor_atualizado_divida|floatformat:2 }}</p>
+        <p><strong>(-) Total de Pagamentos Realizados:</strong> <span class="positive-value">R$ {{ credor.total_pagamentos|floatformat:2 }}</span></p>
+        <hr>
+        <h3 style="margin-bottom: 0;">SALDO DEVEDOR FINAL: <span class="final-balance">R$ {{ credor.saldo_devedor|floatformat:2 }}</span></h3>
+    </div>
+
+    <div class="forms-container">
+        <div class="form-section">
+            <h3>Adicionar Nova Transação</h3>
+            <form action="{% url 'credores:adicionar_pagamento' credor.pk %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ pagamento_form.as_p }}
+                <button type="submit">Adicionar Lançamento</button>
+            </form>
+            <small>Dica: Para aplicar juros ou taxas, insira um valor negativo (ex: -50.00).</small>
+        </div>
+
+        <div class="form-section">
+            <h3>Ações da Dívida</h3>
+            <p>Taxa de Juros Mensal Definida: <strong>{{ credor.taxa_juros_mensal }}%</strong></p>
+            {% if credor.saldo_devedor > 0 and credor.taxa_juros_mensal > 0 %}
+            <form action="{% url 'credores:aplicar_juros' credor.pk %}" method="post">
+                {% csrf_token %}
+                <p>Clique para aplicar juros sobre o saldo devedor atual.</p>
+                <button type="submit">Aplicar Juros Mensais</button>
+            </form>
+            {% else %}
+            <p>Não é possível aplicar juros (dívida quitada ou taxa não definida).</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="history-section">
+        <h2>Histórico de Transações</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Data da Transação</th>
+                    <th style="text-align: right;">Valor</th>
+                    <th>Observação</th>
+                    <th>Recibo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pagamento in pagamentos %}
+                <tr>
+                    <td>{{ pagamento.data_pagamento|date:"d/m/Y" }}</td>
+                    <td style="text-align: right;" class="{% if pagamento.valor > 0 %}positive-value{% else %}negative-value{% endif %}">
+                        R$ {{ pagamento.valor|floatformat:2 }}
+                    </td>
+                    <td>{{ pagamento.observacao }}</td>
+                    <td>
+                        {% if pagamento.recibo %}
+                            <a href="{{ pagamento.recibo.url }}" target="_blank">Ver Recibo</a>
+                        {% else %}
+                            <span>-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align: center; padding: 20px;">Nenhuma transação registrada para este credor.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

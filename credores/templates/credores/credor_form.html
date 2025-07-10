@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ titulo_pagina }}{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        .form-container {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            max-width: 800px;
+        }
+        .form-group {
+            margin-bottom: 1.5em;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5em;
+            font-weight: bold;
+            color: #495057;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75em;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-check-input {
+            width: auto;
+            margin-right: 10px;
+        }
+        .form-actions {
+            margin-top: 2em;
+            border-top: 1px solid #dee2e6;
+            padding-top: 1.5em;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            color: white !important;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary { background-color: #007bff; }
+        .btn-secondary { background-color: #6c757d; }
+        form small {
+            display: block;
+            margin-top: 5px;
+            color: #6c757d;
+        }
+        .interest-summary {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 1em;
+            border-left: 5px solid #17a2b8;
+        }
+        .interest-summary p {
+            margin: 0;
+            font-weight: bold;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>{{ titulo_pagina }}</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="{{ form.nome.id_for_label }}">Nome do Credor:</label>
+            {{ form.nome }}
+            <small>{{ form.nome.help_text }}</small>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.email.id_for_label }}">Email:</label>
+            {{ form.email }}
+            <small>{{ form.email.help_text }}</small>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.telefone.id_for_label }}">Telefone:</label>
+            {{ form.telefone }}
+            <small>{{ form.telefone.help_text }}</small>
+        </div>
+
+        <hr>
+
+        <div class="form-group">
+            <label for="{{ form.valor_inicial.id_for_label }}">Valor Inicial da Dívida (Principal):</label>
+            {{ form.valor_inicial }}
+            <small>{{ form.valor_inicial.help_text }}</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.taxa_juros_mensal.id_for_label }}">Taxa de Juros Mensal (%):</label>
+            {{ form.taxa_juros_mensal }}
+            <small>{{ form.taxa_juros_mensal.help_text }}</small>
+        </div>
+
+        <!-- Bloco de Feedback Visual dos Juros -->
+        <div id="interest-summary-block" class="interest-summary" style="display: none;">
+            <p>Juros Iniciais Calculados: <span id="juros-calculado">R$ 0,00</span></p>
+            <p>Saldo Inicial com Juros: <span id="saldo-com-juros">R$ 0,00</span></p>
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.descricao_divida.id_for_label }}">Descrição da Dívida:</label>
+            {{ form.descricao_divida }}
+            <small>{{ form.descricao_divida.help_text }}</small>
+        </div>
+
+        <div class="form-group">
+            {{ form.ativo }}
+            <label for="{{ form.ativo.id_for_label }}">Dívida Ativa</label>
+            <small>{{ form.ativo.help_text }}</small>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a href="{% url 'credores:lista' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<!-- LÓGICA JAVASCRIPT PARA CÁLCULO EM TEMPO REAL -->
+<script>
+    const valorInicialInput = document.getElementById('{{ form.valor_inicial.id_for_label }}');
+    const taxaJurosInput = document.getElementById('{{ form.taxa_juros_mensal.id_for_label }}');
+    const summaryBlock = document.getElementById('interest-summary-block');
+    const jurosCalculadoSpan = document.getElementById('juros-calculado');
+    const saldoComJurosSpan = document.getElementById('saldo-com-juros');
+
+    function calcularJuros() {
+        const valorInicial = parseFloat(valorInicialInput.value.replace(',', '.')) || 0;
+        const taxaJuros = parseFloat(taxaJurosInput.value.replace(',', '.')) || 0;
+
+        if (valorInicial > 0 && taxaJuros > 0) {
+            const juros = valorInicial * (taxaJuros / 100);
+            const saldoTotal = valorInicial + juros;
+
+            jurosCalculadoSpan.textContent = juros.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            saldoComJurosSpan.textContent = saldoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            
+            summaryBlock.style.display = 'block';
+        } else {
+            summaryBlock.style.display = 'none';
+        }
+    }
+
+    valorInicialInput.addEventListener('input', calcularJuros);
+    taxaJurosInput.addEventListener('input', calcularJuros);
+
+    // Calcula ao carregar a página caso os campos já estejam preenchidos (no modo de edição)
+    document.addEventListener('DOMContentLoaded', calcularJuros);
+</script>
+{% endblock %}

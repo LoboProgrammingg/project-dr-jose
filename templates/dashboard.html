@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard Analítico{% endblock %}
+
+{% block content %}
+<div class="space-y-12">
+    <!-- Cabeçalho de Boas-Vindas -->
+    <div>
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900">Bem-vindo de volta, {{ user.username }}!</h1>
+        <p class="mt-2 text-lg text-gray-600">Este é o seu painel de controle com insights sobre a saúde financeira do sistema.</p>
+    </div>
+
+    <!-- Cards de Estatísticas (KPIs) -->
+    <div>
+        <h2 class="text-base font-semibold leading-6 text-gray-900">Visão Geral Estratégica</h2>
+        <div class="mt-2 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            <!-- Card: Total Emprestado -->
+            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm ring-1 ring-black ring-opacity-5 sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Total Emprestado (Principal)</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-blue-600">R$ {{ valor_total_emprestado|floatformat:2 }}</dd>
+            </div>
+            <!-- Card: Retorno Esperado -->
+            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm ring-1 ring-black ring-opacity-5 sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Retorno Total Esperado</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-indigo-600">R$ {{ retorno_total_esperado|floatformat:2 }}</dd>
+            </div>
+            <!-- Card: Lucro Potencial -->
+            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm ring-1 ring-black ring-opacity-5 sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Lucro Potencial (Juros)</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-green-600">R$ {{ lucro_potencial|floatformat:2 }}</dd>
+            </div>
+            <!-- Card: Saldo Devedor Total -->
+            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm ring-1 ring-black ring-opacity-5 sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Saldo Devedor Atual</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-red-600">R$ {{ saldo_devedor_total|floatformat:2 }}</dd>
+            </div>
+            <!-- Card: Credores Ativos -->
+            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm ring-1 ring-black ring-opacity-5 sm:p-6">
+                <dt class="truncate text-sm font-medium text-gray-500">Credores Ativos</dt>
+                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ total_credores_ativos }}</dd>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção de Gráficos -->
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <!-- Gráfico 1: Top 5 Credores (Prioridade) -->
+        <div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-black ring-opacity-5 lg:col-span-2">
+            <h3 class="text-base font-semibold leading-6 text-gray-900">Onde Focar: Top 5 Credores por Saldo Devedor</h3>
+            <div class="mt-4 h-80">
+                <canvas id="topCredoresChart"></canvas>
+            </div>
+        </div>
+        <!-- Gráfico 3: Composição da Dívida (Estratégia) -->
+        <div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-black ring-opacity-5">
+            <h3 class="text-base font-semibold leading-6 text-gray-900">Estratégia: Composição da Dívida</h3>
+            <div class="mt-4 h-80">
+                <canvas id="composicaoChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gráfico 2: Fluxo Mensal (Performance) -->
+    <div class="mt-8 rounded-lg bg-white p-6 shadow-sm ring-1 ring-black ring-opacity-5">
+        <h3 class="text-base font-semibold leading-6 text-gray-900">Performance: Fluxo Mensal (Pagamentos vs. Juros)</h3>
+        <div class="mt-4 h-80">
+            <canvas id="fluxoMensalChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<!-- Inclusão da biblioteca Chart.js e do plugin de datalabels -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+
+<!-- Script para renderizar os gráficos -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Registra o plugin de datalabels globalmente
+        Chart.register(ChartDataLabels);
+        
+        // Função para formatar valores como moeda brasileira
+        const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+
+        // --- GRÁFICO 1: TOP 5 CREDORES (Barras Horizontais) ---
+        const topCredoresCtx = document.getElementById('topCredoresChart').getContext('2d');
+        new Chart(topCredoresCtx, {
+            type: 'bar',
+            data: {
+                labels: JSON.parse('{{ top_credores_labels_json|safe }}'),
+                datasets: [{
+                    label: 'Saldo Devedor',
+                    data: JSON.parse('{{ top_credores_valores_json|safe }}'),
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    borderColor: 'rgba(37, 99, 235, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Torna o gráfico de barras horizontal
+                responsive: true, maintainAspectRatio: false,
+                scales: { x: { beginAtZero: true, ticks: { callback: formatCurrency } } },
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' Saldo Devedor: ' + formatCurrency(context.raw);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- GRÁFICO 2: FLUXO MENSAL (Barras Verticais) ---
+        const fluxoMensalCtx = document.getElementById('fluxoMensalChart').getContext('2d');
+        new Chart(fluxoMensalCtx, {
+            type: 'bar',
+            data: {
+                labels: JSON.parse('{{ labels_meses_json|safe }}'),
+                datasets: [
+                    { label: 'Pagamentos Recebidos', data: JSON.parse('{{ dados_pagamentos_json|safe }}'), backgroundColor: 'rgba(22, 163, 74, 0.7)', borderRadius: 4 },
+                    { label: 'Juros Aplicados', data: JSON.parse('{{ dados_juros_json|safe }}'), backgroundColor: 'rgba(220, 38, 38, 0.7)', borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true, ticks: { callback: formatCurrency } } },
+                plugins: { 
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' ' + context.dataset.label + ': ' + formatCurrency(context.raw);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- GRÁFICO 3: COMPOSIÇÃO DA DÍVIDA (Doughnut) ---
+        const composicaoCtx = document.getElementById('composicaoChart').getContext('2d');
+        new Chart(composicaoCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Principal Emprestado', 'Juros Gerados'],
+                datasets: [{
+                    data: JSON.parse('{{ composicao_divida_valores_json|safe }}'),
+                    backgroundColor: ['rgba(37, 99, 235, 0.8)', 'rgba(234, 179, 8, 0.8)'],
+                    borderColor: '#FFFFFF',
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    // Configuração do plugin para mostrar porcentagens
+                    datalabels: {
+                        formatter: (value, ctx) => {
+                            let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            if (sum === 0) return '0%';
+                            let percentage = (value * 100 / sum).toFixed(1) + "%";
+                            return percentage;
+                        },
+                        color: '#fff',
+                        font: { weight: 'bold', size: 14 }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' ' + context.label + ': ' + formatCurrency(context.raw);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

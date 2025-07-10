@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Página Inicial{% endblock %}
+
+{% block content %}
+<div class="bg-white p-8 rounded-lg shadow-md">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">Bem-vindo ao Sistema de Gestão criado para atender as necessidades do Dr.José</h1>
+    <p class="text-gray-600">Utilize a barra de navegação à esquerda para acessar as funcionalidades do sistema.</p>
+    <p class="text-gray-600 mt-4">Comece fazendo a <a href="{% url 'conciliacao:pagina_upload' %}" class="text-blue-600 hover:underline">conciliação de arquivos</a> ou gerenciando seus <a href="{% url 'credores:lista' %}" class="text-blue-600 hover:underline">credores</a>.</p>
+</div>
+{% endblock %}

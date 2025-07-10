@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Conciliação Bancária</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f2f5; }
+        .login-container { background: white; padding: 2em; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        form p { display: flex; flex-direction: column; }
+        input { padding: 0.8em; margin-top: 0.5em; border: 1px solid #ccc; border-radius: 4px; }
+        button { font-size: 1.1em; padding: 0.7em 1em; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; width: 100%; margin-top: 1em; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Acessar Sistema</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Entrar</button>
+        </form>
+    </div>
+</body>
+</html>
