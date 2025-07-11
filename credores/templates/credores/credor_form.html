@@ -1,152 +1,325 @@
 {% extends "base.html" %}
-{% load static %}
 
-{% block title %}{{ titulo_pagina }}{% endblock %}
+{% block title %}{{ view.title|default:"Formulário de Credor" }}{% endblock %}
 
-{% block extrastyle %}
-    {{ block.super }}
-    <style>
-        .form-container {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            max-width: 800px;
-        }
-        .form-group {
-            margin-bottom: 1.5em;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5em;
-            font-weight: bold;
-            color: #495057;
-        }
-        .form-control {
-            width: 100%;
-            padding: 0.75em;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .form-check-input {
-            width: auto;
-            margin-right: 10px;
-        }
-        .form-actions {
-            margin-top: 2em;
-            border-top: 1px solid #dee2e6;
-            padding-top: 1.5em;
-        }
-        .btn {
-            padding: 10px 20px;
-            border-radius: 4px;
-            text-decoration: none;
-            color: white !important;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-primary { background-color: #007bff; }
-        .btn-secondary { background-color: #6c757d; }
-        form small {
-            display: block;
-            margin-top: 5px;
-            color: #6c757d;
-        }
-        .interest-summary {
-            background-color: #e9ecef;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 1em;
-            border-left: 5px solid #17a2b8;
-        }
-        .interest-summary p {
-            margin: 0;
-            font-weight: bold;
-        }
-    </style>
+{% block head_extra %}
+<style>
+    /* Estilização para os campos do formulário Django para claro e escuro */
+    .form-field-group div { /* Target the div wrapping the input/label */
+        margin-bottom: 1.5rem; /* Aumentado para mais espaço */
+    }
+    .form-field-group label {
+        display: block;
+        font-size: 0.875rem; /* text-sm */
+        line-height: 1.25rem; /* leading-tight */
+        font-weight: 600; /* font-semibold */
+        color: #374151; /* text-gray-700 */
+        margin-bottom: 0.5rem; /* mb-2 */
+        transition: color 0.2s ease-in-out;
+    }
+    .dark .form-field-group label {
+        color: #D1D5DB; /* gray-300 */
+    }
+    
+    .form-field-group input[type="text"],
+    .form-field-group input[type="email"], /* Adicionado type="email" */
+    .form-field-group input[type="tel"],   /* Adicionado type="tel" */
+    .form-field-group input[type="number"],
+    .form-field-group textarea,
+    .form-field-group select {
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem; /* py-3 px-4 */
+        font-size: 1rem; /* text-base */
+        line-height: 1.5rem; /* leading-normal */
+        color: #1f2937; /* text-gray-900 */
+        background-color: #ffffff;
+        border-width: 2px; /* border-2 */
+        border-color: #d1d5db; /* border-gray-300 */
+        border-radius: 0.5rem; /* rounded-lg */
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+        transition: all 0.2s ease-in-out; /* transition duration-200 */
+    }
+
+    .dark .form-field-group input[type="text"],
+    .dark .form-field-group input[type="email"],
+    .dark .form-field-group input[type="tel"],
+    .dark .form-field-group input[type="number"],
+    .dark .form-field-group textarea,
+    .dark .form-field-group select {
+        background-color: #1F2937; /* gray-800 for dark mode */
+        color: #E5E7EB; /* gray-200 for text */
+        border-color: #4B5563; /* gray-700 for border */
+    }
+
+    .form-field-group input::placeholder,
+    .form-field-group textarea::placeholder,
+    .form-field-group select option[value=""] { /* Estiliza placeholders */
+        color: #9CA3AF; /* gray-400 */
+        transition: color 0.2s ease-in-out;
+    }
+
+    .dark .form-field-group input::placeholder,
+    .dark .form-field-group textarea::placeholder,
+    .dark .form-field-group select option[value=""] {
+        color: #6B7280; /* gray-500 */
+    }
+
+    .form-field-group input[type="text"]:focus,
+    .form-field-group input[type="email"]:focus,
+    .form-field-group input[type="tel"]:focus,
+    .form-field-group input[type="number"]:focus,
+    .form-field-group textarea:focus,
+    .form-field-group select:focus {
+        outline: none;
+        border-color: transparent; /* Remove a borda padrão para dar lugar ao ring */
+        box-shadow: 0 0 0 3px var(--brand-500-rgb, rgba(99, 102, 241, 0.5)), 0 0 0 2px var(--brand-600-rgb, #4f46e5); /* Anel de foco com cor da marca */
+    }
+
+    /* Adicionado cores RGBA para o anel de foco dinâmico */
+    :root {
+        --brand-500-rgb: 99, 102, 241;
+        --brand-600-rgb: #4f46e5;
+    }
+    .dark:root {
+        --brand-500-rgb: 139, 92, 246; /* primary-500 light */
+        --brand-600-rgb: #8b5cf6; /* primary-500 */
+    }
+
+    .form-field-group .helptext {
+        margin-top: 0.5rem;
+        font-size: 0.75rem; /* text-xs */
+        color: #6b7280; /* text-gray-500 */
+    }
+    .dark .form-field-group .helptext {
+        color: #9CA3AF; /* gray-400 */
+    }
+
+    .form-field-group .errorlist {
+        list-style: none;
+        padding: 0;
+        margin-top: 0.5rem;
+        color: #ef4444; /* text-red-500 */
+        font-size: 0.875rem; /* text-sm */
+        font-weight: 500; /* font-medium */
+    }
+    .dark .form-field-group .errorlist {
+        color: #fca5a5; /* red-300 */
+    }
+
+    /* Checkbox e Radio (ativo) */
+    .form-field-group input[type="checkbox"],
+    .form-field-group input[type="radio"] {
+        width: 1.25rem; /* w-5 */
+        height: 1.25rem; /* h-5 */
+        border-radius: 0.25rem; /* rounded */
+        border: 2px solid #D1D5DB; /* border-gray-300 */
+        background-color: #ffffff;
+        appearance: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .dark .form-field-group input[type="checkbox"],
+    .dark .form-field-group input[type="radio"] {
+        background-color: #374151; /* gray-700 */
+        border-color: #6B7280; /* gray-500 */
+    }
+
+    .form-field-group input[type="checkbox"]:checked,
+    .form-field-group input[type="radio"]:checked {
+        background-color: #4f46e5; /* brand-600 */
+        border-color: #4f46e5; /* brand-600 */
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 00-1.414 0L7 8.586 5.793 7.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 000-1.414z'/%3e%3c/svg%3e");
+        background-size: 100% 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    .dark .form-field-group input[type="checkbox"]:checked,
+    .dark .form-field-group input[type="radio"]:checked {
+        background-color: #8b5cf6; /* primary-500 */
+        border-color: #8b5cf6; /* primary-500 */
+    }
+
+    .form-field-group input[type="checkbox"]:focus,
+    .form-field-group input[type="radio"]:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5), 0 0 0 2px #4f46e5;
+    }
+    .dark .form-field-group input[type="checkbox"]:focus,
+    .dark .form-field-group input[type="radio"]:focus {
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.5), 0 0 0 2px #8b5cf6;
+    }
+
+    /* Transições de animação */
+    @keyframes fadeInSlideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeInSlideUp {
+        animation: fadeInSlideUp 0.6s ease-out forwards;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="form-container">
-    <h1>{{ titulo_pagina }}</h1>
+<div class="py-12 px-4 sm:px-6 lg:px-8"> {# Removido bg-gray-50 para usar o fundo do main no base.html #}
+    <div class="mx-auto max-w-4xl animate-fadeInSlideUp">
 
-    <form method="post">
-        {% csrf_token %}
-
-        <div class="form-group">
-            <label for="{{ form.nome.id_for_label }}">Nome do Credor:</label>
-            {{ form.nome }}
-            <small>{{ form.nome.help_text }}</small>
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+                {{ view.title|default:"Cadastro de Credor" }}
+            </h1>
+            <p class="mt-4 text-lg leading-6 text-gray-600 dark:text-gray-400">
+                {{ view.description|default:"Preencha os dados para adicionar ou atualizar um credor." }}
+            </p>
         </div>
 
-        <div class="form-group">
-            <label for="{{ form.email.id_for_label }}">Email:</label>
-            {{ form.email }}
-            <small>{{ form.email.help_text }}</small>
-        </div>
+        <form method="post" class="bg-white dark:bg-gray-800 p-6 sm:p-10 rounded-2xl shadow-2xl ring-1 ring-gray-900/5 dark:ring-white/5 space-y-8 transition-colors duration-300">
+            {% csrf_token %}
 
-        <div class="form-group">
-            <label for="{{ form.telefone.id_for_label }}">Telefone:</label>
-            {{ form.telefone }}
-            <small>{{ form.telefone.help_text }}</small>
-        </div>
+            {% if form.non_field_errors %}
+                <div class="rounded-md bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-700/50">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400 dark:text-red-300" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Foram encontrados erros:</h3>
+                            <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+                                <ul role="list" class="list-disc space-y-1 pl-5">
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-2">
+                <div class="md:col-span-2">
+                    <h2 class="text-lg font-semibold leading-7 text-brand-600 dark:text-brand-400">Informações Pessoais</h2>
+                    <hr class="mt-2 border-gray-200 dark:border-gray-700">
+                </div>
 
-        <hr>
+                {# Campos Django com o wrapper para estilos globais #}
+                <div class="form-field-group">
+                    <div>
+                        <label for="{{ form.nome.id_for_label }}">{{ form.nome.label }}</label>
+                        <div class="mt-2">{{ form.nome }}</div>
+                        {% if form.nome.errors %}<p class="mt-2 text-sm text-red-600 dark:text-red-400">{% for error in form.nome.errors %}{{ error }}{% endfor %}</p>{% endif %}
+                    </div>
+                </div>
 
-        <div class="form-group">
-            <label for="{{ form.valor_inicial.id_for_label }}">Valor Inicial da Dívida (Principal):</label>
-            {{ form.valor_inicial }}
-            <small>{{ form.valor_inicial.help_text }}</small>
-        </div>
-        
-        <div class="form-group">
-            <label for="{{ form.taxa_juros_mensal.id_for_label }}">Taxa de Juros Mensal (%):</label>
-            {{ form.taxa_juros_mensal }}
-            <small>{{ form.taxa_juros_mensal.help_text }}</small>
-        </div>
+                <div class="form-field-group">
+                    <div>
+                        <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                        <div class="mt-2">{{ form.email }}</div>
+                        {% if form.email.errors %}<p class="mt-2 text-sm text-red-600 dark:text-red-400">{% for error in form.email.errors %}{{ error }}{% endfor %}</p>{% endif %}
+                    </div>
+                </div>
 
-        <!-- Bloco de Feedback Visual dos Juros -->
-        <div id="interest-summary-block" class="interest-summary" style="display: none;">
-            <p>Juros Iniciais Calculados: <span id="juros-calculado">R$ 0,00</span></p>
-            <p>Saldo Inicial com Juros: <span id="saldo-com-juros">R$ 0,00</span></p>
-        </div>
+                <div class="md:col-span-2 form-field-group">
+                    <div>
+                        <label for="{{ form.telefone.id_for_label }}">{{ form.telefone.label }}</label>
+                        <div class="mt-2">{{ form.telefone }}</div>
+                        {% if form.telefone.errors %}<p class="mt-2 text-sm text-red-600 dark:text-red-400">{% for error in form.telefone.errors %}{{ error }}{% endfor %}</p>{% endif %}
+                    </div>
+                </div>
 
-        <div class="form-group">
-            <label for="{{ form.descricao_divida.id_for_label }}">Descrição da Dívida:</label>
-            {{ form.descricao_divida }}
-            <small>{{ form.descricao_divida.help_text }}</small>
-        </div>
+                <div class="md:col-span-2 pt-4">
+                    <h2 class="text-lg font-semibold leading-7 text-brand-600 dark:text-brand-400">Detalhes da Dívida</h2>
+                    <hr class="mt-2 border-gray-200 dark:border-gray-700">
+                </div>
 
-        <div class="form-group">
-            {{ form.ativo }}
-            <label for="{{ form.ativo.id_for_label }}">Dívida Ativa</label>
-            <small>{{ form.ativo.help_text }}</small>
-        </div>
-        
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Salvar</button>
-            <a href="{% url 'credores:lista' %}" class="btn btn-secondary">Cancelar</a>
-        </div>
-    </form>
+                <div class="form-field-group">
+                    <div>
+                        <label for="{{ form.valor_inicial.id_for_label }}">{{ form.valor_inicial.label }}</label>
+                        <div class="mt-2">{{ form.valor_inicial }}</div>
+                        {% if form.valor_inicial.errors %}<p class="mt-2 text-sm text-red-600 dark:text-red-400">{% for error in form.valor_inicial.errors %}{{ error }}{% endfor %}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div class="form-field-group">
+                    <div>
+                        <label for="{{ form.taxa_juros_mensal.id_for_label }}">{{ form.taxa_juros_mensal.label }}</label>
+                        <div class="mt-2">{{ form.taxa_juros_mensal }}</div>
+                        {% if form.taxa_juros_mensal.errors %}<p class="mt-2 text-sm text-red-600 dark:text-red-400">{% for error in form.taxa_juros_mensal.errors %}{{ error }}{% endfor %}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div id="interest-summary-block" class="md:col-span-2 rounded-lg bg-brand-50 dark:bg-brand-950/30 p-4 border border-brand-200 dark:border-brand-700/50 transition-colors duration-300" style="display: none;">
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between font-medium text-gray-600 dark:text-gray-300"><span>Juros Iniciais Calculados:</span><span id="juros-calculado" class="font-bold text-brand-900 dark:text-brand-100">R$ 0,00</span></div>
+                        <div class="flex justify-between font-medium text-gray-600 dark:text-gray-300"><span>Saldo Inicial com Juros:</span><span id="saldo-com-juros" class="font-bold text-brand-900 dark:text-brand-100">R$ 0,00</span></div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 form-field-group">
+                    <div>
+                        <label for="{{ form.descricao_divida.id_for_label }}">{{ form.descricao_divida.label }}</label>
+                        <div class="mt-2">{{ form.descricao_divida }}</div>
+                        {% if form.descricao_divida.errors %}<p class="mt-2 text-sm text-red-600 dark:text-red-400">{% for error in form.descricao_divida.errors %}{{ error }}{% endfor %}</p>{% endif %}
+                    </div>
+                </div>
+                
+                <div class="md:col-span-2 form-field-group">
+                    <div class="relative flex items-start">
+                        <div class="flex h-6 items-center">
+                            {{ form.ativo }} {# O input do checkbox #}
+                        </div>
+                        <div class="ml-3 text-sm leading-6">
+                            <label for="{{ form.ativo.id_for_label }}" class="font-medium text-gray-900 dark:text-gray-100">Dívida Ativa</label>
+                            {% if form.ativo.help_text %}<p class="text-gray-500 dark:text-gray-400">{{ form.ativo.help_text }}</p>{% endif %}
+                        </div>
+                    </div>
+                    {% if form.ativo.errors %}<p class="mt-2 text-sm text-red-600 dark:text-red-400">{% for error in form.ativo.errors %}{{ error }}{% endfor %}</p>{% endif %}
+                </div>
+            </div>
+
+            <div class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 flex items-center justify-end gap-x-4">
+                <a href="{% url 'credores:lista' %}" class="rounded-md bg-white dark:bg-gray-700 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 transition-all duration-150 hover:bg-gray-50 dark:hover:bg-gray-600">Cancelar</a>
+                <button type="submit" class="inline-flex justify-center rounded-md bg-brand-600 dark:bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+                    <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
+                    Salvar Credor
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<!-- LÓGICA JAVASCRIPT PARA CÁLCULO EM TEMPO REAL -->
 <script>
+document.addEventListener('DOMContentLoaded', function() {
     const valorInicialInput = document.getElementById('{{ form.valor_inicial.id_for_label }}');
     const taxaJurosInput = document.getElementById('{{ form.taxa_juros_mensal.id_for_label }}');
     const summaryBlock = document.getElementById('interest-summary-block');
     const jurosCalculadoSpan = document.getElementById('juros-calculado');
     const saldoComJurosSpan = document.getElementById('saldo-com-juros');
 
+    function formatCurrency(value) {
+        return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function parseNumber(value) {
+        // Substitui vírgula por ponto para garantir que parseFloat funcione
+        return parseFloat(value.replace(',', '.')) || 0;
+    }
+
     function calcularJuros() {
-        const valorInicial = parseFloat(valorInicialInput.value.replace(',', '.')) || 0;
-        const taxaJuros = parseFloat(taxaJurosInput.value.replace(',', '.')) || 0;
+        const valorInicial = parseNumber(valorInicialInput.value);
+        const taxaJuros = parseNumber(taxaJurosInput.value);
 
         if (valorInicial > 0 && taxaJuros > 0) {
             const juros = valorInicial * (taxaJuros / 100);
             const saldoTotal = valorInicial + juros;
 
-            jurosCalculadoSpan.textContent = juros.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            saldoComJurosSpan.textContent = saldoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            jurosCalculadoSpan.textContent = formatCurrency(juros);
+            saldoComJurosSpan.textContent = formatCurrency(saldoTotal);
             
             summaryBlock.style.display = 'block';
         } else {
@@ -154,10 +327,11 @@
         }
     }
 
-    valorInicialInput.addEventListener('input', calcularJuros);
-    taxaJurosInput.addEventListener('input', calcularJuros);
-
-    // Calcula ao carregar a página caso os campos já estejam preenchidos (no modo de edição)
-    document.addEventListener('DOMContentLoaded', calcularJuros);
+    if (valorInicialInput && taxaJurosInput) {
+        valorInicialInput.addEventListener('input', calcularJuros);
+        taxaJurosInput.addEventListener('input', calcularJuros);
+        calcularJuros(); // Executa ao carregar para o caso de edição
+    }
+});
 </script>
 {% endblock %}

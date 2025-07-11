@@ -1,13 +1,19 @@
+# conciliacao/models.py
 from django.db import models
 from django.contrib.auth.models import User
 
 class RelatorioConciliacao(models.Model):
-    """Guarda as informações de um relatório de conciliação executado."""
+    """
+    Guarda as informações de um relatório de conciliação executado.
+    O campo 'mes_ano_referencia' é a chave para o filtro solicitado.
+    """
+    # Este campo armazena a data de referência que o usuário irá inserir.
     mes_ano_referencia = models.CharField(max_length=7, help_text="Mês e ano da conciliação (ex: 07/2025)")
     data_execucao = models.DateTimeField(auto_now_add=True)
     executado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
+        # A ordenação já está correta, mostrando os mais recentes primeiro.
         ordering = ['-data_execucao']
         verbose_name = "Relatório de Conciliação"
         verbose_name_plural = "Relatórios de Conciliação"
@@ -15,7 +21,7 @@ class RelatorioConciliacao(models.Model):
     def __str__(self):
         return f"Relatório de {self.mes_ano_referencia} (executado em {self.data_execucao.strftime('%d/%m/%Y')})"
 
-class Transacao(models.Model): # <-- CORREÇÃO: Renomeado de TransacaoConciliada para Transacao
+class Transacao(models.Model):
     """Guarda cada linha individual de um resultado de conciliação."""
     STATUS_CHOICES = [
         ('Conciliado', 'Conciliado'),

@@ -3,109 +3,468 @@
 {% block title %}Nova Conciliação{% endblock %}
 {% block page_title %}Nova Conciliação Bancária{% endblock %}
 
+{% block head_extra %}
+<style>
+    /* Ajustes das cores da marca (brand) para ficar consistente com o base.html */
+    :root {
+        --brand-500-rgb: 99, 102, 241; /* Exemplo: primary-500 em RGB */
+        --brand-600-rgb: #4f46e5;      /* Exemplo: primary-600 */
+    }
+    .dark:root {
+        --brand-500-rgb: 139, 92, 246; /* primary-500 light do base.html no dark mode */
+        --brand-600-rgb: #8b5cf6;      /* primary-500 do base.html no dark mode */
+    }
+
+    /* Estilização para os campos do formulário para claro e escuro */
+    .form-field-group div { /* Target the div wrapping the input/label */
+        margin-bottom: 1.5rem; /* Mais espaço entre os campos */
+    }
+    .form-field-group label {
+        display: block;
+        font-size: 0.875rem; /* text-sm */
+        line-height: 1.25rem; /* leading-tight */
+        font-weight: 600; /* font-semibold */
+        color: #374151; /* text-gray-700 */
+        margin-bottom: 0.5rem; /* mb-2 */
+        transition: color 0.2s ease-in-out;
+    }
+    .dark .form-field-group label {
+        color: #D1D5DB; /* gray-300 para o dark mode */
+    }
+    
+    .form-field-group input[type="text"],
+    .form-field-group input[type="file"] { /* Incluindo file inputs */
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem; /* py-3 px-4 */
+        font-size: 1rem; /* text-base */
+        line-height: 1.5rem; /* leading-normal */
+        color: #1f2937; /* text-gray-900 */
+        background-color: #ffffff; /* Fundo branco no light mode */
+        border-width: 2px; /* border-2 */
+        border-color: #d1d5db; /* border-gray-300 */
+        border-radius: 0.5rem; /* rounded-lg */
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+        transition: all 0.2s ease-in-out; /* transições suaves */
+    }
+
+    /* Estilos Dark Mode para Inputs */
+    .dark .form-field-group input[type="text"],
+    .dark .form-field-group input[type="file"] {
+        background-color: #1F2937; /* gray-800 para dark mode */
+        color: #E5E7EB; /* gray-200 para o texto no dark mode */
+        border-color: #4B5563; /* gray-700 para a borda no dark mode */
+    }
+
+    /* Estilo de Placeholders */
+    .form-field-group input::placeholder {
+        color: #9CA3AF; /* gray-400 */
+        transition: color 0.2s ease-in-out;
+    }
+    .dark .form-field-group input::placeholder {
+        color: #6B7280; /* gray-500 no dark mode */
+    }
+
+    /* Foco dos Inputs */
+    .form-field-group input[type="text"]:focus,
+    .form-field-group input[type="file"]:focus {
+        outline: none;
+        border-color: transparent; /* Remove a borda padrão */
+        box-shadow: 0 0 0 3px var(--brand-500-rgb, rgba(99, 102, 241, 0.5)), 0 0 0 2px var(--brand-600-rgb, #4f46e5); 
+    }
+
+    /* Estilos específicos para input de arquivo (dropzone) */
+    .dropzone {
+        border-style: dashed;
+        border-width: 2px;
+        border-color: #D1D5DB; /* gray-300 */
+        transition: all 0.3s ease-in-out;
+        background-color: #ffffff; /* white */
+    }
+    .dark .dropzone {
+        border-color: #4B5563; /* gray-700 */
+        background-color: #1F2937; /* gray-800 */
+    }
+    .dropzone:hover {
+        border-color: #4f46e5; /* brand-600 */
+        background-color: #F3F4F6; /* gray-100 */
+    }
+    .dark .dropzone:hover {
+        border-color: #8b5cf6; /* brand-500 */
+        background-color: #374151; /* gray-700 */
+    }
+    .dropzone.highlight { /* Para dragover/dragenter */
+        border-color: #4f46e5; /* brand-600 */
+        background-color: #e0e7ff; /* brand-100 */
+    }
+    .dark .dropzone.highlight {
+        border-color: #8b5cf6; /* brand-500 */
+        background-color: #312e81; /* brand-900 */
+    }
+    .dropzone.selected-file { /* Quando um arquivo é selecionado/dropado */
+        border-color: #10b981; /* success green */
+        background-color: #D1FAE5; /* green-100 */
+    }
+    .dark .dropzone.selected-file {
+        border-color: #065F46; /* dark green */
+        background-color: #042F2E; /* even darker green */
+    }
+
+    /* Cores dos ícones e textos dentro do dropzone */
+    .dropzone svg {
+        color: #9CA3AF; /* gray-400 */
+    }
+    .dark .dropzone svg {
+        color: #6B7280; /* gray-500 */
+    }
+    .dropzone label {
+        color: #4f46e5; /* brand-600 */
+    }
+    .dark .dropzone label {
+        color: #8b5cf6; /* brand-500 */
+    }
+    .dropzone p.text-sm { /* "ou arraste e solte" */
+        color: #6B7280; /* gray-500 */
+    }
+    .dark .dropzone p.text-sm {
+        color: #9CA3AF; /* gray-400 */
+    }
+    .dropzone p.text-xs { /* "Arquivo .OFX" */
+        color: #9CA3AF; /* gray-400 */
+    }
+    .dark .dropzone p.text-xs {
+        color: #6B7280; /* gray-500 */
+    }
+    .dropzone p.text-sm.font-medium { /* filename-ofx/csv */
+        color: #10b981; /* green-500 */
+    }
+    .dark .dropzone p.text-sm.font-medium {
+        color: #4ADE80; /* green-400 */
+    }
+
+    /* Animações (certifique-se de que estão no seu tailwind.config.js também, como no base.html) */
+    @keyframes fadeInSlideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeInSlideUp {
+        animation: fadeInSlideUp 0.6s ease-out forwards;
+    }
+    @keyframes bounce {
+        0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8,0,1,1); }
+        50% { transform: none; animation-timing-function: cubic-bezier(0,0,0.2,1); }
+    }
+    .animate-bounce-custom {
+        animation: bounce 1s infinite;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="mx-auto max-w-4xl">
-    <!-- Cabeçalho da Página -->
-    <div class="text-center">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+<div class="mx-auto max-w-4xl animate-fadeInSlideUp">
+    <div class="text-center mb-10">
+        <svg class="mx-auto h-16 w-16 text-brand-500 animate-bounce-custom" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 .504 1.125 1.125-1.125V11.25a9 9 0 00-9-9z" />
         </svg>
-        <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Iniciar Nova Conciliação</h1>
-        <p class="mt-2 text-lg leading-8 text-gray-600">Faça o upload dos dois arquivos necessários para gerar e salvar o relatório de conciliação.</p>
+        <h1 class="mt-4 text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl">Iniciar Nova Conciliação</h1>
+        <p class="mt-3 text-lg leading-8 text-gray-600 dark:text-gray-400">Siga os passos abaixo para gerar e salvar o relatório de conciliação.</p>
     </div>
 
-    <!-- Link para o Histórico -->
-    <div class="text-center mt-4">
-        <a href="{% url 'conciliacao:lista_relatorios' %}" class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Ver Histórico de Conciliações &rarr;</a>
+    <div class="text-center mt-6">
+        <a href="{% url 'conciliacao:lista_relatorios' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-gray-700 hover:bg-brand-100 dark:hover:bg-gray-600 transition-colors duration-200">
+            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-3.8-9.2a.75.75 0 011.06-.02L9.5 9.19l1.72-1.71a.75.75 0 111.06 1.06l-2.25 2.25a.75.75 0 01-1.06 0L6.78 9.84a.75.75 0 01-.02-1.06z" clip-rule="evenodd" />
+            </svg>
+            Ver Histórico de Conciliações
+        </a>
     </div>
 
-    <!-- Formulário Principal -->
-    <div class="mt-10 bg-white p-8 rounded-xl shadow-lg ring-1 ring-gray-900/5">
+    <div class="mt-10 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl ring-1 ring-gray-900/5 dark:ring-white/5 transition-colors duration-300">
         <form method="post" enctype="multipart/form-data" class="space-y-8">
             {% csrf_token %}
 
-            <!-- Seção de Upload de Arquivos -->
-            <div class="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-10 md:grid-cols-2">
-                
-                <!-- Input para Arquivo OFX -->
-                <div>
-                    <label for="arquivo_ofx" class="block text-base font-semibold leading-7 text-gray-900">1. Extrato do Banco</label>
-                    <div id="dropzone-ofx" class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 transition hover:border-gray-400">
-                        <div class="text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12A2.25 2.25 0 0120.25 20.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-10">
+                <h2 class="text-2xl font-bold leading-9 text-gray-900 dark:text-white">0. Mês/Ano de Referência</h2>
+                <p class="mt-2 text-base leading-6 text-gray-600 dark:text-gray-400">Selecione o período exato ao qual esta conciliação se refere. Este campo é crucial e obrigatório.</p>
+                <div class="mt-6 relative max-w-xs form-field-group"> {# Adicionado form-field-group #}
+                    <label for="mes_ano_referencia_display" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-300">Período de Referência <span class="text-red-500">*</span></label>
+                    <div class="mt-2 flex items-center">
+                        <input type="text" id="mes_ano_referencia_display" readonly placeholder="Selecione o Mês/Ano"
+                            class="block w-full rounded-md border-0 py-2 text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-brand-600 dark:focus:ring-brand-500 sm:text-base sm:leading-7 cursor-pointer
+                            transition-all duration-200 ease-in-out focus:shadow-lg bg-white dark:bg-gray-800"
+                            autocomplete="off">
+                        <input type="hidden" name="mes_ano_referencia" id="mes_ano_referencia_hidden" required>
+                        <button type="button" id="toggle-datepicker-button" class="ml-2 p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                                <path fill-rule="evenodd" d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6.75V3a.75.75 0 01.75-.75zm13.5 9a.75.75 0 00-1.5 0v2.25a.75.75 0 001.5 0V11.25zm-6.75-2.25a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0V9zm-3 0a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0V9z" clip-rule="evenodd" />
                             </svg>
-                            <div class="mt-4 flex text-sm leading-6 text-gray-600">
-                                <label for="arquivo_ofx" class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
-                                    <span>Selecione um arquivo</span>
-                                    <input id="arquivo_ofx" name="arquivo_ofx" type="file" class="sr-only" required accept=".ofx">
-                                </label>
-                                <p class="pl-1">ou arraste e solte</p>
+                        </button>
+                    </div>
+                    
+                    <div id="date-picker-dropdown" class="absolute z-10 mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg hidden w-full animate-fadeIn transition-colors duration-300">
+                        <div class="p-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <button type="button" id="prev-year" class="p-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M11.72 10.72a.75.75 0 011.06 0l3.75 3.75a.75.75 0 01-1.06 1.06L12 12.06l-2.47 2.47a.75.75 0 01-1.06-1.06l3.75-3.75zm-3.75-3.75L12 3.94l2.47 2.47a.75.75 0 01-1.06 1.06L11.72 7.72a.75.75 0 010-1.06L15.47 2.97a.75.75 0 011.06 0L20.53 7.03a.75.75 0 010 1.06l-3.75 3.75a.75.75 0 01-1.06-1.06L16.94 10l-2.47 2.47a.75.75 0 01-1.06-1.06l3.75-3.75z" /></svg>
+                                </button>
+                                <span id="current-year" class="font-semibold text-lg text-gray-800 dark:text-gray-200"></span>
+                                <button type="button" id="next-year" class="p-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-brand-600 dark:hover:text-brand-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M12.28 15.22a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 0l4.25 4.25a.75.75 0 01-1.06 1.06L17 12.06l-2.47 2.47a.75.75 0 01-1.06-1.06l3.75-3.75zM12.28 8.78a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 0l4.25 4.25a.75.75 0 01-1.06 1.06L17 5.06l-2.47 2.47a.75.75 0 01-1.06-1.06l3.75-3.75z" /></svg>
+                                </button>
                             </div>
-                            <p class="text-xs leading-5 text-gray-600">Arquivo .OFX</p>
-                            <p id="filename-ofx" class="mt-2 text-sm font-medium text-green-600"></p>
+                            <div id="months-grid" class="grid grid-cols-3 gap-2">
+                                </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Input para Arquivo CSV -->
-                <div>
-                    <label for="arquivo_csv" class="block text-base font-semibold leading-7 text-gray-900">2. Relatório do Gestor</label>
-                    <div id="dropzone-csv" class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 transition hover:border-gray-400">
-                        <div class="text-center">
-                            <svg class="mx-auto h-12 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M3 3.75A.75.75 0 013.75 3h16.5a.75.75 0 01.75.75v16.5a.75.75 0 01-.75.75H3.75a.75.75 0 01-.75-.75V3.75zM9 6a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V6.75A.75.75 0 019 6zm-3 3.75a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM9 9.75a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 019 9.75zm3 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0112 9.75zM6 13.5a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 016 13.5zm3 0a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 019 13.5zm3 0a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM6 17.25a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm3 0a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm3 0a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM15 6.75a.75.75 0 01-1.5 0v1.5a.75.75 0 011.5 0V6.75z" clip-rule="evenodd" />
-                            </svg>
-                            <div class="mt-4 flex text-sm leading-6 text-gray-600">
-                                <label for="arquivo_csv" class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
-                                    <span>Selecione um arquivo</span>
-                                    <input id="arquivo_csv" name="arquivo_csv" type="file" class="sr-only" required accept=".csv">
-                                </label>
-                                <p class="pl-1">ou arraste e solte</p>
+                <div class="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-200 dark:border-gray-700 pb-10 md:grid-cols-2">
+                    
+                    <div>
+                        <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-white">1. Extrato do Banco</h2>
+                        <div id="dropzone-ofx" class="dropzone mt-2 flex justify-center rounded-lg border px-6 py-10 transition hover:border-brand-400 dark:hover:border-brand-500">
+                            <div class="text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12A2.25 2.25 0 0120.25 20.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
+                                </svg>
+                                <div class="mt-4 flex text-sm leading-6 text-gray-600 dark:text-gray-400">
+                                    <label for="arquivo_ofx" class="relative cursor-pointer rounded-md bg-white dark:bg-gray-800 font-semibold text-brand-600 dark:text-brand-400 focus-within:outline-none focus-within:ring-2 focus-within:ring-brand-600 dark:focus-within:ring-brand-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-800 hover:text-brand-500 transition-colors duration-200">
+                                        <span>Selecione um arquivo</span>
+                                        <input id="arquivo_ofx" name="arquivo_ofx" type="file" class="sr-only" required accept=".ofx">
+                                    </label>
+                                    <p class="pl-1">ou arraste e solte</p>
+                                </div>
+                                <p class="text-xs leading-5 text-gray-600 dark:text-gray-400">Arquivo .OFX</p>
+                                <p id="filename-ofx" class="mt-2 text-sm font-medium text-green-600 dark:text-green-400"></p>
                             </div>
-                            <p class="text-xs leading-5 text-gray-600">Arquivo .CSV</p>
-                            <p id="filename-csv" class="mt-2 text-sm font-medium text-green-600"></p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-white">2. Relatório do Gestor</h2>
+                        <div id="dropzone-csv" class="dropzone mt-2 flex justify-center rounded-lg border px-6 py-10 transition hover:border-brand-400 dark:hover:border-brand-500">
+                            <div class="text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M3 3.75A.75.75 0 013.75 3h16.5a.75.75 0 01.75.75v16.5a.75.75 0 01-.75.75H3.75a.75.75 0 01-.75-.75V3.75zM9 6a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V6.75A.75.75 0 019 6zm-3 3.75a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM9 9.75a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 019 9.75zm3 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0112 9.75zM6 13.5a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm3 0a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm3 0a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM6 17.25a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm3 0a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm3 0a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zM15 6.75a.75.75 0 01-1.5 0v1.5a.75.75 0 011.5 0V6.75z" clip-rule="evenodd" />
+                                </svg>
+                                <div class="mt-4 flex text-sm leading-6 text-gray-600 dark:text-gray-400">
+                                    <label for="arquivo_csv" class="relative cursor-pointer rounded-md bg-white dark:bg-gray-800 font-semibold text-brand-600 dark:text-brand-400 focus-within:outline-none focus-within:ring-2 focus-within:ring-brand-600 dark:focus-within:ring-brand-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-800 hover:text-brand-500 transition-colors duration-200">
+                                        <span>Selecione um arquivo</span>
+                                        <input id="arquivo_csv" name="arquivo_csv" type="file" class="sr-only" required accept=".csv">
+                                    </label>
+                                    <p class="pl-1">ou arraste e solte</p>
+                                </div>
+                                <p class="text-xs leading-5 text-gray-600 dark:text-gray-400">Arquivo .CSV</p>
+                                <p id="filename-csv" class="mt-2 text-sm font-medium text-green-600 dark:text-green-400"></p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Botão de Submissão -->
-            <div class="mt-6 flex items-center justify-end gap-x-6">
-                <button type="submit" class="w-full rounded-md bg-indigo-600 px-3 py-3 text-lg font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                    Processar e Salvar Conciliação
-                </button>
-            </div>
-        </form>
-    </div>
+                <div class="mt-6 flex items-center justify-end gap-x-6">
+                    <button type="submit" class="w-full rounded-md bg-brand-600 dark:bg-brand-500 px-3 py-3 text-lg font-semibold text-white shadow-sm hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+                        Processar e Salvar Conciliação
+                    </button>
+                </div>
+            </form>
+        </div>
 
-    <!-- Bloco de Erro -->
-    {% if error %}
-    <div class="mt-6 rounded-md bg-red-50 p-4">
-        <div class="flex">
-            <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
-            </div>
-            <div class="ml-3">
-                <h3 class="text-sm font-medium text-red-800">Ocorreu um erro ao processar os arquivos</h3>
-                <div class="mt-2 text-sm text-red-700">
-                    <p>{{ error }}</p>
+        {% if error %}
+        <div class="mt-6 rounded-md bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-700/50">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400 dark:text-red-300" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Ocorreu um erro ao processar os arquivos</h3>
+                    <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+                        <p>{{ error }}</p>
+                    </div>
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
-    {% endif %}
-</div>
 
-<!-- Script para feedback visual do nome do arquivo -->
 <script>
-    document.getElementById('arquivo_ofx').addEventListener('change', function(e){
-        var fileName = e.target.files[0].name;
-        document.getElementById('filename-ofx').textContent = 'Arquivo selecionado: ' + fileName;
+    // --- Lógica do Seletor de Data ---
+    const mesAnoDisplay = document.getElementById('mes_ano_referencia_display');
+    const mesAnoHidden = document.getElementById('mes_ano_referencia_hidden');
+    const datePickerDropdown = document.getElementById('date-picker-dropdown');
+    const currentYearSpan = document.getElementById('current-year');
+    const monthsGrid = document.getElementById('months-grid');
+    const prevYearBtn = document.getElementById('prev-year');
+    const nextYearBtn = document.getElementById('next-year');
+    const toggleDatePickerButton = document.getElementById('toggle-datepicker-button');
+
+    let currentYear;
+    const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+    function formatDisplayDate(year, monthIndex) {
+        return `${months[monthIndex]}/${year}`;
+    }
+
+    function renderMonths() {
+        monthsGrid.innerHTML = '';
+        const selectedValue = mesAnoHidden.value; // ex: "2023-10"
+        let selectedYear = null;
+        let selectedMonthIndex = null;
+
+        if (selectedValue && selectedValue.length === 7) {
+            selectedYear = parseInt(selectedValue.substring(0, 4));
+            selectedMonthIndex = parseInt(selectedValue.substring(5, 7)) - 1; // 0-indexed
+        }
+
+        months.forEach((month, index) => {
+            const monthDiv = document.createElement('button'); // Usar button para acessibilidade
+            monthDiv.type = 'button';
+            monthDiv.classList.add(
+                'p-3', 'text-center', 'rounded-md', 'cursor-pointer', 'font-medium',
+                'transition-colors', 'duration-150', 'ease-in-out',
+                'hover:bg-brand-100', 'hover:text-brand-700',
+                'focus:outline-none', 'focus:ring-2', 'focus:ring-brand-500',
+                'dark:hover:bg-gray-700', 'dark:hover:text-brand-300',
+                'dark:text-gray-300'
+            );
+            monthDiv.textContent = month;
+            monthDiv.dataset.monthIndex = index; // 0-indexed month
+            monthDiv.dataset.year = currentYear;
+
+            if (selectedYear === currentYear && selectedMonthIndex === index) {
+                monthDiv.classList.add('bg-brand-600', 'text-white', 'hover:bg-brand-700', 'dark:bg-brand-500', 'dark:hover:bg-brand-600');
+            } else {
+                monthDiv.classList.remove('bg-brand-600', 'text-white', 'hover:bg-brand-700', 'dark:bg-brand-500', 'dark:hover:bg-brand-600');
+            }
+            
+            monthDiv.addEventListener('click', selectMonth);
+            monthsGrid.appendChild(monthDiv);
+        });
+        currentYearSpan.textContent = currentYear;
+    }
+
+    function selectMonth(event) {
+        const monthIndex = parseInt(event.target.dataset.monthIndex);
+        const year = parseInt(event.target.dataset.year);
+        const formattedMonth = String(monthIndex + 1).padStart(2, '0'); // Convert to 1-indexed and pad
+
+        mesAnoDisplay.value = formatDisplayDate(year, monthIndex);
+        mesAnoHidden.value = `${year}-${formattedMonth}`;
+        
+        toggleDatePicker(); // Fecha o dropdown
+        // Nao precisa chamar renderMonths aqui, pois o dropdown vai fechar
+    }
+
+    function toggleDatePicker() {
+        datePickerDropdown.classList.toggle('hidden');
+        if (!datePickerDropdown.classList.contains('hidden')) {
+            const selectedValue = mesAnoHidden.value;
+            if (selectedValue && selectedValue.length === 7) {
+                currentYear = parseInt(selectedValue.substring(0, 4));
+            } else {
+                currentYear = new Date().getFullYear();
+            }
+            renderMonths(); 
+        }
+    }
+
+    // Event Listeners
+    mesAnoDisplay.addEventListener('click', toggleDatePicker);
+    toggleDatePickerButton.addEventListener('click', toggleDatePicker);
+    prevYearBtn.addEventListener('click', () => {
+        currentYear--;
+        renderMonths();
     });
-    document.getElementById('arquivo_csv').addEventListener('change', function(e){
-        var fileName = e.target.files[0].name;
-        document.getElementById('filename-csv').textContent = 'Arquivo selecionado: ' + fileName;
+    nextYearBtn.addEventListener('click', () => {
+        currentYear++;
+        renderMonths();
+    });
+
+    // Fecha o seletor de data ao clicar fora
+    document.addEventListener('click', function(event) {
+        if (!mesAnoDisplay.contains(event.target) && !toggleDatePickerButton.contains(event.target) && !datePickerDropdown.contains(event.target)) {
+            datePickerDropdown.classList.add('hidden');
+        }
+    });
+
+    // Inicializa o valor na carga da página
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date();
+        const initialMonthIndex = today.getMonth(); // 0-indexed
+        const initialYear = today.getFullYear();
+        
+        if (mesAnoHidden.value) {
+             const preSelectedYear = parseInt(mesAnoHidden.value.substring(0, 4));
+             const preSelectedMonthIndex = parseInt(mesAnoHidden.value.substring(5, 7)) - 1;
+             mesAnoDisplay.value = formatDisplayDate(preSelectedYear, preSelectedMonthIndex);
+             currentYear = preSelectedYear;
+        } else {
+            mesAnoDisplay.value = formatDisplayDate(initialYear, initialMonthIndex);
+            mesAnoHidden.value = `${initialYear}-${String(initialMonthIndex + 1).padStart(2, '0')}`;
+            currentYear = initialYear;
+        }
+        // renderMonths será chamado na primeira vez que o dropdown for aberto
+    });
+
+
+    // --- Lógica Dropzone (mantida e atualizada para Dark Mode) ---
+    function setupDropzone(inputId, filenameId, dropzoneId) {
+        const input = document.getElementById(inputId);
+        const filenameDisplay = document.getElementById(filenameId);
+        const dropzone = document.getElementById(dropzoneId);
+
+        input.addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : '';
+            filenameDisplay.textContent = fileName ? 'Arquivo selecionado: ' + fileName : '';
+            if (fileName) {
+                dropzone.classList.add('selected-file');
+                dropzone.classList.remove('highlight'); // Remove highlight if still there
+            } else {
+                dropzone.classList.remove('selected-file');
+            }
+        });
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, preventDefaults, false);
+            // Evitar que o browser abra o arquivo em uma nova aba
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => dropzone.classList.add('highlight'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => {
+                dropzone.classList.remove('highlight');
+            }, false);
+        });
+
+        dropzone.addEventListener('drop', function(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                input.files = files;
+                const changeEvent = new Event('change');
+                input.dispatchEvent(changeEvent);
+            }
+        }, false);
+
+        // Inicializa o feedback visual se já houver um arquivo (ex: após erro de submissão)
+        if (input.files.length > 0) {
+            filenameDisplay.textContent = 'Arquivo selecionado: ' + input.files[0].name;
+            dropzone.classList.add('selected-file');
+        }
+    }
+
+    // Call setupDropzone for each file input
+    document.addEventListener('DOMContentLoaded', function() {
+        setupDropzone('arquivo_ofx', 'filename-ofx', 'dropzone-ofx');
+        setupDropzone('arquivo_csv', 'filename-csv', 'dropzone-csv');
     });
 </script>
 {% endblock %}

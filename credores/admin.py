@@ -1,66 +1,118 @@
 # credores/admin.py
 
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import Credor, Pagamento
 
+# Personalização do cabeçalho e título do site de administração
+admin.site.site_header = "Painel Administrativo da Plataforma"
+admin.site.site_title = "Administração Financeira"
+admin.site.index_title = "Bem-vindo à Gestão do Sistema"
+
+
 class PagamentoInline(admin.TabularInline):
-    """Permite adicionar e ver pagamentos diretamente na página do Credor."""
+    """
+    Permite visualizar e adicionar pagamentos diretamente na página de um Credor.
+    Isso cria uma experiência de gestão muito mais integrada.
+    """
     model = Pagamento
-    extra = 1
-    fields = ('valor', 'data_pagamento', 'observacao', 'recibo')
-    readonly_fields = ('data_pagamento',)
+    extra = 1  # Mostra um formulário extra para adicionar um novo pagamento.
+    fields = ('data_pagamento', 'valor', 'observacao', 'recibo')
+    readonly_fields = ('data_registro',)
     ordering = ('-data_pagamento',)
+
 
 @admin.register(Credor)
 class CredorAdmin(admin.ModelAdmin):
-    """Configuração da interface de administração para Credores."""
-    # Adicionamos as novas colunas para uma visão mais completa
-    list_display = (
-        'nome', 
-        'valor_inicial', 
-        'get_total_juros',
-        'get_total_pagamentos', 
-        'get_saldo_devedor', 
-        'ativo',
-    )
-    search_fields = ('nome', 'email')
-    list_filter = ('ativo',)
+    """
+    Configuração avançada para a interface de administração do modelo Credor.
+    """
+    # Exibe os pagamentos como um bloco dentro da página do credor
     inlines = [PagamentoInline]
-    readonly_fields = ('get_total_pagamentos', 'get_total_juros', 'get_saldo_devedor')
-    
+
+    # Campos a serem exibidos na lista de credores
+    list_display = (
+        'nome',
+        'valor_inicial',
+        'display_total_juros', # Campo formatado
+        'display_total_pagamentos', # Campo formatado
+        'display_saldo_devedor', # Campo formatado
+        'status_da_divida' # Campo com ícone visual
+    )
+
+    # Adiciona um filtro na barra lateral para dívidas ativas/quitadas
+    list_filter = ('ativo',)
+
+    # Permite a busca por nome ou email do credor
+    search_fields = ('nome', 'email')
+
+    # Organiza os campos no formulário de edição em seções lógicas
     fieldsets = (
-        ('Informações do Credor', {
-            'fields': ('nome', 'email', 'telefone', 'ativo')
+        ('Informações Pessoais', {
+            'fields': ('nome', 'email', 'telefone')
         }),
         ('Detalhes da Dívida', {
-            'fields': ('valor_inicial', 'taxa_juros_mensal', 'descricao_divida')
+            'fields': ('descricao_divida', 'valor_inicial', 'taxa_juros_mensal', 'ativo')
         }),
-        ('Resumo Financeiro (Calculado)', {
-            'fields': ('get_total_juros', 'get_total_pagamentos', 'get_saldo_devedor')
+        ('Valores Calculados (Apenas Leitura)', {
+            'classes': ('collapse',), # Seção recolhida por padrão
+            'fields': ('data_criacao', 'juros_iniciais_aplicados', 'valor_atualizado_divida', 'saldo_devedor')
         }),
     )
 
-    # --- MÉTODOS ATUALIZADOS PARA USAR AS NOVAS PROPRIEDADES DO MODELO ---
-    
-    def get_total_pagamentos(self, obj):
-        # Correção: Usa a nova propriedade 'total_pagamentos'
-        return obj.total_pagamentos
-    get_total_pagamentos.short_description = 'Total Pago'
+    # Campos que são calculados e não devem ser editados manualmente
+    readonly_fields = (
+        'data_criacao', 'juros_iniciais_aplicados', 'valor_atualizado_divida',
+        'saldo_devedor', 'total_pagamentos', 'total_juros_gerados'
+    )
 
-    def get_total_juros(self, obj):
-        # Novo método para exibir os juros
-        return obj.total_juros_aplicados
-    get_total_juros.short_description = 'Juros Aplicados'
+    # Ações personalizadas que podem ser executadas na lista de credores
+    actions = ['marcar_como_quitado', 'marcar_como_ativo']
 
-    def get_saldo_devedor(self, obj):
-        # Usa a propriedade 'saldo_devedor' que já está correta
-        return obj.saldo_devedor
-    get_saldo_devedor.short_description = 'Saldo Devedor'
+    # Funções para formatar a exibição dos valores monetários e status
+    def display_total_juros(self, obj):
+        return f"R$ {obj.total_juros_gerados:.2f}"
+    display_total_juros.short_description = "Total Juros"
+
+    def display_total_pagamentos(self, obj):
+        return f"R$ {obj.total_pagamentos:.2f}"
+    display_total_pagamentos.short_description = "Total Pago"
+
+    def display_saldo_devedor(self, obj):
+        saldo = obj.saldo_devedor
+        cor = 'red' if saldo > 0 else 'green'
+        return format_html(f'<span style="color: {cor}; font-weight: bold;">R$ {saldo:.2f}</span>')
+    display_saldo_devedor.short_description = "Saldo Devedor"
+
+    def status_da_divida(self, obj):
+        if obj.ativo:
+            return format_html('<img src="/static/admin/img/icon-yes.svg" alt="Ativo"> Ativa')
+        else:
+            return format_html('<img src="/static/admin/img/icon-no.svg" alt="Quitado"> Quitada')
+    status_da_divida.short_description = 'Status'
+    status_da_divida.admin_order_field = 'ativo'
+
+    # Lógica para as ações em massa
+    def marcar_como_quitado(self, request, queryset):
+        rows_updated = queryset.update(ativo=False)
+        self.message_user(request, f"{rows_updated} dívida(s) foram marcadas como quitadas.")
+    marcar_como_quitado.short_description = "Marcar selecionadas como Quitadas"
+
+    def marcar_como_ativo(self, request, queryset):
+        rows_updated = queryset.update(ativo=True)
+        self.message_user(request, f"{rows_updated} dívida(s) foram marcadas como Ativas.")
+    marcar_como_ativo.short_description = "Marcar selecionadas como Ativas"
 
 
 @admin.register(Pagamento)
 class PagamentoAdmin(admin.ModelAdmin):
-    """Configuração da interface de administração para Pagamentos."""
-    list_display = ('credor', 'valor', 'data_pagamento')
-    search_fields = ('credor__nome',)
-    list_filter = ('data_pagamento',)
+    """
+    Configuração para a interface de administração do modelo Pagamento.
+    Útil para auditoria e visualização de todos os pagamentos do sistema.
+    """
+    list_display = ('credor', 'data_pagamento', 'valor', 'observacao', 'data_registro')
+    list_filter = ('data_pagamento', 'credor')
+    search_fields = ('credor__nome', 'observacao')
+    autocomplete_fields = ['credor'] # Facilita a seleção do credor
+    ordering = ('-data_pagamento',)
+

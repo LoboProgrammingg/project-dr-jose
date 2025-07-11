@@ -3,7 +3,7 @@
 from django.db import models
 from django.db.models import Sum
 from decimal import Decimal
-from django.utils import timezone # <-- IMPORTAÇÃO CORRIGIDA
+from django.utils import timezone
 
 class Credor(models.Model):
     nome = models.CharField(max_length=200, help_text="Nome completo do credor")
@@ -21,6 +21,12 @@ class Credor(models.Model):
         default=0.00,
         help_text="Taxa de juros mensal em porcentagem (ex: 1.00 para 1%)"
     )
+    juros_iniciais_aplicados = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=0.00, 
+        help_text="Juros calculados automaticamente no momento da criação da dívida"
+    )
     
     descricao_divida = models.TextField(help_text="Detalhes sobre a origem da dívida")
     data_criacao = models.DateTimeField(auto_now_add=True)
@@ -29,28 +35,34 @@ class Credor(models.Model):
     def __str__(self):
         return self.nome
 
-    # --- PROPRIEDADES CALCULADAS PARA MÁXIMA CLAREZA ---
+    # --- LÓGICA FINANCEIRA APRIMORADA E TRANSPARENTE ---
 
     @property
     def total_pagamentos(self) -> Decimal:
-        """SOMA APENAS OS PAGAMENTOS (valores positivos)."""
+        """SOMA APENAS OS PAGAMENTOS REAIS (valores positivos)."""
         soma = self.pagamentos.filter(valor__gt=0).aggregate(total=Sum('valor')).get('total')
         return soma or Decimal('0.00')
 
     @property
-    def total_juros_aplicados(self) -> Decimal:
-        """SOMA APENAS OS JUROS/TAXAS (valores negativos) e retorna como um número positivo."""
+    def total_juros_adicionais(self) -> Decimal:
+        """SOMA APENAS OS JUROS/TAXAS APLICADOS MANUALMENTE (valores negativos)."""
         soma = self.pagamentos.filter(valor__lt=0).aggregate(total=Sum('valor')).get('total')
         return abs(soma or Decimal('0.00'))
 
+    # --- NOVA PROPRIEDADE PARA UNIFICAR OS JUROS ---
+    @property
+    def total_juros_gerados(self) -> Decimal:
+        """Soma todos os juros: os iniciais e os adicionais."""
+        return self.juros_iniciais_aplicados + self.total_juros_adicionais
+
     @property
     def valor_atualizado_divida(self) -> Decimal:
-        """A dívida total: principal + juros."""
-        return self.valor_inicial + self.total_juros_aplicados
+        """A dívida total: principal + todos os juros."""
+        return self.valor_inicial + self.total_juros_gerados
 
     @property
     def saldo_devedor(self) -> Decimal:
-        """A lógica final e transparente: (Principal + Juros) - Pagamentos."""
+        """A lógica final e clara: (Principal + Todos os Juros) - Pagamentos."""
         return self.valor_atualizado_divida - self.total_pagamentos
 
     def aplicar_juros_mensal(self):
@@ -63,7 +75,6 @@ class Credor(models.Model):
         if valor_juros <= 0:
             return None
 
-        # Agora 'timezone.now()' funcionará corretamente
         juros_aplicados = Pagamento.objects.create(
             credor=self,
             valor=-valor_juros,

@@ -1,57 +1,254 @@
 {% extends "base.html" %}
 
 {% block title %}Histórico de Conciliações{% endblock %}
+
+{% block head_extra %}
+<style>
+    /* Definir variáveis CSS para cores da marca para uso em box-shadow (já deve estar no base.html) */
+    :root {
+        --brand-500-rgb: 99, 102, 241; /* brand-500 em RGB */
+        --brand-600-rgb: 79, 70, 229;  /* brand-600 em RGB */
+    }
+    .dark:root {
+        --brand-500-rgb: 139, 92, 246; /* brand-500 light (para dark mode) em RGB */
+        --brand-600-rgb: 124, 58, 237; /* brand-600 light (para dark mode) em RGB */
+    }
+
+    /* Animações (certifique-se de que estão no seu tailwind.config.js também, como no base.html) */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes popIn {
+        0% { transform: scale(0.95); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+    .animate-popIn { animation: popIn 0.3s ease-out forwards; }
+
+    /* Estilos para o select customizado do filtro (reafirmados aqui para clareza) */
+    .select-custom {
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem; /* py-3 px-4 */
+        font-size: 1rem; /* text-base */
+        line-height: 1.5rem; /* leading-normal */
+        color: #1f2937; /* text-gray-900 */
+        background-color: #ffffff;
+        border-width: 2px; /* border-2 */
+        border-color: #d1d5db; /* gray-300 */
+        border-radius: 0.5rem; /* rounded-lg */
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+        appearance: none; /* Remove seta padrão */
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3e%3cpath d='M7 8l3 3 3-3' stroke='%236B7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1.5em 1.5em;
+        transition: all 0.2s ease-in-out;
+    }
+    .dark .select-custom {
+        background-color: #1F2937; /* gray-800 */
+        color: #E5E7EB; /* gray-200 */
+        border-color: #4B5563; /* gray-700 */
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3e%3cpath d='M7 8l3 3 3-3' stroke='%239CA3AF' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
+    }
+    .select-custom:focus {
+        outline: none;
+        border-color: transparent;
+        box-shadow: 0 0 0 3px var(--brand-500-rgb, rgba(99, 102, 241, 0.5)), 0 0 0 2px var(--brand-600-rgb, #4f46e5);
+    }
+    .dark .select-custom:focus {
+        box-shadow: 0 0 0 3px var(--brand-500-rgb, rgba(139, 92, 246, 0.5)), 0 0 0 2px var(--brand-600-rgb, #8b5cf6);
+    }
+    .select-custom option {
+        color: #1f2937; /* Default text color */
+        background-color: #ffffff; /* Default background */
+    }
+    .dark .select-custom option {
+        color: #E5E7EB; /* Dark mode text color */
+        background-color: #1F2937; /* Dark mode background */
+    }
+</style>
+{% endblock %}
+
 {% block page_title %}Histórico de Conciliações{% endblock %}
+{% block page_subtitle %}Acesse qualquer conciliação realizada anteriormente para rever os detalhes.{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'conciliacao:pagina_upload' %}" class="inline-flex items-center gap-x-2 rounded-xl bg-brand-600 dark:bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-all duration-300 transform hover:-translate-y-0.5">
+        <svg class="-ml-0.5 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v2.5h-2.5a.75.75 0 000 1.5h2.5v2.5a.75.75 0 001.5 0v-2.5h2.5a.75.75 0 000-1.5h-2.5v-2.5z" clip-rule="evenodd" />
+        </svg>
+        Nova Conciliação
+    </a>
+{% endblock %}
+
 
 {% block content %}
-<div class="mx-auto max-w-7xl">
-    <div class="sm:flex sm:items-center">
-        <div class="sm:flex-auto">
-            <h1 class="text-2xl font-bold leading-6 text-gray-900">Histórico de Relatórios</h1>
-            <p class="mt-2 text-sm text-gray-700">Acesse qualquer conciliação realizada anteriormente para rever os detalhes.</p>
-        </div>
-        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-            <a href="{% url 'conciliacao:pagina_upload' %}" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                Iniciar Nova Conciliação
-            </a>
-        </div>
+<div class="space-y-8 animate-fadeIn"> {# Mais espaço entre os blocos #}
+
+    <div class="rounded-2xl bg-white dark:bg-gray-800 shadow-xl ring-1 ring-gray-900/5 dark:ring-white/5 p-6 transition-colors duration-300 animate-popIn">
+        <form method="GET" action="{% url 'conciliacao:lista_relatorios' %}" class="flex flex-col sm:flex-row items-end sm:items-center gap-6">
+            <div class="flex-grow w-full sm:w-auto">
+                <label for="mes_ano" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Filtrar por período de referência</label>
+                <div class="relative">
+                    <select name="mes_ano" id="mes_ano" class="select-custom" onchange="this.form.submit()">
+                        <option value="">-- Mostrar Todos os Relatórios --</option>
+                        {% for mes in meses_disponiveis %}
+                            <option value="{{ mes }}" {% if mes == mes_ano_selecionado %}selected{% endif %}>
+                                {{ mes }} {# Preservando o formato do mês do backend #}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            {% if mes_ano_selecionado %}
+            <div class="flex-shrink-0 w-full sm:w-auto">
+                <a href="{% url 'conciliacao:lista_relatorios' %}" class="inline-flex w-full justify-center items-center gap-x-2 rounded-xl bg-gray-100 dark:bg-gray-700 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-white/10 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 transform hover:-translate-y-0.5">
+                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
+                    Limpar Filtro
+                </a>
+            </div>
+            {% endif %}
+        </form>
     </div>
 
-    <div class="mt-8 flow-root">
-        <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-                    <table class="min-w-full divide-y divide-gray-300">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Data da Execução</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Mês/Ano de Referência</th>
-                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Executado Por</th>
-                                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                                    <span class="sr-only">Ver</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 bg-white">
-                            {% for relatorio in relatorios %}
-                            <tr>
-                                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ relatorio.data_execucao|date:"d/m/Y H:i" }}</td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ relatorio.mes_ano_referencia }}</td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ relatorio.executado_por.username|default:"N/A" }}</td>
-                                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                    <a href="{% url 'conciliacao:detalhe_relatorio' relatorio.pk %}" class="text-indigo-600 hover:text-indigo-900">Ver Detalhes<span class="sr-only">, {{ relatorio }}</span></a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center py-10 text-gray-500">Nenhum relatório de conciliação foi salvo ainda.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+    <div class="overflow-hidden shadow-xl ring-1 ring-black/5 dark:ring-white/10 rounded-2xl bg-white dark:bg-gray-800 transition-colors duration-300">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-white/10">
+            <thead class="bg-gray-50 dark:bg-white/5">
+                <tr>
+                    <th scope="col" class="py-3.5 pl-6 pr-3 text-left text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">Data da Execução</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">Mês de Referência</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider hidden md:table-cell">Executado Por</th> {# Esconder em telas pequenas #}
+                    <th scope="col" class="relative py-3.5 pl-3 pr-6">
+                        <span class="sr-only">Ações</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-white/10 bg-white dark:bg-gray-800">
+                {% for relatorio in relatorios %}
+                <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors duration-150">
+                    <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm font-medium text-gray-900 dark:text-white">{{ relatorio.data_execucao|date:"d/m/Y H:i" }}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-400 font-semibold">{{ relatorio.mes_ano_referencia }}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-400 hidden md:table-cell">{{ relatorio.executado_por.get_full_name|default:relatorio.executado_por.username|default:"N/A" }}</td>
+                    <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
+                        <a href="{% url 'conciliacao:detalhe_relatorio' relatorio.pk %}" class="text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 font-semibold transition-colors">Ver Detalhes<span class="sr-only">, {{ relatorio.mes_ano_referencia }}</span></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">
+                        <div class="text-center py-16 px-6 bg-white dark:bg-gray-800 transition-colors duration-300">
+                            <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                            </svg>
+                            <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
+                                {% if mes_ano_selecionado %}
+                                    Nenhum relatório encontrado
+                                {% else %}
+                                    Nenhum relatório aqui
+                                {% endif %}
+                            </h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                {% if mes_ano_selecionado %}
+                                    Tente selecionar outro período ou limpar o filtro.
+                                {% else %}
+                                    Comece por iniciar uma nova conciliação.
+                                {% endif %}
+                            </p>
+                            {% if not mes_ano_selecionado %}
+                            <div class="mt-6">
+                                <a href="{% url 'conciliacao:pagina_upload' %}" class="inline-flex items-center rounded-xl bg-brand-600 dark:bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-colors">
+                                    <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" /></svg>
+                                    Nova Conciliação
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# ======================= INÍCIO DA PAGINAÇÃO ======================= #}
+    {% if relatorios.has_other_pages %}
+    <div class="mt-6 flex items-center justify-between border-t border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 px-4 py-3 sm:px-6 rounded-2xl shadow-xl ring-1 ring-black/5 dark:ring-white/10">
+        <div class="flex flex-1 justify-between sm:hidden">
+            {% if relatorios.has_previous %}
+                <a href="?page={{ relatorios.previous_page_number }}{% if mes_ano_selecionado %}&mes_ano={{ mes_ano_selecionado }}{% endif %}" class="relative inline-flex items-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Anterior</a>
+            {% else %}
+                <span class="relative inline-flex items-center rounded-md border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-400 dark:text-gray-600 cursor-not-allowed">Anterior</span>
+            {% endif %}
+            {% if relatorios.has_next %}
+                <a href="?page={{ relatorios.next_page_number }}{% if mes_ano_selecionado %}&mes_ano={{ mes_ano_selecionado }}{% endif %}" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Próxima</a>
+            {% else %}
+                <span class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-400 dark:text-gray-600 cursor-not-allowed">Próxima</span>
+            {% endif %}
+        </div>
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700 dark:text-gray-400">
+                    Mostrando
+                    <span class="font-medium">{{ relatorios.start_index }}</span>
+                    a
+                    <span class="font-medium">{{ relatorios.end_index }}</span>
+                    de
+                    <span class="font-medium">{{ relatorios.paginator.count }}</span>
+                    resultados
+                </p>
+            </div>
+            <div>
+                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                    {# Botão Anterior #}
+                    {% if relatorios.has_previous %}
+                        <a href="?page={{ relatorios.previous_page_number }}{% if mes_ano_selecionado %}&mes_ano={{ mes_ano_selecionado }}{% endif %}" 
+                           class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 focus:z-20 focus:outline-offset-0 transition-colors">
+                            <span class="sr-only">Anterior</span>
+                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" /></svg>
+                        </a>
+                    {% else %}
+                        <span class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 dark:text-gray-600 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 bg-gray-50 dark:bg-gray-800 cursor-not-allowed">
+                            <span class="sr-only">Anterior</span>
+                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" /></svg>
+                        </span>
+                    {% endif %}
+
+                    {# Números das Páginas #}
+                    {% for i in relatorios.paginator.page_range %}
+                        {% if relatorios.number == i %}
+                            <a href="#" aria-current="page" class="relative z-10 inline-flex items-center bg-brand-600 dark:bg-brand-500 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-colors">
+                                {{ i }}
+                            </a>
+                        {% else %}
+                            <a href="?page={{ i }}{% if mes_ano_selecionado %}&mes_ano={{ mes_ano_selecionado }}{% endif %}" 
+                               class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 dark:text-gray-200 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 focus:z-20 focus:outline-offset-0 transition-colors">
+                                {{ i }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {# Botão Próxima #}
+                    {% if relatorios.has_next %}
+                        <a href="?page={{ relatorios.next_page_number }}{% if mes_ano_selecionado %}&mes_ano={{ mes_ano_selecionado }}{% endif %}" 
+                           class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 focus:z-20 focus:outline-offset-0 transition-colors">
+                            <span class="sr-only">Próxima</span>
+                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" /></svg>
+                        </a>
+                    {% else %}
+                        <span class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 dark:text-gray-600 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 bg-gray-50 dark:bg-gray-800 cursor-not-allowed">
+                            <span class="sr-only">Próxima</span>
+                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" /></svg>
+                        </span>
+                    {% endif %}
+                </nav>
             </div>
         </div>
     </div>
+    {% endif %}
+    {# ======================== FIM DA PAGINAÇÃO ========================= #}
 </div>
 {% endblock %}

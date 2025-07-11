@@ -1,83 +1,146 @@
 {% extends "base.html" %}
 
 {% block title %}Relatório de {{ relatorio.mes_ano_referencia }}{% endblock %}
+
+{% block head_extra %}
+<style>
+    /* Transições de cores para elementos adaptáveis ao tema */
+    .transition-colors-all {
+        transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out, fill 0.3s ease-in-out, stroke 0.3s ease-in-out;
+    }
+
+    /* Definir variáveis CSS para cores da marca para uso em box-shadow */
+    :root {
+        --brand-500-rgb: 99, 102, 241; /* brand-500 em RGB */
+        --brand-600-rgb: 79, 70, 229;  /* brand-600 em RGB */
+    }
+    .dark:root {
+        --brand-500-rgb: 139, 92, 246; /* brand-500 light (para dark mode) em RGB */
+        --brand-600-rgb: 124, 58, 237; /* brand-600 light (para dark mode) em RGB */
+    }
+
+    /* Animações */
+    @keyframes fadeInSlideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeInSlideUp {
+        animation: fadeInSlideUp 0.6s ease-out forwards;
+    }
+    @keyframes popIn {
+        0% { transform: scale(0.95); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-popIn {
+        animation: popIn 0.3s ease-out forwards;
+    }
+</style>
+{% endblock %}
+
 {% block page_title %}Detalhes da Conciliação{% endblock %}
+{% block page_subtitle %}Relatório detalhado para o período de {{ relatorio.mes_ano_referencia }}.{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'conciliacao:download_relatorio' relatorio.pk %}" class="inline-flex items-center gap-x-2 rounded-xl bg-brand-600 dark:bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-all duration-300 transform hover:-translate-y-0.5">
+        <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v4.59L7.3 9.24a.75.75 0 00-1.1 1.02l3.25 3.5a.75.75 0 001.1 0l3.25-3.5a.75.75 0 10-1.1-1.02l-1.95 2.1V6.75z" clip-rule="evenodd" /></svg>
+        Baixar Relatório (Excel)
+    </a>
+{% endblock %}
 
 {% block content %}
-<div class="mx-auto max-w-7xl">
-    <!-- Cabeçalho com informações e botão de download -->
-    <div class="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
-        <div>
-            <h2 class="text-2xl font-bold leading-7 text-gray-900">Relatório de Conciliação</h2>
-            <p class="mt-1 text-sm leading-6 text-gray-500">
-                Executado em {{ relatorio.data_execucao|date:"d/m/Y H:i" }} por {{ relatorio.executado_por.username|default:"N/A" }}
-            </p>
-        </div>
-        <div class="mt-3 sm:ml-4 sm:mt-0">
-            <a href="{% url 'conciliacao:download_relatorio' relatorio.pk %}" class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">
-                <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v4.59L7.3 9.24a.75.75 0 00-1.1 1.02l3.25 3.5a.75.75 0 001.1 0l3.25-3.5a.75.75 0 10-1.1-1.02l-1.95 2.1V6.75z" clip-rule="evenodd" /></svg>
-                Baixar Relatório (Excel)
-            </a>
-        </div>
-    </div>
+<div class="mx-auto max-w-7xl space-y-10 animate-fadeInSlideUp">
 
-    <!-- Resumo de KPIs do Relatório -->
-    <dl class="mx-auto mt-8 grid grid-cols-1 gap-px bg-gray-900/5 sm:grid-cols-2 lg:grid-cols-3">
-        <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 bg-white px-4 py-10 sm:px-6 xl:px-8">
-            <dt class="text-sm font-medium leading-6 text-gray-500">Divergências de Valor</dt>
-            <dd class="w-full flex-none text-3xl font-medium leading-10 tracking-tight text-red-600">{{ total_divergencias }}</dd>
+    {# O cabeçalho foi movido para os blocos page_title, page_subtitle e page_actions no base.html #}
+    {# Removido o div original para evitar duplicação e melhorar a estrutura #}
+
+    <nav class="mb-6">
+        <a href="{% url 'conciliacao:lista_relatorios' %}" class="inline-flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-brand-700 dark:hover:text-brand-300 font-semibold transition-colors group">
+            <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+            Voltar para Histórico de Conciliações
+        </a>
+    </nav>
+
+    <dl class="mx-auto grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 bg-gray-100 dark:bg-gray-900 rounded-2xl p-6 shadow-xl ring-1 ring-gray-900/5 dark:ring-white/5 animate-popIn">
+        <div class="flex flex-col items-start gap-y-2 bg-white dark:bg-gray-800 px-6 py-8 rounded-lg shadow-md transition-colors duration-300 transform hover:scale-[1.02]">
+            <dt class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">Total de Divergências</dt>
+            <dd class="text-4xl font-extrabold leading-10 tracking-tight text-red-600 dark:text-red-400">{{ total_divergencias }}</dd>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Transações com valores diferentes entre os relatórios.</p>
         </div>
-        <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 bg-white px-4 py-10 sm:px-6 xl:px-8">
-            <dt class="text-sm font-medium leading-6 text-gray-500">Pendentes no Banco</dt>
-            <dd class="w-full flex-none text-3xl font-medium leading-10 tracking-tight text-amber-600">{{ total_pendente_banco }}</dd>
+        <div class="flex flex-col items-start gap-y-2 bg-white dark:bg-gray-800 px-6 py-8 rounded-lg shadow-md transition-colors duration-300 transform hover:scale-[1.02]">
+            <dt class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">Pendentes no Banco</dt>
+            <dd class="text-4xl font-extrabold leading-10 tracking-tight text-orange-600 dark:text-orange-400">{{ total_pendente_banco }}</dd>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Transações que só apareceram no extrato bancário.</p>
         </div>
-        <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 bg-white px-4 py-10 sm:px-6 xl:px-8">
-            <dt class="text-sm font-medium leading-6 text-gray-500">Pendentes no Gestor</dt>
-            <dd class="w-full flex-none text-3xl font-medium leading-10 tracking-tight text-blue-600">{{ total_pendente_gestor }}</dd>
+        <div class="flex flex-col items-start gap-y-2 bg-white dark:bg-gray-800 px-6 py-8 rounded-lg shadow-md transition-colors duration-300 transform hover:scale-[1.02]">
+            <dt class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">Pendentes no Gestor</dt>
+            <dd class="text-4xl font-extrabold leading-10 tracking-tight text-blue-600 dark:text-blue-400">{{ total_pendente_gestor }}</dd>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Transações que só apareceram no relatório do gestor.</p>
         </div>
     </dl>
 
-    <!-- Tabela de Análise Detalhada -->
     <div class="mt-8 flow-root">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto shadow-xl ring-1 ring-black/5 dark:ring-white/10 rounded-2xl bg-white dark:bg-gray-800 transition-colors duration-300">
             <div class="inline-block min-w-full py-2 align-middle">
-                <table class="min-w-full divide-y divide-gray-300">
-                    <thead>
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-white/10">
+                    <thead class="bg-gray-50 dark:bg-white/5">
                         <tr>
-                            <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">Data</th>
-                            <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Histórico</th>
-                            <th class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Valor Banco</th>
-                            <th class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Valor Gestor</th>
-                            <th class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Diferença</th>
-                            <th class="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">Status</th>
+                            <th scope="col" class="py-3.5 pl-6 pr-3 text-left text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">Data</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">Histórico</th>
+                            <th scope="col" class="px-3 py-3.5 text-right text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider hidden sm:table-cell">Valor Banco</th>
+                            <th scope="col" class="px-3 py-3.5 text-right text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider hidden sm:table-cell">Valor Gestor</th>
+                            <th scope="col" class="px-3 py-3.5 text-right text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">Diferença</th>
+                            <th scope="col" class="px-3 py-3.5 text-center text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">Status</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
+                    <tbody class="divide-y divide-gray-200 dark:divide-white/10 bg-white dark:bg-gray-800">
                         {% for transacao in transacoes %}
-                        <tr class="
-                            {% if transacao.status == 'DIVERGÊNCIA DE VALOR' %} bg-red-50 hover:bg-red-100
-                            {% elif transacao.status == 'PENDENTE (APENAS NO BANCO)' %} bg-amber-50 hover:bg-amber-100
-                            {% elif transacao.status == 'PENDENTE (APENAS NO GESTOR)' %} bg-blue-50 hover:bg-blue-100
-                            {% else %} bg-white hover:bg-gray-50
+                        <tr class="transition-colors duration-150 
+                            {% if transacao.status == 'DIVERGÊNCIA DE VALOR' %} bg-red-50 dark:bg-red-900/[.15] hover:bg-red-100 dark:hover:bg-red-900/20
+                            {% elif transacao.status == 'PENDENTE (APENAS NO BANCO)' %} bg-orange-50 dark:bg-orange-900/[.15] hover:bg-orange-100 dark:hover:bg-orange-900/20
+                            {% elif transacao.status == 'PENDENTE (APENAS NO GESTOR)' %} bg-blue-50 dark:bg-blue-900/[.15] hover:bg-blue-100 dark:hover:bg-blue-900/20
+                            {% else %} bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700
                             {% endif %}
                         ">
-                            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-500">{{ transacao.data|date:"d/m/Y" }}</td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{{ transacao.historico|truncatechars:50 }}</td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">R$ {{ transacao.valor_banco|floatformat:2 }}</td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">R$ {{ transacao.valor_gestor|floatformat:2 }}</td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-right {% if transacao.diferenca != 0 %}text-red-600{% endif %}">
+                            <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm text-gray-600 dark:text-gray-300 font-medium">{{ transacao.data|date:"d/m/Y" }}</td>
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900 dark:text-white font-medium">{{ transacao.historico|truncatechars:60 }}</td>
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-300 text-right hidden sm:table-cell">R$ {{ transacao.valor_banco|floatformat:2 }}</td>
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-300 text-right hidden sm:table-cell">R$ {{ transacao.valor_gestor|floatformat:2 }}</td>
+                            <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-right transition-colors duration-150
+                                {% if transacao.diferenca != 0 %}text-red-600 dark:text-red-400{% else %}text-green-600 dark:text-green-400{% endif %}">
                                 R$ {{ transacao.diferenca|floatformat:2 }}
                             </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-center">
-                                <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset 
-                                    {% if transacao.status == 'DIVERGÊNCIA DE VALOR' %} bg-red-100 text-red-700 ring-red-600/20
-                                    {% elif transacao.status == 'PENDENTE (APENAS NO BANCO)' %} bg-amber-100 text-amber-800 ring-amber-600/20
-                                    {% elif transacao.status == 'PENDENTE (APENAS NO GESTOR)' %} bg-blue-100 text-blue-700 ring-blue-600/20
-                                    {% else %} bg-green-100 text-green-700 ring-green-600/20
+                            <td class="whitespace-nowrap px-3 py-4 text-center">
+                                <span class="inline-flex items-center rounded-md px-2.5 py-1 font-semibold text-xs ring-1 ring-inset transition-colors duration-150
+                                    {% if transacao.status == 'DIVERGÊNCIA DE VALOR' %} bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 ring-red-600/20 dark:ring-red-500/20
+                                    {% elif transacao.status == 'PENDENTE (APENAS NO BANCO)' %} bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 ring-orange-600/20 dark:ring-orange-500/20
+                                    {% elif transacao.status == 'PENDENTE (APENAS NO GESTOR)' %} bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 ring-blue-600/20 dark:ring-blue-500/20
+                                    {% else %} bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 ring-green-600/20 dark:ring-green-500/20
                                     {% endif %}
                                 ">
                                     {{ transacao.status }}
                                 </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6"> {# Atualizado colspan para 6 #}
+                                <div class="text-center py-16 px-6 bg-white dark:bg-gray-800 transition-colors duration-300">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                        <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                                    </svg>
+                                    <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
+                                        Nenhum dado de transação encontrado para este relatório.
+                                    </h3>
+                                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                        Verifique se os arquivos de conciliação foram processados corretamente.
+                                    </p>
+                                    <div class="mt-6">
+                                        <a href="{% url 'conciliacao:pagina_upload' %}" class="inline-flex items-center rounded-xl bg-brand-600 dark:bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-colors">
+                                            <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" /></svg>
+                                            Iniciar Nova Conciliação
+                                        </a>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}

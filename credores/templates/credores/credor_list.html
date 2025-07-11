@@ -1,68 +1,243 @@
 {% extends "base.html" %}
 
 {% block title %}Gestão de Credores{% endblock %}
+
+{% block head_extra %}
+<style>
+    /* Definir variáveis CSS para cores da marca para uso em box-shadow (já deve estar no base.html) */
+    :root {
+        --brand-500-rgb: 99, 102, 241; /* brand-500 em RGB */
+        --brand-600-rgb: 79, 70, 229;  /* brand-600 em RGB */
+    }
+    .dark:root {
+        --brand-500-rgb: 139, 92, 246; /* brand-500 light (para dark mode) em RGB */
+        --brand-600-rgb: 124, 58, 237; /* brand-600 light (para dark mode) em RGB */
+    }
+
+    /* Animações (certifique-se de que estão no seu tailwind.config.js também, como no base.html) */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes popIn {
+        0% { transform: scale(0.95); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+    .animate-popIn { animation: popIn 0.3s ease-out forwards; }
+
+    /* Estilos para o campo de input do filtro */
+    .filter-input {
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem; /* py-3 px-4 */
+        font-size: 1rem; /* text-base */
+        line-height: 1.5rem; /* leading-normal */
+        color: #1f2937; /* text-gray-900 */
+        background-color: #ffffff;
+        border-width: 2px; /* border-2 */
+        border-color: #d1d5db; /* border-gray-300 */
+        border-radius: 0.5rem; /* rounded-lg */
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+        transition: all 0.2s ease-in-out;
+    }
+    .dark .filter-input {
+        background-color: #1F2937; /* gray-800 */
+        color: #E5E7EB; /* gray-200 */
+        border-color: #4B5563; /* gray-700 */
+    }
+    .filter-input::placeholder {
+        color: #9CA3AF; /* gray-400 */
+    }
+    .dark .filter-input::placeholder {
+        color: #6B7280; /* gray-500 */
+    }
+    .filter-input:focus {
+        outline: none;
+        border-color: transparent;
+        box-shadow: 0 0 0 3px var(--brand-500-rgb, rgba(99, 102, 241, 0.5)), 0 0 0 2px var(--brand-600-rgb, #4f46e5);
+    }
+</style>
+{% endblock %}
+
 {% block page_title %}Painel de Gestão de Credores{% endblock %}
+{% block page_subtitle %}Visão geral de todas as dívidas e credores registrados no sistema.{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'credores:novo' %}" class="inline-flex items-center gap-x-2 rounded-xl bg-brand-600 dark:bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-all duration-300 transform hover:-translate-y-0.5">
+        <svg class="-ml-0.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v2.5h-2.5a.75.75 0 000 1.5h2.5v2.5a.75.75 0 001.5 0v-2.5h2.5a.75.75 0 000-1.5h-2.5v-2.5z" clip-rule="evenodd" />
+        </svg>
+        Adicionar Novo Credor
+    </a>
+{% endblock %}
 
 {% block content %}
-<div class="mx-auto max-w-7xl">
-    <!-- Cabeçalho da Página com Título e Botão de Ação -->
-    <div class="sm:flex sm:items-center">
-        <div class="sm:flex-auto">
-            <h1 class="text-2xl font-bold leading-6 text-gray-900">Credores</h1>
-            <p class="mt-2 text-sm text-gray-700">Visualize e gerencie todas as dívidas ativas e quitadas do sistema.</p>
-        </div>
-        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-            <a href="{% url 'credores:novo' %}" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                Adicionar Novo Credor
-            </a>
+<div class="mx-auto max-w-7xl space-y-12 animate-fadeIn">
+    <div>
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 dark:text-white mb-6">Visão Geral das Dívidas</h2>
+        <div class="mt-2 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="overflow-hidden rounded-xl bg-white dark:bg-gray-800 px-6 py-7 shadow-xl ring-1 ring-gray-900/5 dark:ring-white/5 transition-colors duration-300 transform hover:scale-[1.02] animate-popIn">
+                <dt class="truncate text-base font-medium text-gray-500 dark:text-gray-400 mb-2">Total Principal Ativo</dt>
+                <dd class="mt-1 text-4xl font-extrabold tracking-tight text-brand-600 dark:text-brand-400">R$ {{ valor_total_emprestado|floatformat:2 }}</dd>
+            </div>
+            <div class="overflow-hidden rounded-xl bg-white dark:bg-gray-800 px-6 py-7 shadow-xl ring-1 ring-gray-900/5 dark:ring-white/5 transition-colors duration-300 transform hover:scale-[1.02] animate-popIn">
+                <dt class="truncate text-base font-medium text-gray-500 dark:text-gray-400 mb-2">Total Juros Gerados Ativo</dt>
+                <dd class="mt-1 text-4xl font-extrabold tracking-tight text-green-600 dark:text-green-400">R$ {{ lucro_potencial|floatformat:2 }}</dd>
+            </div>
+            <div class="overflow-hidden rounded-xl bg-white dark:bg-gray-800 px-6 py-7 shadow-xl ring-1 ring-gray-900/5 dark:ring-white/5 transition-colors duration-300 transform hover:scale-[1.02] animate-popIn">
+                <dt class="truncate text-base font-medium text-gray-500 dark:text-gray-400 mb-2">Saldo Devedor Ativo</dt>
+                <dd class="mt-1 text-4xl font-extrabold tracking-tight text-red-600 dark:text-red-400">R$ {{ saldo_devedor_total|floatformat:2 }}</dd>
+            </div>
+            <div class="overflow-hidden rounded-xl bg-white dark:bg-gray-800 px-6 py-7 shadow-xl ring-1 ring-gray-900/5 dark:ring-white/5 transition-colors duration-300 transform hover:scale-[1.02] animate-popIn">
+                <dt class="truncate text-base font-medium text-gray-500 dark:text-gray-400 mb-2">Credores Ativos</dt>
+                <dd class="mt-1 text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">{{ total_credores_ativos }}</dd>
+            </div>
         </div>
     </div>
 
-    <!-- Tabela de Dados -->
-    <div class="mt-8 flow-root">
-        <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-                    <table class="min-w-full divide-y divide-gray-300">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Nome do Credor</th>
-                                <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Valor Inicial</th>
-                                <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Juros Aplicados</th>
-                                <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Total Pago</th>
-                                <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Saldo Devedor</th>
-                                <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">Status</th>
-                                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                                    <span class="sr-only">Ações</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200 bg-white">
-                            {% for credor in credores %}
-                            <tr>
-                                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ credor.nome }}</td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">R$ {{ credor.valor_inicial|floatformat:2 }}</td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-red-600 text-right">R$ {{ credor.total_juros_aplicados|floatformat:2 }}</td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-green-600 text-right">R$ {{ credor.total_pagamentos|floatformat:2 }}</td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-gray-900 text-right">R$ {{ credor.saldo_devedor|floatformat:2 }}</td>
-                                <td class="whitespace-nowrap px-3 py-4 text-sm text-center">
-                                    {% if credor.ativo %}
-                                        <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Ativo</span>
-                                    {% else %}
-                                        <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">Quitado</span>
-                                    {% endif %}
-                                </td>
-                                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                    <a href="{% url 'credores:detalhe' credor.pk %}" class="text-indigo-600 hover:text-indigo-900">Ver Detalhes</a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="7" class="text-center py-10 text-gray-500">Nenhum credor cadastrado ainda.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+    <div x-data="{ activeTab: 'ativas' }" class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl ring-1 ring-gray-900/5 dark:ring-white/5 p-6 space-y-8 transition-colors duration-300">
+        <div class="border-b border-gray-200 dark:border-gray-700">
+            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                <button @click="activeTab = 'ativas'" :class="{'border-brand-500 text-brand-600 dark:border-brand-400 dark:text-brand-300': activeTab === 'ativas', 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-300': activeTab !== 'ativas'}" 
+                        class="whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors duration-200"
+                        aria-current="page">
+                    Dívidas Ativas
+                </button>
+                <button @click="activeTab = 'quitadas'" :class="{'border-brand-500 text-brand-600 dark:border-brand-400 dark:text-brand-300': activeTab === 'quitadas', 'border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-700 dark:hover:text-gray-300': activeTab !== 'quitadas'}" 
+                        class="whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium transition-colors duration-200">
+                    Dívidas Quitadas
+                </button>
+            </nav>
+        </div>
+
+        <div x-show="activeTab === 'ativas'" class="space-y-8 animate-fadeIn">
+            <h2 class="text-xl font-bold leading-6 text-gray-900 dark:text-white">Dívidas Ativas</h2>
+            <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">Dívidas que ainda possuem saldo devedor e requerem acompanhamento.</p>
+
+            <div class="rounded-xl bg-white dark:bg-gray-700 shadow-lg ring-1 ring-gray-900/5 dark:ring-white/10 p-6 transition-colors duration-300 animate-popIn">
+                <form method="GET" action="{% url 'credores:lista' %}" class="flex flex-col sm:flex-row items-end sm:items-center gap-4">
+                    <div class="flex-grow w-full sm:w-auto">
+                        <label for="credor_nome_filter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Filtrar por nome do credor</label>
+                        <input type="text" name="nome" id="credor_nome_filter" placeholder="Pesquisar credor..."
+                               value="{{ request.GET.nome|default:'' }}"
+                               class="filter-input">
+                    </div>
+                    <div class="flex-shrink-0 flex gap-2 w-full sm:w-auto">
+                        <button type="submit" class="inline-flex w-full justify-center sm:w-auto items-center gap-x-2 rounded-xl bg-brand-600 dark:bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-colors">
+                            <svg class="-ml-0.5 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                            </svg>
+                            Filtrar
+                        </button>
+                        {% if request.GET.nome %}
+                        <a href="{% url 'credores:lista' %}" class="inline-flex w-full justify-center sm:w-auto items-center gap-x-1 rounded-xl bg-gray-100 dark:bg-gray-700 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-white/10 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
+                            Limpar
+                        </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+
+            <div class="mt-8 flow-root">
+                <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                        <div class="overflow-hidden shadow-xl ring-1 ring-black/5 dark:ring-white/10 sm:rounded-lg bg-white dark:bg-gray-800 transition-colors duration-300">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-white/10">
+                                <thead class="bg-gray-50 dark:bg-white/5">
+                                    <tr>
+                                        <th scope="col" class="py-3.5 pl-6 pr-3 text-left text-sm font-extrabold text-gray-900 dark:text-white uppercase sm:pl-6">Nome do Credor</th>
+                                        <th scope="col" class="px-3 py-3.5 text-right text-sm font-extrabold text-gray-900 dark:text-white uppercase hidden sm:table-cell">Valor Inicial</th>
+                                        <th scope="col" class="px-3 py-3.5 text-right text-sm font-extrabold text-gray-900 dark:text-white uppercase hidden md:table-cell">Total Juros</th>
+                                        <th scope="col" class="px-3 py-3.5 text-right text-sm font-extrabold text-gray-900 dark:text-white uppercase hidden md:table-cell">Total Pago</th>
+                                        <th scope="col" class="px-3 py-3.5 text-right text-sm font-extrabold text-gray-900 dark:text-white uppercase">Saldo Devedor</th>
+                                        <th scope="col" class="relative py-3.5 pl-3 pr-6"><span class="sr-only">Ações</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 dark:divide-white/10 bg-white dark:bg-gray-800">
+                                    {% for credor in credores_ativos %}
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                        <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6">{{ credor.nome }}</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-300 text-right hidden sm:table-cell">R$ {{ credor.valor_inicial|floatformat:2 }}</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-orange-600 dark:text-orange-400 text-right hidden md:table-cell">R$ {{ credor.total_juros_gerados|floatformat:2 }}</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-green-600 dark:text-green-400 text-right hidden md:table-cell">R$ {{ credor.total_pagamentos|floatformat:2 }}</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-red-600 dark:text-red-400 text-right">R$ {{ credor.saldo_devedor|floatformat:2 }}</td>
+                                        <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
+                                            <a href="{% url 'credores:detalhe' credor.pk %}" class="text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 transition-colors">Ver Detalhes<span class="sr-only">, {{ credor.nome }}</span></a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6"> {# Updated colspan for 6 columns #}
+                                            <div class="text-center py-16 px-6 bg-white dark:bg-gray-800 transition-colors duration-300">
+                                                <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                                    <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                                                </svg>
+                                                <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">Nenhuma dívida ativa encontrada.</h3>
+                                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Comece adicionando um novo credor para gerenciar suas dívidas.</p>
+                                                <div class="mt-6">
+                                                    <a href="{% url 'credores:novo' %}" class="inline-flex items-center rounded-xl bg-brand-600 dark:bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-colors">
+                                                        <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" /></svg>
+                                                        Adicionar Novo Credor
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="activeTab === 'quitadas'" class="space-y-8 animate-fadeIn">
+            <h2 class="text-xl font-bold leading-6 text-gray-900 dark:text-white">Histórico de Dívidas Quitadas</h2>
+            <p class="mt-2 text-sm text-gray-700 dark:text-gray-400">Consulta de dívidas que já foram completamente pagas.</p>
+
+            <div class="mt-8 flow-root">
+                <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                        <div class="overflow-hidden shadow-xl ring-1 ring-black/5 dark:ring-white/10 sm:rounded-lg bg-white dark:bg-gray-800 transition-colors duration-300">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-white/10">
+                                <thead class="bg-gray-50 dark:bg-white/5">
+                                    <tr>
+                                        <th scope="col" class="py-3.5 pl-6 pr-3 text-left text-sm font-extrabold text-gray-900 dark:text-white uppercase sm:pl-6">Nome do Credor</th>
+                                        <th scope="col" class="px-3 py-3.5 text-right text-sm font-extrabold text-gray-900 dark:text-white uppercase hidden sm:table-cell">Valor Final Pago</th>
+                                        <th scope="col" class="px-3 py-3.5 text-right text-sm font-extrabold text-gray-900 dark:text-white uppercase hidden md:table-cell">Total Juros Pagos</th>
+                                        <th scope="col" class="relative py-3.5 pl-3 pr-6"><span class="sr-only">Ações</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 dark:divide-white/10 bg-white dark:bg-gray-800">
+                                    {% for credor in credores_quitados %}
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                        <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6">{{ credor.nome }}</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-green-600 dark:text-green-400 text-right hidden sm:table-cell">R$ {{ credor.total_pagamentos|floatformat:2 }}</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-orange-600 dark:text-orange-400 text-right hidden md:table-cell">R$ {{ credor.total_juros_gerados|floatformat:2 }}</td>
+                                        <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
+                                            <a href="{% url 'credores:detalhe' credor.pk %}" class="text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 transition-colors">Ver Detalhes<span class="sr-only">, {{ credor.nome }}</span></a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4"> {# Updated colspan for 4 columns #}
+                                            <div class="text-center py-16 px-6 bg-white dark:bg-gray-800 transition-colors duration-300">
+                                                <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                                    <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                                                </svg>
+                                                <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">Nenhuma dívida quitada registrada no histórico.</h3>
+                                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Quando uma dívida for paga integralmente, ela aparecerá aqui.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

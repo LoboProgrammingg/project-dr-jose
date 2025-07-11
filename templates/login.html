@@ -1,58 +1,167 @@
-<!-- templates/login.html -->
 <!DOCTYPE html>
-<html lang="pt-br" class="h-full bg-gray-100">
+<html lang="pt-br" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Gestão PRO</title>
+    <title>Login - Gestão Dr.José</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        // Configuração do Tailwind CSS
+        tailwind.config = {
+            darkMode: 'class', // Habilita o dark mode baseado na classe 'dark' no HTML
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-500': '#6366f1', // Mantido, mas vamos usar 'brand' se possível
+                        'primary-600': '#4f46e5',
+                        'primary-700': '#4338ca',
+                        
+                        // Sua paleta de cores 'brand' do base.html
+                        'brand': {
+                            50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc', 400: '#818cf8',
+                            500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 800: '#3730a3', 900: '#312e81', 950: '#1e1b4b'
+                        },
+                        // Cores de cinza para dark mode, se necessário customizar além do default Tailwind
+                        'gray': {
+                            50: '#F9FAFB', 100: '#F3F4F6', 200: '#E5E7EB', 300: '#D1D5DB', 400: '#9CA3AF',
+                            500: '#6B7280', 600: '#4B5563', 700: '#374151', 800: '#1F2937', 900: '#111827', 950: '#030712'
+                        }
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+                    },
+                    boxShadow: { // Adicionado para sombras mais ricas
+                        '3xl': '0 35px 60px -15px rgba(0, 0, 0, 0.3)',
+                        'soft-xl': '0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* CSS para garantir transições suaves ao mudar o tema */
+        body {
+            transition: background-color 0.3s ease-in-out;
+        }
+        .transition-colors-all {
+            transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out, fill 0.3s ease-in-out, stroke 0.3s ease-in-out;
+        }
+
+        /* Opcional: Apenas se você quiser aplicar dark mode via JS antes do Alpine.js */
+        /*
+        html.dark body {
+            background-color: #030712; 
+        }
+        */
+    </style>
 </head>
-<body class="flex items-center justify-center h-full">
-    <div class="w-full max-w-md">
-        <div class="bg-white shadow-md rounded-xl px-8 pt-6 pb-8 mb-4">
-            <div class="mb-6 text-center">
-                <h1 class="text-3xl font-bold text-gray-800">Gestão PRO</h1>
-                <p class="text-gray-500">Acesse sua conta para continuar</p>
+<body class="flex items-center justify-center min-h-screen bg-gradient-to-br from-brand-500 to-brand-700 p-4 sm:p-6 lg:p-8 font-sans transition-colors-all">
+
+    <div class="w-full max-w-md animate-fade-in-up">
+        <div class="bg-white dark:bg-gray-900 shadow-2xl rounded-2xl p-8 sm:p-10 transform transition-all duration-300 hover:scale-[1.01] ring-1 ring-gray-900/5 dark:ring-white/10">
+            
+            <div class="mb-8 text-center">
+                <svg class="mx-auto h-16 w-16 text-brand-600 dark:text-brand-400 mb-4 transform transition-transform duration-300 hover:rotate-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                <h1 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-2">Gestão Dr.José</h1>
+                <p class="text-gray-500 dark:text-gray-400 text-lg">Acesse sua conta para continuar</p>
             </div>
 
-            <form method="post">
+            <form method="post" class="space-y-6">
                 {% csrf_token %}
                 
                 {% if form.non_field_errors %}
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                        {% for error in form.non_field_errors %}
-                            <span class="block sm:inline">{{ error }}</span>
-                        {% endfor %}
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/50 text-red-700 dark:text-red-200 p-4 rounded-lg flex items-center shadow-sm transition-colors-all" role="alert">
+                        <svg class="h-5 w-5 text-red-500 dark:text-red-300 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                        </svg>
+                        <div>
+                            {% for error in form.non_field_errors %}
+                                <p class="text-sm font-medium">{{ error }}</p>
+                            {% endfor %}
+                        </div>
                     </div>
                 {% endif %}
 
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="id_username">
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-semibold mb-2 transition-colors-all" for="id_username">
                         Usuário
                     </label>
-                    <input class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline {% if form.username.errors %}border-red-500{% endif %}" 
-                           id="id_username" 
-                           type="text" 
-                           name="username"
-                           placeholder="Seu nome de usuário">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400 dark:text-gray-500 transition-colors-all" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <input class="block w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-700 placeholder-gray-400 dark:placeholder-gray-600 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition duration-200 {% if form.username.errors %}border-red-500 focus:border-red-500 dark:border-red-400 dark:focus:border-red-400{% endif %}" 
+                            id="id_username" 
+                            type="text" 
+                            name="username"
+                            placeholder="Seu nome de usuário"
+                            autocomplete="username"
+                            required>
+                    </div>
+                    {% if form.username.errors %}
+                        <p class="text-red-500 dark:text-red-400 text-xs italic mt-2">
+                            {% for error in form.username.errors %}{{ error }}{% endfor %}
+                        </p>
+                    {% endif %}
                 </div>
-                <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="id_password">
+
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-300 text-sm font-semibold mb-2 transition-colors-all" for="id_password">
                         Senha
                     </label>
-                    <input class="shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline {% if form.password.errors %}border-red-500{% endif %}" 
-                           id="id_password" 
-                           type="password"
-                           name="password"
-                           placeholder="******************">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400 dark:text-gray-500 transition-colors-all" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 8V5a2 2 0 00-2-2H4a2 2 0 00-2 2v3m16 0h.286a.714.714 0 01.714.714v6.572A.714.714 0 0118.286 16H1.714A.714.714 0 011 15.286V8.714A.714.714 0 011.714 8H2m16 0s2-1.5 2-3V5a2 2 0 00-2-2H4a2 2 0 00-2 2v3m16 0h.286a.714.714 0 01.714.714v6.572A.714.714 0 0118.286 16H1.714A.714.714 0 011 15.286V8.714A.714.714 0 011.714 8H2m16 0v2.714A.714.714 0 0118.286 11.428H1.714A.714.714 0 011 10.714V8M4 9h12v4H4V9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <input class="block w-full pl-10 pr-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-700 placeholder-gray-400 dark:placeholder-gray-600 text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition duration-200 {% if form.password.errors %}border-red-500 focus:border-red-500 dark:border-red-400 dark:focus:border-red-400{% endif %}" 
+                            id="id_password" 
+                            type="password"
+                            name="password"
+                            placeholder="*************"
+                            autocomplete="current-password"
+                            required>
+                    </div>
+                    {% if form.password.errors %}
+                        <p class="text-red-500 dark:text-red-400 text-xs italic mt-2">
+                            {% for error in form.password.errors %}{{ error }}{% endfor %}
+                        </p>
+                    {% endif %}
                 </div>
-                <div class="flex items-center justify-between">
-                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full" type="submit">
-                        Entrar
+
+                <div class="flex items-center justify-between mt-8">
+                    <button class="bg-brand-600 dark:bg-brand-500 hover:bg-brand-700 dark:hover:bg-brand-600 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 w-full transition-all duration-300 transform hover:scale-105" 
+                            type="submit">
+                        <span class="flex items-center justify-center">
+                            <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 1a.75.75 0 01.75.75V4h-.5V1.75A.75.75 0 0110 1zM7.25 2.5a.75.75 0 00-1.5 0v.5h-1V2.5A.75.75 0 003.5 3.25V5h-1a.75.75 0 00-.75.75v1.5a.75.75 0 00.75.75h1v1.5a.75.75 0 00.75.75h1.5a.75.75 0 00.75-.75V7.5h1.5A.75.75 0 0013.5 7.25V6.5h1.5a.75.75 0 00.75-.75v-1.5A.75.75 0 0015.75 4h-1.5V3.25a.75.75 0 00-.75-.75h-1V2.5a.75.75 0 00-1.5 0v.5h-1V2.5z" clip-rule="evenodd" />
+                            </svg>
+                            Entrar
+                        </span>
                     </button>
+                </div>
+
+                <div class="text-center mt-6">
+                    <a href="#" class="inline-block align-baseline font-semibold text-sm text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 hover:underline transition-colors duration-200">
+                        Esqueceu sua senha?
+                    </a>
                 </div>
             </form>
         </div>
     </div>
-</body>
+    
+    </body>
 </html>

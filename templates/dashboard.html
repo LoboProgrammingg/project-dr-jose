@@ -1,187 +1,195 @@
 {% extends "base.html" %}
+{% load static humanize %}
 
 {% block title %}Dashboard{% endblock %}
-{% block page_title %}Dashboard Analítico{% endblock %}
+
+{% block page_title %}Bem-vindo de volta, {{ user.get_full_name|default:user.username }}!{% endblock %}
+{% block page_subtitle %}Visão geral e estratégica da saúde financeira do seu sistema.{% endblock %}
+
+{% block page_actions %}
+    <a href="{% url 'conciliacao:pagina_upload' %}" class="inline-flex items-center gap-x-2 rounded-md bg-brand-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-colors duration-200">
+        <svg class="-ml-0.5 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" /></svg>
+        Nova Conciliação
+    </a>
+{% endblock %}
 
 {% block content %}
-<div class="space-y-12">
-    <!-- Cabeçalho de Boas-Vindas -->
-    <div>
-        <h1 class="text-3xl font-bold tracking-tight text-gray-900">Bem-vindo de volta, {{ user.username }}!</h1>
-        <p class="mt-2 text-lg text-gray-600">Este é o seu painel de controle com insights sobre a saúde financeira do sistema.</p>
-    </div>
+<div class="space-y-8">
 
-    <!-- Cards de Estatísticas (KPIs) -->
-    <div>
-        <h2 class="text-base font-semibold leading-6 text-gray-900">Visão Geral Estratégica</h2>
-        <div class="mt-2 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
-            <!-- Card: Total Emprestado -->
-            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm ring-1 ring-black ring-opacity-5 sm:p-6">
-                <dt class="truncate text-sm font-medium text-gray-500">Total Emprestado (Principal)</dt>
-                <dd class="mt-1 text-3xl font-semibold tracking-tight text-blue-600">R$ {{ valor_total_emprestado|floatformat:2 }}</dd>
-            </div>
-            <!-- Card: Retorno Esperado -->
-            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm ring-1 ring-black ring-opacity-5 sm:p-6">
-                <dt class="truncate text-sm font-medium text-gray-500">Retorno Total Esperado</dt>
-                <dd class="mt-1 text-3xl font-semibold tracking-tight text-indigo-600">R$ {{ retorno_total_esperado|floatformat:2 }}</dd>
-            </div>
-            <!-- Card: Lucro Potencial -->
-            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm ring-1 ring-black ring-opacity-5 sm:p-6">
-                <dt class="truncate text-sm font-medium text-gray-500">Lucro Potencial (Juros)</dt>
-                <dd class="mt-1 text-3xl font-semibold tracking-tight text-green-600">R$ {{ lucro_potencial|floatformat:2 }}</dd>
-            </div>
-            <!-- Card: Saldo Devedor Total -->
-            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm ring-1 ring-black ring-opacity-5 sm:p-6">
-                <dt class="truncate text-sm font-medium text-gray-500">Saldo Devedor Atual</dt>
-                <dd class="mt-1 text-3xl font-semibold tracking-tight text-red-600">R$ {{ saldo_devedor_total|floatformat:2 }}</dd>
-            </div>
-            <!-- Card: Credores Ativos -->
-            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow-sm ring-1 ring-black ring-opacity-5 sm:p-6">
-                <dt class="truncate text-sm font-medium text-gray-500">Credores Ativos</dt>
-                <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ total_credores_ativos }}</dd>
-            </div>
+    <!-- Seção de KPIs -->
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div class="group relative flex flex-col items-center justify-center rounded-xl p-6 text-center transition-all duration-300 bg-gradient-to-br from-red-50 to-white dark:from-red-950/50 dark:to-gray-900 ring-1 ring-red-200/50 dark:ring-red-800/50 hover:ring-red-500 hover:shadow-2xl hover:shadow-red-500/10 hover:scale-105">
+            <div class="mb-4 text-red-500 dark:text-red-400"><svg class="h-12 w-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15A2.25 2.25 0 0 0 2.25 6.75v10.5A2.25 2.25 0 0 0 4.5 21Z" /></svg></div>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Saldo Devedor Total</p>
+            <p class="mt-1 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">R$ {{ saldo_devedor_total|intcomma }}</p>
+        </div>
+        <div class="group relative flex flex-col items-center justify-center rounded-xl p-6 text-center transition-all duration-300 bg-gradient-to-br from-green-50 to-white dark:from-green-950/50 dark:to-gray-900 ring-1 ring-green-200/50 dark:ring-green-800/50 hover:ring-green-500 hover:shadow-2xl hover:shadow-green-500/10 hover:scale-105">
+            <div class="mb-4 text-green-500 dark:text-green-400"><svg class="h-12 w-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg></div>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Lucro Potencial (Juros )</p>
+            <p class="mt-1 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">R$ {{ lucro_potencial|intcomma }}</p>
+        </div>
+        <div class="group relative flex flex-col items-center justify-center rounded-xl p-6 text-center transition-all duration-300 bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/50 dark:to-gray-900 ring-1 ring-blue-200/50 dark:ring-blue-800/50 hover:ring-blue-500 hover:shadow-2xl hover:shadow-blue-500/10 hover:scale-105">
+            <div class="mb-4 text-blue-500 dark:text-blue-400"><svg class="h-12 w-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m-7.512 2.72a3 3 0 0 1-4.682-2.72M12 18.72V15m0 3.72a9.094 9.094 0 0 1-3.741-.479 3 3 0 0 1-4.682-2.72M12 3c-1.818 0-3.516.455-5.012 1.255a3 3 0 0 0-2.976 2.732A9.05 9.05 0 0 0 5.472 9.75c1.144-.324 2.342-.479 3.528-.479m4.5 0c1.186 0 2.384.155 3.528.479a9.05 9.05 0 0 0 2.976-2.758 3 3 0 0 0-2.976-2.732A9.09 9.09 0 0 0 12 3Z" /></svg></div>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Credores Ativos</p>
+            <p class="mt-1 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">{{ total_credores_ativos }}</p>
         </div>
     </div>
 
     <!-- Seção de Gráficos -->
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <!-- Gráfico 1: Top 5 Credores (Prioridade) -->
-        <div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-black ring-opacity-5 lg:col-span-2">
-            <h3 class="text-base font-semibold leading-6 text-gray-900">Onde Focar: Top 5 Credores por Saldo Devedor</h3>
-            <div class="mt-4 h-80">
-                <canvas id="topCredoresChart"></canvas>
+        <div class="rounded-xl bg-white dark:bg-gray-900/50 p-6 shadow-lg ring-1 ring-black/5 dark:ring-white/10 lg:col-span-3">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">Performance de Fluxo de Caixa Mensal</h3>
             </div>
+            <div class="mt-6 h-80"><canvas id="fluxoMensalChart"></canvas></div>
         </div>
-        <!-- Gráfico 3: Composição da Dívida (Estratégia) -->
-        <div class="rounded-lg bg-white p-6 shadow-sm ring-1 ring-black ring-opacity-5">
-            <h3 class="text-base font-semibold leading-6 text-gray-900">Estratégia: Composição da Dívida</h3>
-            <div class="mt-4 h-80">
-                <canvas id="composicaoChart"></canvas>
+        <div class="rounded-xl bg-white dark:bg-gray-900/50 p-6 shadow-lg ring-1 ring-black/5 dark:ring-white/10 lg:col-span-1">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">Composição da Dívida</h3>
             </div>
+            <div class="mt-6 h-80"><canvas id="composicaoChart"></canvas></div>
+        </div>
+        <div class="rounded-xl bg-white dark:bg-gray-900/50 p-6 shadow-lg ring-1 ring-black/5 dark:ring-white/10 lg:col-span-2">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">Top 5 Credores por Saldo Devedor</h3>
+            </div>
+            <div class="mt-6 h-80"><canvas id="topCredoresChart"></canvas></div>
         </div>
     </div>
-    
-    <!-- Gráfico 2: Fluxo Mensal (Performance) -->
-    <div class="mt-8 rounded-lg bg-white p-6 shadow-sm ring-1 ring-black ring-opacity-5">
-        <h3 class="text-base font-semibold leading-6 text-gray-900">Performance: Fluxo Mensal (Pagamentos vs. Juros)</h3>
-        <div class="mt-4 h-80">
-            <canvas id="fluxoMensalChart"></canvas>
-        </div>
-    </div>
-
 </div>
+{% endblock %}
 
-<!-- Inclusão da biblioteca Chart.js e do plugin de datalabels -->
+{% block body_extra %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
-
-<!-- Script para renderizar os gráficos -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Registra o plugin de datalabels globalmente
+    document.addEventListener('DOMContentLoaded', function ( ) {
         Chart.register(ChartDataLabels);
         
-        // Função para formatar valores como moeda brasileira
         const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        
+        let isDarkMode = document.documentElement.classList.contains('dark');
+        const observer = new MutationObserver(() => {
+            isDarkMode = document.documentElement.classList.contains('dark');
+            updateAllChartsTheme();
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
-        // --- GRÁFICO 1: TOP 5 CREDORES (Barras Horizontais) ---
-        const topCredoresCtx = document.getElementById('topCredoresChart').getContext('2d');
-        new Chart(topCredoresCtx, {
-            type: 'bar',
-            data: {
-                labels: JSON.parse('{{ top_credores_labels_json|safe }}'),
-                datasets: [{
-                    label: 'Saldo Devedor',
-                    data: JSON.parse('{{ top_credores_valores_json|safe }}'),
-                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                    borderColor: 'rgba(37, 99, 235, 1)',
-                    borderWidth: 1,
-                    borderRadius: 4,
-                }]
-            },
-            options: {
-                indexAxis: 'y', // Torna o gráfico de barras horizontal
-                responsive: true, maintainAspectRatio: false,
-                scales: { x: { beginAtZero: true, ticks: { callback: formatCurrency } } },
-                plugins: { 
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return ' Saldo Devedor: ' + formatCurrency(context.raw);
-                            }
-                        }
-                    }
-                }
-            }
+        const getThemeColors = () => ({
+            textColor: isDarkMode ? '#9ca3af' : '#374151',
+            gridColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : '#e5e7eb',
+            tooltipBg: isDarkMode ? '#1f2937' : '#111827',
+            doughnutBorder: isDarkMode ? '#111827' : '#ffffff'
         });
 
-        // --- GRÁFICO 2: FLUXO MENSAL (Barras Verticais) ---
-        const fluxoMensalCtx = document.getElementById('fluxoMensalChart').getContext('2d');
-        new Chart(fluxoMensalCtx, {
-            type: 'bar',
-            data: {
-                labels: JSON.parse('{{ labels_meses_json|safe }}'),
-                datasets: [
-                    { label: 'Pagamentos Recebidos', data: JSON.parse('{{ dados_pagamentos_json|safe }}'), backgroundColor: 'rgba(22, 163, 74, 0.7)', borderRadius: 4 },
-                    { label: 'Juros Aplicados', data: JSON.parse('{{ dados_juros_json|safe }}'), backgroundColor: 'rgba(220, 38, 38, 0.7)', borderRadius: 4 }
-                ]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true, ticks: { callback: formatCurrency } } },
-                plugins: { 
-                    legend: { position: 'top' },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return ' ' + context.dataset.label + ': ' + formatCurrency(context.raw);
-                            }
-                        }
-                    }
+        const brand = { 500: '#6366f1', 700: '#4338ca' };
+        const success = { 500: '#10b981' };
+        const error = { 500: '#ef4444' };
+        const warning = { 500: '#f97316' };
+
+        const charts = {};
+
+        const getDefaultChartOptions = () => ({
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    enabled: true, backgroundColor: getThemeColors().tooltipBg, titleFont: { family: 'Inter', size: 14, weight: 'bold' },
+                    bodyFont: { family: 'Inter', size: 12 }, padding: 12, cornerRadius: 8, boxPadding: 4,
                 }
-            }
+            },
+            scales: {
+                x: { ticks: { color: getThemeColors().textColor, font: { family: 'Inter' } }, grid: { display: false }, border: { color: getThemeColors().gridColor } },
+                y: { ticks: { color: getThemeColors().textColor, font: { family: 'Inter' } }, grid: { color: getThemeColors().gridColor, drawBorder: false } }
+            },
+            animation: { duration: 500 }
         });
 
-        // --- GRÁFICO 3: COMPOSIÇÃO DA DÍVIDA (Doughnut) ---
-        const composicaoCtx = document.getElementById('composicaoChart').getContext('2d');
-        new Chart(composicaoCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Principal Emprestado', 'Juros Gerados'],
-                datasets: [{
-                    data: JSON.parse('{{ composicao_divida_valores_json|safe }}'),
-                    backgroundColor: ['rgba(37, 99, 235, 0.8)', 'rgba(234, 179, 8, 0.8)'],
-                    borderColor: '#FFFFFF',
-                    borderWidth: 3
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' },
-                    // Configuração do plugin para mostrar porcentagens
-                    datalabels: {
-                        formatter: (value, ctx) => {
-                            let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                            if (sum === 0) return '0%';
-                            let percentage = (value * 100 / sum).toFixed(1) + "%";
-                            return percentage;
-                        },
-                        color: '#fff',
-                        font: { weight: 'bold', size: 14 }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return ' ' + context.label + ': ' + formatCurrency(context.raw);
-                            }
-                        }
+        const renderFluxoMensalChart = () => {
+            const ctx = document.getElementById('fluxoMensalChart')?.getContext('2d');
+            if (!ctx) return;
+            const options = getDefaultChartOptions();
+            options.scales.y.ticks.callback = formatCurrency;
+            options.plugins.legend = { display: true, position: 'top', align: 'end', labels: { color: getThemeColors().textColor, usePointStyle: true, boxWidth: 8, font: { family: 'Inter' } } };
+            options.plugins.tooltip.callbacks = { label: (c) => ` ${c.dataset.label}: ${formatCurrency(c.raw)}` };
+            
+            charts.fluxo = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: JSON.parse('{{ labels_meses_json|safe }}'),
+                    datasets: [
+                        { label: 'Pagamentos Recebidos', data: JSON.parse('{{ dados_pagamentos_json|safe }}'), backgroundColor: success[500], borderRadius: { topLeft: 6, topRight: 6 } },
+                        { label: 'Juros Aplicados', data: JSON.parse('{{ dados_juros_json|safe }}'), backgroundColor: error[500], borderRadius: { topLeft: 6, topRight: 6 } }
+                    ]
+                },
+                options: options
+            });
+        };
+
+        const renderComposicaoChart = () => {
+            const ctx = document.getElementById('composicaoChart')?.getContext('2d');
+            if (!ctx) return;
+            const options = getDefaultChartOptions();
+            options.scales = { x: { display: false }, y: { display: false } };
+            options.plugins.legend = { display: true, position: 'right', labels: { color: getThemeColors().textColor, usePointStyle: true, boxWidth: 8, font: { family: 'Inter' } } };
+            options.plugins.datalabels = { formatter: (v, c) => { const sum = c.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); return sum > 0 ? (v * 100 / sum).toFixed(0) + "%" : '0%'; }, color: '#fff', font: { weight: 'bold', size: 14 } };
+            options.plugins.tooltip.callbacks = { label: (c) => ` ${c.label}: ${formatCurrency(c.raw)}` };
+
+            charts.composicao = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Principal', 'Juros'],
+                    datasets: [{ data: JSON.parse('{{ composicao_divida_valores_json|safe }}'), backgroundColor: [brand[700], warning[500]], borderColor: getThemeColors().doughnutBorder, borderWidth: 4, hoverOffset: 15, cutout: '70%' }]
+                },
+                options: options
+            });
+        };
+        
+        const renderTopCredoresChart = () => {
+            const ctx = document.getElementById('topCredoresChart')?.getContext('2d');
+            if (!ctx) return;
+            const options = getDefaultChartOptions();
+            options.indexAxis = 'y';
+            options.scales.x.ticks.callback = (v) => 'R$ ' + (v/1000) + 'k';
+            options.plugins.tooltip.callbacks = { label: (c) => ' Saldo: ' + formatCurrency(c.raw) };
+
+            const gradient = ctx.createLinearGradient(0, 0, 300, 0);
+            gradient.addColorStop(0, brand[700]);
+            gradient.addColorStop(1, brand[500]);
+
+            charts.topCredores = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: JSON.parse('{{ top_credores_labels_json|safe }}'),
+                    datasets: [{ label: 'Saldo Devedor', data: JSON.parse('{{ top_credores_valores_json|safe }}'), backgroundColor: gradient, borderRadius: 6 }]
+                },
+                options: options
+            });
+        };
+
+        const updateAllChartsTheme = () => {
+            const theme = getThemeColors();
+            for (const chartKey in charts) {
+                const chart = charts[chartKey];
+                if (chart) {
+                    const chartOptions = chart.config.options;
+                    chartOptions.plugins.legend.labels.color = theme.textColor;
+                    chartOptions.scales.x.ticks.color = theme.textColor;
+                    chartOptions.scales.x.border.color = theme.gridColor;
+                    chartOptions.scales.y.ticks.color = theme.textColor;
+                    chartOptions.scales.y.grid.color = theme.gridColor;
+                    if (chart.config.type === 'doughnut') {
+                        chart.data.datasets[0].borderColor = theme.doughnutBorder;
                     }
+                    chart.update('none');
                 }
             }
-        });
+        };
+
+        renderFluxoMensalChart();
+        renderComposicaoChart();
+        renderTopCredoresChart();
     });
 </script>
 {% endblock %}

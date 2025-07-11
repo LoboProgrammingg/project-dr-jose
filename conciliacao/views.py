@@ -1,8 +1,9 @@
+# conciliacao/views.py
 import json
 from datetime import datetime
 from decimal import Decimal
 from dateutil.relativedelta import relativedelta
-import pandas as pd # Importe o pandas aqui
+import pandas as pd
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
@@ -10,8 +11,8 @@ from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import views as auth_views
 from django.db.models import Sum
+from django.core.paginator import Paginator # <-- Importação adicionada
 
-# Importa os modelos e serviços necessários de todas as apps
 from . import services
 from .models import RelatorioConciliacao, Transacao
 from credores.models import Credor, Pagamento
@@ -24,11 +25,12 @@ def dashboard(request):
     A view do dashboard, que funciona como um motor de BI, preparando
     todos os dados para os KPIs e gráficos analíticos.
     """
+    # (Lógica do dashboard permanece inalterada)
     credores_ativos = Credor.objects.filter(ativo=True)
     total_credores_ativos = credores_ativos.count()
     saldo_devedor_total = sum(c.saldo_devedor for c in credores_ativos)
     valor_total_emprestado = credores_ativos.aggregate(total=Sum('valor_inicial'))['total'] or Decimal('0.00')
-    valor_total_juros = sum(c.total_juros_aplicados for c in credores_ativos)
+    valor_total_juros = sum(c.total_juros_adicionais for c in credores_ativos)
     retorno_total_esperado = valor_total_emprestado + valor_total_juros
     lucro_potencial = valor_total_juros
 
@@ -64,24 +66,31 @@ def dashboard(request):
 @login_required
 def pagina_upload(request):
     """
-    Processa o upload, chama o serviço de conciliação, salva o resultado
-    no banco de dados e redireciona para a página de detalhes.
+    Processa o upload, captura o mês/ano de referência, chama o serviço de conciliação,
+    salva o resultado no banco de dados e redireciona para a página de detalhes.
     """
     if request.method == 'POST':
         arquivo_ofx = request.FILES.get('arquivo_ofx')
         arquivo_csv = request.FILES.get('arquivo_csv')
+        mes_ano_referencia = request.POST.get('mes_ano_referencia')
 
-        if not arquivo_ofx or not arquivo_csv:
-            return render(request, 'conciliacao/upload.html', {'error': 'Por favor, envie os dois arquivos.'})
+        if not all([arquivo_ofx, arquivo_csv, mes_ano_referencia]):
+            error_msg = "Todos os campos são obrigatórios: Mês/Ano de Referência, Arquivo OFX e Arquivo CSV."
+            return render(request, 'conciliacao/upload.html', {'error': error_msg})
+        
+        try:
+            mes_ano_formatado = datetime.strptime(mes_ano_referencia, '%Y-%m').strftime('%m/%Y')
+        except ValueError:
+            error_msg = "O formato da data de referência é inválido. Use o seletor."
+            return render(request, 'conciliacao/upload.html', {'error': error_msg})
 
         try:
             df_banco = services.processar_banco_ofx(arquivo_ofx)
             df_egestor = services.carregar_egestor_csv(arquivo_csv)
             df_relatorio = services.gerar_dataframe_conciliacao(df_banco, df_egestor)
 
-            mes_ano = datetime.now().strftime("%m/%Y")
             novo_relatorio = RelatorioConciliacao.objects.create(
-                mes_ano_referencia=mes_ano,
+                mes_ano_referencia=mes_ano_formatado,
                 executado_por=request.user
             )
 
@@ -99,7 +108,6 @@ def pagina_upload(request):
                     )
                 )
             
-            # Salva todas as transações de uma vez para melhor performance
             Transacao.objects.bulk_create(transacoes_para_criar)
             
             return redirect('conciliacao:detalhe_relatorio', pk=novo_relatorio.pk)
@@ -111,9 +119,30 @@ def pagina_upload(request):
 
 @login_required
 def lista_relatorios(request):
-    """Exibe o histórico de todas as conciliações já realizadas."""
-    relatorios = RelatorioConciliacao.objects.all().order_by('-data_execucao')
-    return render(request, 'conciliacao/lista_relatorios.html', {'relatorios': relatorios})
+    """
+    Exibe o histórico de conciliações, agora com um filtro por Mês/Ano e paginação.
+    """
+    mes_ano_filtro = request.GET.get('mes_ano')
+    queryset = RelatorioConciliacao.objects.all() # O modelo já ordena por -data_execucao
+
+    if mes_ano_filtro:
+        queryset = queryset.filter(mes_ano_referencia=mes_ano_filtro)
+
+    # --- LÓGICA DE PAGINAÇÃO ---
+    paginator = Paginator(queryset, 10)  # Mostra 10 relatórios por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    # --- FIM DA LÓGICA DE PAGINAÇÃO ---
+
+    meses_disponiveis = RelatorioConciliacao.objects.order_by('-mes_ano_referencia').values_list('mes_ano_referencia', flat=True).distinct()
+    
+    context = {
+        'relatorios': page_obj, # Passa o objeto da página, não o queryset inteiro
+        'meses_disponiveis': meses_disponiveis,
+        'mes_ano_selecionado': mes_ano_filtro,
+    }
+    return render(request, 'conciliacao/lista_relatorios.html', context)
+
 
 @login_required
 def detalhe_relatorio(request, pk):
@@ -138,15 +167,12 @@ def download_relatorio_excel(request, pk):
     """
     relatorio = get_object_or_404(RelatorioConciliacao, pk=pk)
     
-    # Busca as transações do banco de dados
     transacoes_qs = relatorio.transacoes.all().values(
         'data', 'historico', 'valor_banco', 'valor_gestor', 'diferenca', 'status'
     )
     
-    # Reconstrói o DataFrame a partir dos dados do banco
     df_relatorio = pd.DataFrame(list(transacoes_qs))
     
-    # Renomeia as colunas para um formato amigável no Excel
     df_relatorio.rename(columns={
         'data': 'Data',
         'historico': 'Histórico',
@@ -156,19 +182,15 @@ def download_relatorio_excel(request, pk):
         'status': 'Status da Conciliação'
     }, inplace=True)
     
-    # Formata a data
     df_relatorio['Data'] = pd.to_datetime(df_relatorio['Data']).dt.strftime('%d/%m/%Y')
 
-    # Chama o serviço para criar o arquivo Excel em memória
     buffer_excel = services.criar_arquivo_excel(df_relatorio)
     buffer_excel.seek(0)
     
-    # Cria e retorna a resposta HTTP que força o download no navegador
     response = HttpResponse(
         buffer_excel,
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    # Define o nome do arquivo que será baixado
     nome_arquivo = f'relatorio_conciliacao_{relatorio.mes_ano_referencia.replace("/", "-")}.xlsx'
     response['Content-Disposition'] = f'attachment; filename={nome_arquivo}'
     
