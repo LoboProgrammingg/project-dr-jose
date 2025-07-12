@@ -11,22 +11,17 @@ from conciliacao.views import PaginaLoginView, PaginaLogoutView, dashboard
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # --- ROTAS PRINCIPAIS E DE AUTENTICAÇÃO ---
-    # A raiz do site (/) agora aponta para a tela de login.
     path('', PaginaLoginView.as_view(), name='login'),
     
-    # A página inicial para usuários logados.
     path('dashboard/', dashboard, name='home'), 
     
-    # A rota de logout.
     path('logout/', PaginaLogoutView.as_view(), name='logout'),
 
-    # --- ROTAS DAS APPS ---
-    # Delega todas as URLs que começam com /conciliacao/ para a app de conciliação.
     path('conciliacao/', include('conciliacao.urls')),
     
-    # Delega todas as URLs que começam com /credores/ para a app de credores.
     path('credores/', include('credores.urls')),
+    
+    path('planilhas/', include('planilhas.urls')),
 ]
 
 # Configuração para servir arquivos de mídia em desenvolvimento

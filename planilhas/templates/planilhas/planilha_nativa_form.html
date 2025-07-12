@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Criar Nova Planilha{% endblock %}
+
+{% block page_title %}Criar Nova Planilha no Sistema{% endblock %}
+{% block page_subtitle %}Defina um nome e as colunas para sua nova planilha de {{ ano.ano }}.{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'planilhas:detalhe_ano' ano=ano.ano %}" class="inline-flex items-center gap-x-2 rounded-xl bg-white dark:bg-gray-700 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 transition-all duration-150 hover:bg-gray-50 dark:hover:bg-gray-600">
+    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" /></svg>
+    Cancelar
+</a>
+{% endblock %}
+
+{% block head_extra %}
+<style>
+    /* Estilos para os campos do formulário para garantir consistência */
+    .form-input, .form-select {
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        color: #1f2937;
+        background-color: #ffffff;
+        border-width: 2px;
+        border-color: #d1d5db;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease-in-out;
+    }
+    .dark .form-input, .dark .form-select {
+        background-color: #1F2937;
+        color: #E5E7EB;
+        border-color: #4B5563;
+    }
+    .form-input:focus, .form-select:focus {
+        outline: none;
+        border-color: transparent;
+        --tw-ring-color: rgba(99, 102, 241, 0.5);
+        box-shadow: 0 0 0 3px var(--tw-ring-color);
+    }
+    .dark .form-input:focus, .dark .form-select:focus {
+        --tw-ring-color: rgba(139, 92, 246, 0.5);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl">
+    <form method="post" class="bg-white dark:bg-gray-800 p-6 sm:p-10 rounded-2xl shadow-soft-xl ring-1 ring-gray-900/5 dark:ring-white/10 space-y-8">
+        {% csrf_token %}
+
+        <!-- Erros gerais do formulário -->
+        {% if form.non_field_errors %}
+            <div class="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-sm text-red-700 dark:text-red-200">{{ form.non_field_errors }}</div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="space-y-6">
+            <!-- Campo Nome da Planilha -->
+            <div>
+                <label for="{{ form.nome.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100">Nome da Planilha</label>
+                <div class="mt-2">
+                    {{ form.nome }}
+                </div>
+                {% if form.nome.errors %}<p class="mt-2 text-sm text-red-600">{{ form.nome.errors|first }}</p>{% endif %}
+            </div>
+
+            <!-- Campo Nomes das Colunas -->
+            <div>
+                <label for="{{ form.colunas_str.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100">{{ form.colunas_str.label }}</label>
+                <div class="mt-2">
+                    {{ form.colunas_str }}
+                </div>
+                <p class="mt-2 text-xs text-gray-500">{{ form.colunas_str.help_text }}</p>
+                {% if form.colunas_str.errors %}<p class="mt-2 text-sm text-red-600">{{ form.colunas_str.errors|first }}</p>{% endif %}
+            </div>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 flex items-center justify-end gap-x-4">
+            <a href="{% url 'planilhas:detalhe_ano' ano=ano.ano %}" class="rounded-xl bg-white dark:bg-gray-700 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600">Cancelar</a>
+            <button type="submit" class="inline-flex justify-center rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg hover:bg-brand-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500">
+                Criar e Continuar
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

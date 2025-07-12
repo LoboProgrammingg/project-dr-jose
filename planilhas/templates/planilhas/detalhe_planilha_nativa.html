@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Editor de Planilha: {{ planilha.nome }}{% endblock %}
+
+{% block page_title %}Editor de Planilha{% endblock %}
+{% block page_subtitle %}Modifique o nome, colunas e dados da sua planilha em tempo real.{% endblock %}
+
+{% block page_actions %}
+<div x-data class="flex items-center gap-x-3">
+    <a href="{% url 'planilhas:detalhe_ano' ano=planilha.ano_referencia.ano %}" class="inline-flex items-center gap-x-2 rounded-xl bg-white dark:bg-gray-700 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-gray-100">
+        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" /></svg>
+        Voltar
+    </a>
+    <button @click="$dispatch('save-data')" :disabled="$store.editor.isSaving" class="inline-flex items-center gap-x-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white" :class="{'opacity-50 cursor-not-allowed': $store.editor.isSaving, 'hover:bg-brand-700': !$store.editor.isSaving}">
+        <svg x-show="$store.editor.isSaving" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <svg x-show="!$store.editor.isSaving" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75Z" /><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" /></svg>
+        <span x-text="$store.editor.isSaving ? 'Salvando...' : 'Salvar Alterações'"></span>
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<div x-data @save-data.window="$store.editor.saveData()">
+    <div class="space-y-6">
+        <!-- Campo de Nome da Planilha -->
+        <div>
+            <label for="planilha-nome" class="block text-sm font-medium text-gray-900 dark:text-white">Nome da Planilha</label>
+            <input type="text" id="planilha-nome" x-model="$store.editor.nome" class="mt-1 block w-full max-w-lg form-input">
+        </div>
+
+        <!-- Tabela de Edição -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-soft-xl overflow-hidden ring-1 ring-gray-900/5 dark:ring-white/10">
+            <div class="max-h-[60vh] overflow-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-gray-50 dark:bg-gray-700/50 sticky top-0 z-10">
+                        <tr>
+                            <template x-for="(coluna, index) in $store.editor.colunas" :key="index">
+                                <th class="py-3 px-2 text-left font-semibold text-gray-900 dark:text-white">
+                                    <div class="flex items-center gap-x-2">
+                                        <input type="text" x-model="$store.editor.colunas[index]" class="w-full bg-transparent border-b-2 border-transparent focus:border-brand-500 focus:ring-0 p-1">
+                                        <button @click="$store.editor.removerColuna(index)" class="text-gray-400 hover:text-red-500 flex-shrink-0">&times;</button>
+                                    </div>
+                                </th>
+                            </template>
+                            <th class="py-3 px-2 text-center">
+                                <button @click="$store.editor.adicionarColuna()" class="text-brand-600 hover:text-brand-500 font-bold text-lg">+</button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <template x-for="(linha, rowIndex) in $store.editor.dados" :key="rowIndex">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+                                <template x-for="coluna in $store.editor.colunas" :key="coluna">
+                                    <td class="p-0">
+                                        <input type="text" x-model="linha[coluna]" class="w-full bg-transparent border-none p-3 focus:ring-1 focus:ring-brand-500">
+                                    </td>
+                                </template>
+                                <td class="px-2 text-center">
+                                    <button @click="$store.editor.removerLinha(rowIndex)" class="text-gray-400 hover:text-red-500">&times;</button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Botão para Adicionar Linha -->
+        <div>
+            <button @click="$store.editor.adicionarLinha()" class="text-sm font-semibold text-brand-600 hover:text-brand-500 flex items-center gap-x-1">
+                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5V4.75z" /></svg>
+                Adicionar Nova Linha
+            </button>
+        </div>
+
+        <!-- Notificação de Status -->
+        <div x-show="$store.editor.statusMessage" x-transition class="fixed bottom-5 right-5 rounded-lg px-4 py-3 text-white shadow-lg" :class="{ 'bg-green-600': $store.editor.statusType === 'success', 'bg-red-600': $store.editor.statusType === 'error' }">
+            <span x-text="$store.editor.statusMessage"></span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block body_extra %}
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.store('editor', {
+        nome: '',
+        colunas: [],
+        dados: [],
+        isSaving: false,
+        statusMessage: '',
+        statusType: '',
+
+        init(initialData) {
+            this.nome = initialData.nome;
+            this.colunas = initialData.colunas;
+            this.dados = initialData.dados.map(linha => ({...linha})); // Clona os dados para reatividade
+        },
+
+        adicionarColuna() {
+            const nomeNovaColuna = `Coluna ${this.colunas.length + 1}`;
+            this.colunas.push(nomeNovaColuna);
+            this.dados.forEach(linha => {
+                linha[nomeNovaColuna] = '';
+            });
+        },
+
+        removerColuna(index) {
+            const colunaRemovida = this.colunas.splice(index, 1)[0];
+            this.dados.forEach(linha => {
+                delete linha[colunaRemovida];
+            });
+        },
+
+        adicionarLinha() {
+            const novaLinha = {};
+            this.colunas.forEach(coluna => {
+                novaLinha[coluna] = '';
+            });
+            this.dados.push(novaLinha);
+        },
+
+        removerLinha(index) {
+            this.dados.splice(index, 1);
+        },
+
+        saveData() {
+            this.isSaving = true;
+            this.statusMessage = '';
+            
+            const payload = {
+                nome: this.nome,
+                colunas: this.colunas,
+                dados: this.dados,
+            };
+
+            fetch(window.location.pathname, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                this.statusMessage = data.message;
+                this.statusType = data.status;
+            })
+            .catch(error => {
+                this.statusMessage = 'Erro de conexão ao salvar.';
+                this.statusType = 'error';
+            })
+            .finally(() => {
+                this.isSaving = false;
+                setTimeout(() => this.statusMessage = '', 3000);
+            });
+        }
+    });
+
+    // Inicializa o store com os dados do Django
+    Alpine.store('editor').init({{ planilha_json|safe }});
+});
+</script>
+{% endblock %}

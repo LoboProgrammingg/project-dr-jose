@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Planilhas de {{ ano.ano }}{% endblock %}
+
+{% block page_title %}Planilhas de {{ ano.ano }}{% endblock %}
+{% block page_subtitle %}Gerencie planilhas criadas no sistema ou faça upload de arquivos externos.{% endblock %}
+
+{% block page_actions %}
+<div class="flex items-center gap-x-3">
+    <a href="{% url 'planilhas:criar_planilha_nativa' ano=ano.ano %}" class="inline-flex items-center gap-x-2 rounded-xl bg-white dark:bg-gray-700 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 transition-all duration-150 hover:bg-gray-50 dark:hover:bg-gray-600">
+        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5V4.75z" /></svg>
+        Criar Nova Planilha
+    </a>
+    <a href="{% url 'planilhas:upload_planilha' ano=ano.ano %}" class="inline-flex items-center gap-x-2 rounded-xl bg-brand-600 dark:bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-all duration-300 transform hover:-translate-y-0.5">
+        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M9.25 13.25a.75.75 0 001.5 0V4.636l2.955 3.129a.75.75 0 001.09-1.03l-4.25-4.5a.75.75 0 00-1.09 0l-4.25 4.5a.75.75 0 101.09 1.03L9.25 4.636v8.614Z" /><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" /></svg>
+        Upload de Arquivo
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Formulário de Pesquisa -->
+<div class="mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10">
+    <form method="get" action="." class="flex flex-col sm:flex-row items-center gap-4">
+        <div class="flex-grow w-full">
+            <label for="search-query" class="sr-only">Pesquisar planilhas</label>
+            <div class="relative">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" /></svg>
+                </div>
+                <input type="search" name="q" id="search-query" value="{{ search_query|default:'' }}" class="block w-full rounded-md border-0 py-2.5 pl-10 text-gray-900 dark:text-white bg-white dark:bg-gray-700 ring-1 ring-inset ring-gray-300 dark:ring-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-inset focus:ring-brand-600 sm:text-sm sm:leading-6" placeholder="Pesquisar pelo nome...">
+            </div>
+        </div>
+        <div class="flex-shrink-0 flex gap-2 w-full sm:w-auto">
+            <button type="submit" class="w-full sm:w-auto inline-flex items-center gap-x-2 rounded-md bg-brand-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500">Pesquisar</button>
+            {% if search_query %}
+            <a href="{% url 'planilhas:detalhe_ano' ano=ano.ano %}" class="w-full sm:w-auto inline-flex items-center gap-x-1 rounded-md bg-gray-100 dark:bg-gray-700 px-3.5 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200">Limpar</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<div class="space-y-8">
+    <!-- Seção Planilhas Nativas -->
+    <div>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Planilhas Criadas no Sistema</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-soft-xl ring-1 ring-gray-900/5 dark:ring-white/10 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-white/5">
+                        <tr>
+                            <th scope="col" class="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Nome</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white hidden sm:table-cell">Adicionado por</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white hidden lg:table-cell">Data</th>
+                            <th scope="col" class="relative py-3.5 pl-3 pr-6"><span class="sr-only">Ações</span></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for planilha in planilhas_nativas %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                            <td class="py-4 pl-6 pr-3 text-sm font-medium text-gray-900 dark:text-white">{{ planilha.nome }}</td>
+                            <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 hidden sm:table-cell">{{ planilha.adicionado_por.username|default:"N/A" }}</td>
+                            <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 hidden lg:table-cell">{{ planilha.adicionado_em|date:"d/m/Y" }}</td>
+                            <td class="py-4 pl-3 pr-6 text-right text-sm font-medium">
+                                <div class="flex items-center justify-end gap-x-4">
+                                    <a href="{{ planilha.get_absolute_url }}" class="text-brand-600 dark:text-brand-400 hover:text-brand-800" title="Editar no Sistema">
+                                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" /></svg>
+                                    </a>
+                                    <a href="{% url 'planilhas:download_planilha_nativa' pk=planilha.pk %}" class="text-green-500 hover:text-green-700" title="Download CSV">
+                                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75Z" /><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" /></svg>
+                                    </a>
+                                    <a href="{% url 'planilhas:deletar_planilha_nativa' pk=planilha.pk %}" class="text-red-500 hover:text-red-700" title="Deletar">
+                                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193v-.443A2.75 2.75 0 0011.25 1H8.75zM10 4.5a.75.75 0 01.75.75v10.5a.75.75 0 01-1.5 0V5.25A.75.75 0 0110 4.5z" clip-rule="evenodd" /></svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção Uploads de Arquivos -->
+    <div>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Uploads de Arquivos</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-soft-xl ring-1 ring-gray-900/5 dark:ring-white/10 overflow-hidden">
+            {% if planilhas_upload %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-white/5">
+                            <tr>
+                                <th scope="col" class="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white">Nome do Arquivo</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white hidden sm:table-cell">Adicionado por</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white hidden lg:table-cell">Data</th>
+                                <th scope="col" class="relative py-3.5 pl-3 pr-6"><span class="sr-only">Ações</span></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            {% for planilha in page_obj %}
+                            <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                <td class="py-4 pl-6 pr-3 text-sm font-medium text-gray-900 dark:text-white">{{ planilha.nome }}</td>
+                                <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 hidden sm:table-cell">{{ planilha.adicionado_por.username|default:"N/A" }}</td>
+                                <td class="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 hidden lg:table-cell">{{ planilha.adicionado_em|date:"d/m/Y" }}</td>
+                                <td class="py-4 pl-3 pr-6 text-right text-sm font-medium">
+                                    <div class="flex items-center justify-end gap-x-4">
+                                        <a href="{{ planilha.get_absolute_url }}" class="text-brand-600 dark:text-brand-400 hover:text-brand-800" title="Visualizar">
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" /><path fill-rule="evenodd" d="M.664 10.59a1.651 1.651 0 010-1.186A10.004 10.004 0 0110 3c4.257 0 7.893 2.66 9.336 6.41.147.381.146.804 0 1.186A10.004 10.004 0 0110 17c-4.257 0-7.893-2.66-9.336-6.41zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>
+                                        </a>
+                                        <a href="{% url 'planilhas:download_planilha' pk=planilha.pk %}" class="text-green-500 hover:text-green-700" title="Download">
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75Z" /><path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" /></svg>
+                                        </a>
+                                        <a href="{% url 'planilhas:deletar_planilha' pk=planilha.pk %}" class="text-red-500 hover:text-red-700" title="Deletar">
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193v-.443A2.75 2.75 0 0011.25 1H8.75zM10 4.5a.75.75 0 01.75.75v10.5a.75.75 0 01-1.5 0V5.25A.75.75 0 0110 4.5z" clip-rule="evenodd" /></svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Paginação para Uploads -->
+                {% if page_obj.has_other_pages %}
+                <nav class="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 sm:px-6">
+                    <!-- ... código da paginação ... -->
+                </nav>
+                {% endif %}
+            {% else %}
+                 <div class="text-center py-12 px-6">
+                    <p class="text-gray-500">Nenhum arquivo de planilha foi enviado para este ano.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

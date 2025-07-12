@@ -1,5 +1,3 @@
-# credores/urls.py
-
 from django.urls import path
 from . import views
 
@@ -7,7 +5,7 @@ app_name = 'credores'
 
 urlpatterns = [
     path('', views.CredorListView.as_view(), name='lista'),
-    
+
     path('credor/<int:pk>/', views.CredorDetailView.as_view(), name='detalhe'),
     path('credor/novo/', views.CredorCreateView.as_view(), name='novo'),
     path('credor/<int:pk>/editar/', views.CredorUpdateView.as_view(), name='editar'),

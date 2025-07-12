@@ -11,7 +11,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import views as auth_views
 from django.db.models import Sum
-from django.core.paginator import Paginator # <-- Importação adicionada
+from django.core.paginator import Paginator
 
 from . import services
 from .models import RelatorioConciliacao, Transacao
@@ -202,3 +202,11 @@ class PaginaLoginView(auth_views.LoginView):
 
 class PaginaLogoutView(auth_views.LogoutView):
     next_page = reverse_lazy('login')
+
+@login_required
+def instrucoes_ofx(request):
+    """
+    Exibe a página com instruções detalhadas sobre como usar o site
+    OFX Fácil para converter extratos PDF para o formato OFX.
+    """
+    return render(request, 'conciliacao/instrucoes_ofx.html')

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Gerenciamento de Planilhas{% endblock %}
+
+{% block page_title %}Gerenciamento de Planilhas{% endblock %}
+{% block page_subtitle %}Organize e acesse suas planilhas por ano de referência.{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl space-y-8">
+
+    <!-- Formulário para Criar Novo Ano -->
+    <div class="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-soft-xl ring-1 ring-gray-900/5 dark:ring-white/10">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Adicionar Novo Ano de Referência</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Crie uma nova pasta anual para organizar suas planilhas. Use um formato de quatro dígitos (ex: 2025).</p>
+        <form method="post" action="{% url 'planilhas:criar_ano' %}" class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            {% csrf_token %}
+            <div class="flex-grow w-full">
+                <label for="{{ form.ano.id_for_label }}" class="sr-only">{{ form.ano.label }}</label>
+                {{ form.ano }}
+                {% if form.ano.errors %}
+                    <p class="mt-2 text-sm text-red-500">{{ form.ano.errors|first }}</p>
+                {% endif %}
+            </div>
+            <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-x-2 rounded-xl bg-brand-600 dark:bg-brand-500 px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-all duration-300 transform hover:-translate-y-0.5">
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5V4.75z" />
+                </svg>
+                Criar Ano
+            </button>
+        </form>
+    </div>
+
+    <!-- Listagem dos Anos Cadastrados -->
+    <div class="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-soft-xl ring-1 ring-gray-900/5 dark:ring-white/10">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Anos Disponíveis</h2>
+        
+        {% if anos %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                {% for ano_obj in anos %}
+                    <a href="{% url 'planilhas:detalhe_ano' ano=ano_obj.ano %}" class="group block text-center bg-gray-50 dark:bg-gray-800/50 p-6 rounded-xl border border-gray-200 dark:border-gray-700/50 hover:border-brand-500 dark:hover:border-brand-400 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                        <div class="flex justify-center items-center mb-4">
+                            <svg class="h-12 w-12 text-gray-400 dark:text-gray-500 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 00-1 1v2a1 1 0 001 1h6a1 1 0 001-1V5a1 1 0 00-1-1H7z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ ano_obj.ano }}</p>
+                        <p class="text-sm font-medium text-brand-600 dark:text-brand-400 mt-1">Ver planilhas</p>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Estado Vazio -->
+            <div class="text-center py-12 px-6 bg-gray-50 dark:bg-gray-800/50 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700">
+                <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.08a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6.226c0-1.232.996-2.226 2.226-2.226h12.048c1.23 0 2.226.994 2.226 2.226v3.55M13.5 12h-3v3h3v-3z" />
+                </svg>
+                <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">Nenhum ano cadastrado</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Comece criando o primeiro ano de referência no formulário acima.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

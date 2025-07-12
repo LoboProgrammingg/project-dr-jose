@@ -12,4 +12,5 @@ urlpatterns = [
     
     # --- NOVA ROTA PARA O DOWNLOAD DO EXCEL ---
     path('relatorio/<int:pk>/download/', views.download_relatorio_excel, name='download_relatorio'),
+    path('instrucoes-ofx/', views.instrucoes_ofx, name='instrucoes_ofx'),
 ]

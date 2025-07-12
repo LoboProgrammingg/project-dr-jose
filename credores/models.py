@@ -1,5 +1,3 @@
-# credores/models.py
-
 from django.db import models
 from django.db.models import Sum
 from decimal import Decimal
@@ -9,25 +7,25 @@ class Credor(models.Model):
     nome = models.CharField(max_length=200, help_text="Nome completo do credor")
     email = models.EmailField(max_length=254, blank=True, null=True, help_text="Email do credor (opcional)")
     telefone = models.CharField(max_length=20, blank=True, null=True, help_text="Telefone do credor (opcional)")
-    
+
     valor_inicial = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
+        max_digits=10,
+        decimal_places=2,
         help_text="Valor original do principal da dívida"
     )
     taxa_juros_mensal = models.DecimalField(
-        max_digits=5, 
-        decimal_places=2, 
+        max_digits=5,
+        decimal_places=2,
         default=0.00,
         help_text="Taxa de juros mensal em porcentagem (ex: 1.00 para 1%)"
     )
     juros_iniciais_aplicados = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        default=0.00, 
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
         help_text="Juros calculados automaticamente no momento da criação da dívida"
     )
-    
+
     descricao_divida = models.TextField(help_text="Detalhes sobre a origem da dívida")
     data_criacao = models.DateTimeField(auto_now_add=True)
     ativo = models.BooleanField(default=True, help_text="Marque se a dívida ainda está ativa/em aberto")
@@ -71,7 +69,7 @@ class Credor(models.Model):
             return None
 
         valor_juros = (self.saldo_devedor * (self.taxa_juros_mensal / 100)).quantize(Decimal('0.01'))
-        
+
         if valor_juros <= 0:
             return None
 

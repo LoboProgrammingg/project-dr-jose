@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %} {# Carrega a biblioteca de tags humanize #}
 
 {% block title %}Gestão de Credores{% endblock %}
 
@@ -79,15 +80,15 @@
         <div class="mt-2 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             <div class="overflow-hidden rounded-xl bg-white dark:bg-gray-800 px-6 py-7 shadow-xl ring-1 ring-gray-900/5 dark:ring-white/5 transition-colors duration-300 transform hover:scale-[1.02] animate-popIn">
                 <dt class="truncate text-base font-medium text-gray-500 dark:text-gray-400 mb-2">Total Principal Ativo</dt>
-                <dd class="mt-1 text-4xl font-extrabold tracking-tight text-brand-600 dark:text-brand-400">R$ {{ valor_total_emprestado|floatformat:2 }}</dd>
+                <dd class="mt-1 text-4xl font-extrabold tracking-tight text-brand-600 dark:text-brand-400">R$ {{ valor_total_emprestado|intcomma }}</dd>
             </div>
             <div class="overflow-hidden rounded-xl bg-white dark:bg-gray-800 px-6 py-7 shadow-xl ring-1 ring-gray-900/5 dark:ring-white/5 transition-colors duration-300 transform hover:scale-[1.02] animate-popIn">
                 <dt class="truncate text-base font-medium text-gray-500 dark:text-gray-400 mb-2">Total Juros Gerados Ativo</dt>
-                <dd class="mt-1 text-4xl font-extrabold tracking-tight text-green-600 dark:text-green-400">R$ {{ lucro_potencial|floatformat:2 }}</dd>
+                <dd class="mt-1 text-4xl font-extrabold tracking-tight text-green-600 dark:text-green-400">R$ {{ lucro_potencial|intcomma }}</dd>
             </div>
             <div class="overflow-hidden rounded-xl bg-white dark:bg-gray-800 px-6 py-7 shadow-xl ring-1 ring-gray-900/5 dark:ring-white/5 transition-colors duration-300 transform hover:scale-[1.02] animate-popIn">
                 <dt class="truncate text-base font-medium text-gray-500 dark:text-gray-400 mb-2">Saldo Devedor Ativo</dt>
-                <dd class="mt-1 text-4xl font-extrabold tracking-tight text-red-600 dark:text-red-400">R$ {{ saldo_devedor_total|floatformat:2 }}</dd>
+                <dd class="mt-1 text-4xl font-extrabold tracking-tight text-red-600 dark:text-red-400">R$ {{ saldo_devedor_total|intcomma }}</dd>
             </div>
             <div class="overflow-hidden rounded-xl bg-white dark:bg-gray-800 px-6 py-7 shadow-xl ring-1 ring-gray-900/5 dark:ring-white/5 transition-colors duration-300 transform hover:scale-[1.02] animate-popIn">
                 <dt class="truncate text-base font-medium text-gray-500 dark:text-gray-400 mb-2">Credores Ativos</dt>
@@ -159,10 +160,10 @@
                                     {% for credor in credores_ativos %}
                                     <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                                         <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6">{{ credor.nome }}</td>
-                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-300 text-right hidden sm:table-cell">R$ {{ credor.valor_inicial|floatformat:2 }}</td>
-                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-orange-600 dark:text-orange-400 text-right hidden md:table-cell">R$ {{ credor.total_juros_gerados|floatformat:2 }}</td>
-                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-green-600 dark:text-green-400 text-right hidden md:table-cell">R$ {{ credor.total_pagamentos|floatformat:2 }}</td>
-                                        <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-red-600 dark:text-red-400 text-right">R$ {{ credor.saldo_devedor|floatformat:2 }}</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-300 text-right hidden sm:table-cell">R$ {{ credor.valor_inicial|intcomma }}</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-orange-600 dark:text-orange-400 text-right hidden md:table-cell">R$ {{ credor.total_juros_gerados|intcomma }}</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-green-600 dark:text-green-400 text-right hidden md:table-cell">R$ {{ credor.total_pagamentos|intcomma }}</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm font-bold text-red-600 dark:text-red-400 text-right">R$ {{ credor.saldo_devedor|intcomma }}</td>
                                         <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
                                             <a href="{% url 'credores:detalhe' credor.pk %}" class="text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 transition-colors">Ver Detalhes<span class="sr-only">, {{ credor.nome }}</span></a>
                                         </td>
@@ -215,8 +216,8 @@
                                     {% for credor in credores_quitados %}
                                     <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                                         <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6">{{ credor.nome }}</td>
-                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-green-600 dark:text-green-400 text-right hidden sm:table-cell">R$ {{ credor.total_pagamentos|floatformat:2 }}</td>
-                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-orange-600 dark:text-orange-400 text-right hidden md:table-cell">R$ {{ credor.total_juros_gerados|floatformat:2 }}</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-green-600 dark:text-green-400 text-right hidden sm:table-cell">R$ {{ credor.total_pagamentos|intcomma }}</td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-orange-600 dark:text-orange-400 text-right hidden md:table-cell">R$ {{ credor.total_juros_gerados|intcomma }}</td>
                                         <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
                                             <a href="{% url 'credores:detalhe' credor.pk %}" class="text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 transition-colors">Ver Detalhes<span class="sr-only">, {{ credor.nome }}</span></a>
                                         </td>

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 
     'conciliacao',
     'credores',
+    'planilhas',
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmar Exclusão{% endblock %}
+
+{% block page_title %}Confirmar Exclusão{% endblock %}
+{% block page_subtitle %}Esta ação não pode ser desfeita.{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-soft-xl text-center">
+    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
+        <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+    </div>
+    <h3 class="mt-4 text-xl font-semibold text-gray-900 dark:text-white">Deletar Planilha</h3>
+    <p class="mt-2 text-gray-600 dark:text-gray-400">
+        Você tem certeza que deseja deletar a planilha "<strong>{{ object.nome }}</strong>"? Todos os seus dados serão removidos permanentemente.
+    </p>
+    <form method="post" class="mt-6 flex justify-center gap-x-4">
+        {% csrf_token %}
+        <a href="{{ object.get_absolute_url }}" class="rounded-xl bg-white dark:bg-gray-700 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600">Cancelar</a>
+        <button type="submit" class="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500">Sim, Deletar</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,13 +1,7 @@
-# credores/forms.py
-
 from django import forms
 from .models import Credor, Pagamento
 
 class CredorForm(forms.ModelForm):
-    """
-    Formulário limpo, pois o estilo é gerenciado globalmente
-    no base.html com a tag <style type="text/tailwindcss">.
-    """
     class Meta:
         model = Credor
         fields = ['nome', 'email', 'telefone', 'valor_inicial', 

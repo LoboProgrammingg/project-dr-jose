@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Detalhe: {{ planilha.nome }}{% endblock %}
+
+{% block page_title %}{{ planilha.nome }}{% endblock %}
+{% block page_subtitle %}Visualização dos dados da planilha para o ano de {{ planilha.ano_referencia.ano }}.{% endblock %}
+
+{% block page_actions %}
+<div class="flex items-center gap-x-3">
+    <a href="{% url 'planilhas:detalhe_ano' ano=planilha.ano_referencia.ano %}" class="inline-flex items-center gap-x-2 rounded-lg bg-white dark:bg-slate-800 px-4 py-2 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-slate-700 transition-all duration-150 hover:bg-gray-50 dark:hover:bg-slate-700">
+        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+        </svg>
+        Voltar
+    </a>
+    <a href="{% url 'planilhas:editar_planilha' pk=planilha.pk %}" class="inline-flex items-center gap-x-2 rounded-lg bg-yellow-500 px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-yellow-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-500 transition-all duration-300 transform hover:-translate-y-0.5">
+        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" /></svg>
+        Editar
+    </a>
+    <a href="{% url 'planilhas:download_planilha' pk=planilha.pk %}" class="inline-flex items-center gap-x-2 rounded-lg bg-brand-600 dark:bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-all duration-300 transform hover:-translate-y-0.5">
+        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75Z" />
+            <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" />
+        </svg>
+        Download
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white dark:bg-gray-800/50 dark:backdrop-blur-sm rounded-2xl shadow-soft-xl ring-1 ring-gray-900/5 dark:ring-white/10">
+    <div class="max-h-[65vh] overflow-auto rounded-2xl">
+        <table class="min-w-full text-sm align-middle">
+            <thead class="bg-gray-50 dark:bg-gray-700/50 sticky top-0 z-10 backdrop-blur-sm">
+                <tr>
+                    {% for header in headers %}
+                        <th scope="col" class="py-3.5 px-4 text-left font-semibold text-gray-900 dark:text-white first:pl-6 last:pr-6">
+                            {{ header }}
+                        </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+                {% for row in rows %}
+                <tr class="hover:bg-brand-50/50 dark:hover:bg-white/5 transition-colors duration-200">
+                    {% for key, value in row.items %}
+                        <td class="whitespace-nowrap py-4 px-4 text-gray-600 dark:text-gray-300 first:pl-6 last:pr-6 {% if forloop.first %}font-medium text-gray-800 dark:text-gray-100{% endif %}">
+                            {{ value|default_if_none:"" }}
+                        </td>
+                    {% endfor %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="{{ headers|length|default:1 }}" class="text-center py-16 px-6">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m.75 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                        <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">Planilha Vazia</h3>
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Não foram encontrados dados para exibir nesta planilha.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
