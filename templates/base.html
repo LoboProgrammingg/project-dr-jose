@@ -3,217 +3,853 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de Gestão Financeira Profissional">
+    <meta name="theme-color" content="#6366f1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Gestão PRO">
     <title>{% block title %}Gestão PRO{% endblock %} - Sistema Financeiro</title>
     
-    <!-- Fonts -->
+    <!-- Preload critical resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
     
-    <!-- Scripts -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Tailwind CDN (melhor prática: sempre última versão estável) -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+    <!-- Theme initialization script -->
     <script>
-        // Aplica o tema imediatamente para evitar o "flash" de conteúdo sem tema.
-        // A classe 'js-enabled' previne o FOUC (Flash Of Unstyled Content).
-        document.documentElement.classList.add('js-enabled');
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
+        // Evita FOUC (Flash of Unstyled Content)
+        (function() {
+            const theme = localStorage.getItem('theme') || 'system';
+            const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            document.documentElement.classList.toggle('dark', isDark);
+            document.documentElement.classList.add('js-enabled');
+        })();
     </script>
 
+    <!-- Tailwind Configuration -->
     <script>
-        // Configuração customizada do Tailwind CSS
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif'],
                     },
                     colors: {
-                        'brand': {
-                            50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc', 400: '#818cf8',
-                            500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 800: '#3730a3', 900: '#312e81', 950: '#1e1b4b'
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff', 
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                            950: '#1e1b4b'
                         },
-                        'gray': {
-                            50: '#F9FAFB', 100: '#F3F4F6', 200: '#E5E7EB', 300: '#D1D5DB', 400: '#9CA3AF',
-                            500: '#6B7280', 600: '#4B5563', 700: '#374151', 800: '#1F2937', 900: '#111827', 950: '#030712'
+                        gray: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            300: '#d1d5db',
+                            400: '#9ca3af',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                            800: '#1f2937',
+                            900: '#111827',
+                            950: '#030712'
                         },
-                        'sidebar': {
-                            'bg': '#111827',       // gray-900
-                            'hover-bg': '#1f2937',  // gray-800
-                            'active-bg': '#4f46e5',  // brand-600
-                            'text': '#9ca3af',      // gray-400
+                        sidebar: {
+                            bg: '#111827',
+                            'hover-bg': '#1f2937',
+                            'active-bg': '#4f46e5',
+                            text: '#9ca3af',
                             'text-hover': '#ffffff',
                             'text-active': '#ffffff',
                         },
-                        'feedback': {
-                            'success': '#10b981', 'error': '#ef4444', 'warning': '#f97316',
+                        feedback: {
+                            success: '#10b981',
+                            error: '#ef4444',
+                            warning: '#f97316',
+                            info: '#3b82f6'
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-in-out',
+                        'slide-in': 'slideIn 0.3s ease-out',
+                        'scale-in': 'scaleIn 0.2s ease-out',
+                        'bounce-subtle': 'bounceSubtle 0.6s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(0)' },
+                        },
+                        scaleIn: {
+                            '0%': { transform: 'scale(0.95)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        },
+                        bounceSubtle: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-2px)' },
                         }
                     },
                     boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'soft-lg': '0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
                         'soft-xl': '0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03)',
-                        'soft-2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
+                        'glow': '0 0 20px rgba(99, 102, 241, 0.15)',
+                        'glow-lg': '0 0 40px rgba(99, 102, 241, 0.2)',
+                    },
+                    backdropBlur: {
+                        xs: '2px',
                     },
                     transitionProperty: {
-                        'background-color': 'background-color',
                         'colors': 'color, background-color, border-color, text-decoration-color, fill, stroke',
+                        'transform': 'transform',
+                        'opacity': 'opacity',
+                        'shadow': 'box-shadow',
                     },
+                    spacing: {
+                        '18': '4.5rem',
+                        '88': '22rem',
+                        '128': '32rem',
+                    }
                 }
-            }
+            },
+            plugins: [
+                function({ addUtilities }) {
+                    addUtilities({
+                        '.scrollbar-hide': {
+                            '-ms-overflow-style': 'none',
+                            'scrollbar-width': 'none',
+                            '&::-webkit-scrollbar': {
+                                display: 'none'
+                            }
+                        }
+                    })
+                }
+            ]
         }
     </script>
     
     {% block head_extra %}{% endblock %}
 
     <style>
-        .antialiased { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        /* Base styles */
+        .antialiased { 
+            -webkit-font-smoothing: antialiased; 
+            -moz-osx-font-smoothing: grayscale; 
+        }
         
-        /* Estilos para a barra de rolagem */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .dark ::-webkit-scrollbar-thumb { background: #475569; }
-        .dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-
-        /* Transições suaves para mudança de tema */
-        body, .bg-white, .dark\:bg-gray-800, .dark\:bg-gray-900, .dark\:bg-gray-950 {
-            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { 
+            width: 6px; 
+            height: 6px; 
+        }
+        ::-webkit-scrollbar-track { 
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb { 
+            background: #d1d5db; 
+            border-radius: 3px; 
+            transition: background-color 0.2s ease;
+        }
+        ::-webkit-scrollbar-thumb:hover { 
+            background: #9ca3af; 
+        }
+        .dark ::-webkit-scrollbar-thumb { 
+            background: #4b5563; 
+        }
+        .dark ::-webkit-scrollbar-thumb:hover { 
+            background: #6b7280; 
         }
 
-        /* Padrão de fundo sutil para o modo escuro */
+        /* Smooth transitions */
+        * {
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+
+        /* Focus styles */
+        .focus-ring {
+            outline: none;
+        }
+        .focus-ring:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #6366f1, 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        .dark .focus-ring:focus {
+            box-shadow: 0 0 0 2px #6366f1, 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Grid pattern for dark mode */
         .dark .bg-grid-pattern {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 2rem 2rem;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Loading states */
+        .loading {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            background-color: #e5e7eb;
+        }
+        .dark .loading {
+            background-color: #374151;
+        }
+
+        /* Glass morphism effect */
+        .glass {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .dark .glass {
+            background-color: rgba(17, 24, 39, 0.8);
+            border-color: rgba(31, 41, 55, 0.2);
+        }
+
+        /* Button hover effects */
+        .btn-hover {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-hover:hover {
+            transform: scale(1.05);
+        }
+        .btn-hover:active {
+            transform: scale(0.95);
+        }
+
+        /* Card hover effects */
+        .card-hover {
+            transition: all 0.3s ease-in-out;
+        }
+        .card-hover:hover {
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transform: translateY(-4px);
+        }
+
+        /* Pulse animation for loading states */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Sidebar animations */
+        .sidebar-enter {
+            transform: translateX(-100%);
+        }
+        .sidebar-enter-active {
+            transform: translateX(0);
+            transition: transform 0.3s ease-out;
+        }
+        .sidebar-exit {
+            transform: translateX(0);
+        }
+        .sidebar-exit-active {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in;
+        }
+
+        /* Sidebar item hover effects */
+        .sidebar-item {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .sidebar-item:hover::before {
+            left: 100%;
+        }
+
+        /* Floating animation for sidebar elements */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Glow pulse animation */
+        @keyframes glowPulse {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(99, 102, 241, 0.3);
+            }
+        }
+        
+        .glow-pulse {
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        /* Ripple effect for buttons */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .ripple:active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Stagger animation for menu items */
+        .stagger-item {
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: staggerIn 0.5s ease-out forwards;
+        }
+        
+        .stagger-item:nth-child(1) { animation-delay: 0.1s; }
+        .stagger-item:nth-child(2) { animation-delay: 0.2s; }
+        .stagger-item:nth-child(3) { animation-delay: 0.3s; }
+        .stagger-item:nth-child(4) { animation-delay: 0.4s; }
+        
+        @keyframes staggerIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Header button enhancements */
+        .header-button {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .header-button:hover::before {
+            left: 100%;
+        }
+
+        /* Button glow effect */
+        .button-glow {
+            box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+            animation: buttonPulse 2s infinite;
+        }
+        
+        @keyframes buttonPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+            }
         }
     </style>
 </head>
 
-<body class="h-full bg-gray-100 dark:bg-gray-950 antialiased font-sans text-gray-800 dark:text-gray-200">
-    <div x-data="appLayout()" x-init="initTheme()" @keydown.escape.window="sidebarOpen = false">
+<body class="h-full bg-gray-50 dark:bg-gray-950 antialiased font-sans text-gray-900 dark:text-gray-100 overflow-x-hidden">
+    <div x-data="appLayout()" x-init="initTheme()" @keydown.escape.window="closeSidebar()" class="h-full">
         
-        <!-- Overlay para fechar o menu em telas pequenas -->
-        <div x-show="sidebarOpen" @click="sidebarOpen = false" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-900/80 z-30 lg:hidden"></div>
+        <!-- Backdrop overlay -->
+        <div 
+            x-show="sidebarOpen" 
+            @click="closeSidebar()" 
+            x-transition:enter="transition-opacity ease-linear duration-300" 
+            x-transition:enter-start="opacity-0" 
+            x-transition:enter-end="opacity-100" 
+            x-transition:leave="transition-opacity ease-linear duration-300" 
+            x-transition:leave-start="opacity-100" 
+            x-transition:leave-end="opacity-0" 
+            class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-40 lg:hidden"
+            aria-hidden="true">
+        </div>
 
-        <!-- Sidebar / Menu Lateral -->
+        <!-- Sidebar -->
         <aside 
-            :class="{ '-translate-x-full': !sidebarOpen }"
-            class="fixed inset-y-0 left-0 z-40 w-64 bg-sidebar-bg flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 border-r border-gray-800 shadow-2xl">
+            :class="{ '-translate-x-full': !sidebarOpen, 'lg:translate-x-0': sidebarOpen || !sidebarCollapsed }"
+            :style="sidebarCollapsed ? 'width: 5rem;' : 'width: 20rem;'"
+            class="fixed inset-y-0 left-0 z-50 bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800 flex flex-col transition-all duration-500 ease-out border-r border-gray-700/50 shadow-2xl backdrop-blur-xl"
+            role="navigation"
+            aria-label="Navegação principal">
             
-            <div class="flex items-center justify-center h-16 shrink-0 px-4 border-b border-gray-800">
-                <h1 class="text-2xl font-extrabold text-white tracking-wider">Gestão<span class="text-brand-500">PRO</span></h1>
+            <!-- Logo header com animação -->
+            <div class="flex items-center justify-center h-20 shrink-0 px-6 border-b border-gray-700/50 bg-gradient-to-r from-gray-900/80 to-gray-800/80 backdrop-blur-xl relative overflow-hidden">
+                <!-- Background pattern -->
+                <div class="absolute inset-0 bg-gradient-to-r from-brand-500/5 to-brand-600/5"></div>
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(99,102,241,0.1),transparent_50%)]"></div>
+                
+                <div class="flex items-center space-x-4 relative z-10 group">
+                    <div class="w-12 h-12 bg-gradient-to-br from-brand-500 via-brand-600 to-brand-700 rounded-2xl flex items-center justify-center shadow-glow-lg transform group-hover:scale-110 transition-all duration-300 group-hover:rotate-3 float-animation">
+                        <svg class="w-7 h-7 text-white transform group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                        </svg>
+                    </div>
+                    <div x-show="!sidebarCollapsed" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform -translate-x-4" x-transition:enter-end="opacity-100 transform translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform translate-x-0" x-transition:leave-end="opacity-0 transform -translate-x-4" class="flex flex-col">
+                        <h1 class="text-2xl font-black text-white tracking-tight group-hover:text-brand-300 transition-colors duration-300">
+                            Gestão<span class="text-brand-400 group-hover:text-brand-300 transition-colors duration-300">PRO</span>
+                        </h1>
+                        <p class="text-xs text-gray-400 font-medium tracking-wider">Sistema Financeiro</p>
+                    </div>
+                </div>
+                
+                <!-- Floating elements -->
+                <div x-show="!sidebarCollapsed" class="absolute top-2 right-2 w-2 h-2 bg-brand-400 rounded-full animate-pulse"></div>
+                <div x-show="!sidebarCollapsed" class="absolute bottom-2 left-4 w-1 h-1 bg-brand-300 rounded-full animate-ping"></div>
             </div>
 
-            <nav class="flex-1 flex flex-col overflow-y-auto">
-                <ul role="list" class="flex-1 px-4 py-4 space-y-4">
-                    <!-- Seção Principal -->
-                    <div>
-                        <div class="text-xs font-semibold text-gray-500 uppercase px-2 mb-2">Principal</div>
-                        <ul class="space-y-1">
-                            <li><a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %} bg-sidebar-active-bg text-sidebar-text-active {% else %} text-sidebar-text hover:bg-sidebar-hover-bg hover:text-sidebar-text-hover {% endif %} group flex items-center gap-x-3 rounded-md p-2 text-sm font-semibold transition-colors duration-200"><svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z" clip-rule="evenodd" /></svg>Dashboard</a></li>
-                            <li><a href="{% url 'credores:lista' %}" class="{% if request.resolver_match.app_name == 'credores' %} bg-sidebar-active-bg text-sidebar-text-active {% else %} text-sidebar-text hover:bg-sidebar-hover-bg hover:text-sidebar-text-hover {% endif %} group flex items-center gap-x-3 rounded-md p-2 text-sm font-semibold transition-colors duration-200"><svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.25 1.25 0 0 1 2.411-1.113 4.998 4.998 0 0 1 8.248 0 1.25 1.25 0 0 1 2.41 1.113 6.5 6.5 0 0 1-13.07 0Z" /></svg>Credores</a></li>
-                            <!-- NOVO LINK PARA PLANILHAS -->
-                            <li><a href="{% url 'planilhas:lista_anos' %}" class="{% if request.resolver_match.app_name == 'planilhas' %} bg-sidebar-active-bg text-sidebar-text-active {% else %} text-sidebar-text hover:bg-sidebar-hover-bg hover:text-sidebar-text-hover {% endif %} group flex items-center gap-x-3 rounded-md p-2 text-sm font-semibold transition-colors duration-200">
-                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 2a.75.75 0 0 1 .75.75v.033l1.42 1.42A3.99 3.99 0 0 1 12 4.5a3.99 3.99 0 0 1 4.83 3.203l1.42-1.42A.75.75 0 0 1 19 7.25v5.5a.75.75 0 0 1-1.5 0V8.354a2.5 2.5 0 0 0-4.1-2.018l-1.45 1.45A2.49 2.49 0 0 0 12 7.5a2.5 2.5 0 0 0-2.45 2.146l-1.45-1.45A2.49 2.49 0 0 0 8 7.5a2.5 2.5 0 0 0-2.5 2.5v5.5a.75.75 0 0 1-1.5 0V2.75A.75.75 0 0 1 5 2Z" clip-rule="evenodd" /></svg>
-                                Planilhas
-                            </a></li>
+            <!-- Navigation com scroll suave -->
+            <nav class="flex-1 flex flex-col overflow-y-auto scrollbar-hide relative">
+                <!-- Background pattern -->
+                <div class="absolute inset-0 bg-gradient-to-b from-transparent via-gray-900/20 to-gray-800/30"></div>
+                
+                <!-- Floating particles -->
+                <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div class="absolute top-1/4 left-1/4 w-1 h-1 bg-brand-400/30 rounded-full animate-ping" style="animation-delay: 0s;"></div>
+                    <div class="absolute top-1/3 right-1/3 w-1 h-1 bg-purple-400/30 rounded-full animate-ping" style="animation-delay: 1s;"></div>
+                    <div class="absolute top-2/3 left-1/3 w-1 h-1 bg-brand-300/30 rounded-full animate-ping" style="animation-delay: 2s;"></div>
+                    <div class="absolute bottom-1/4 right-1/4 w-1 h-1 bg-purple-300/30 rounded-full animate-ping" style="animation-delay: 3s;"></div>
+                </div>
+                
+                <div class="flex-1 px-6 py-8 space-y-10 relative z-10">
+                    
+                    <!-- Main section -->
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3 px-3">
+                            <div class="w-1 h-6 bg-gradient-to-b from-brand-500 to-brand-600 rounded-full"></div>
+                            <h3 x-show="!sidebarCollapsed" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="text-xs font-bold text-gray-300 uppercase tracking-widest">
+                                Principal
+                            </h3>
+                        </div>
+                        <ul class="space-y-2">
+                            <li class="stagger-item">
+                                <a href="{% url 'home' %}" 
+                                   class="{% if request.resolver_match.url_name == 'home' %}bg-gradient-to-r from-brand-600/20 to-brand-500/20 text-white shadow-glow-lg border border-brand-500/30 glow-pulse{% else %}text-gray-300 hover:bg-gray-800/60 hover:text-white hover:shadow-glow{% endif %} group flex items-center gap-x-4 rounded-2xl p-4 text-sm font-semibold transition-all duration-300 focus-ring relative overflow-hidden sidebar-item ripple"
+                                   :title="sidebarCollapsed ? 'Dashboard' : ''">
+                                    <!-- Background glow -->
+                                    <div class="absolute inset-0 bg-gradient-to-r from-brand-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    
+                                    <div class="relative z-10 flex items-center gap-x-4 w-full">
+                                        <div class="{% if request.resolver_match.url_name == 'home' %}bg-gradient-to-br from-brand-500 to-brand-600 shadow-glow{% else %}bg-gray-700 group-hover:bg-brand-500{% endif %} w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+                                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                                            </svg>
+                                        </div>
+                                        <span x-show="!sidebarCollapsed" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="flex-1">Dashboard</span>
+                                        {% if request.resolver_match.url_name == 'home' %}
+                                        <div x-show="!sidebarCollapsed" class="w-2 h-2 bg-brand-400 rounded-full animate-pulse"></div>
+                                        {% endif %}
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="stagger-item">
+                                <a href="{% url 'credores:lista' %}" 
+                                   class="{% if request.resolver_match.app_name == 'credores' %}bg-gradient-to-r from-brand-600/20 to-brand-500/20 text-white shadow-glow-lg border border-brand-500/30 glow-pulse{% else %}text-gray-300 hover:bg-gray-800/60 hover:text-white hover:shadow-glow{% endif %} group flex items-center gap-x-4 rounded-2xl p-4 text-sm font-semibold transition-all duration-300 focus-ring relative overflow-hidden sidebar-item ripple"
+                                   :title="sidebarCollapsed ? 'Credores' : ''">
+                                    <!-- Background glow -->
+                                    <div class="absolute inset-0 bg-gradient-to-r from-brand-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    
+                                    <div class="relative z-10 flex items-center gap-x-4 w-full">
+                                        <div class="{% if request.resolver_match.app_name == 'credores' %}bg-gradient-to-br from-brand-500 to-brand-600 shadow-glow{% else %}bg-gray-700 group-hover:bg-brand-500{% endif %} w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+                                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
+                                            </svg>
+                                        </div>
+                                        <span x-show="!sidebarCollapsed" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="flex-1">Credores</span>
+                                        {% if request.resolver_match.app_name == 'credores' %}
+                                        <div x-show="!sidebarCollapsed" class="w-2 h-2 bg-brand-400 rounded-full animate-pulse"></div>
+                                        {% endif %}
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="stagger-item">
+                                <a href="{% url 'planilhas:lista_anos' %}" 
+                                   class="{% if request.resolver_match.app_name == 'planilhas' %}bg-gradient-to-r from-brand-600/20 to-brand-500/20 text-white shadow-glow-lg border border-brand-500/30 glow-pulse{% else %}text-gray-300 hover:bg-gray-800/60 hover:text-white hover:shadow-glow{% endif %} group flex items-center gap-x-4 rounded-2xl p-4 text-sm font-semibold transition-all duration-300 focus-ring relative overflow-hidden sidebar-item ripple"
+                                   :title="sidebarCollapsed ? 'Planilhas' : ''">
+                                    <!-- Background glow -->
+                                    <div class="absolute inset-0 bg-gradient-to-r from-brand-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    
+                                    <div class="relative z-10 flex items-center gap-x-4 w-full">
+                                        <div class="{% if request.resolver_match.app_name == 'planilhas' %}bg-gradient-to-br from-brand-500 to-brand-600 shadow-glow{% else %}bg-gray-700 group-hover:bg-brand-500{% endif %} w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+                                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 4a1 1 0 100 2h4a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </div>
+                                        <span x-show="!sidebarCollapsed" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="flex-1">Planilhas</span>
+                                        {% if request.resolver_match.app_name == 'planilhas' %}
+                                        <div x-show="!sidebarCollapsed" class="w-2 h-2 bg-brand-400 rounded-full animate-pulse"></div>
+                                        {% endif %}
+                                    </div>
+                                </a>
+                            </li>
                         </ul>
                     </div>
-                    <!-- Seção Relatórios -->
-                    <div>
-                        <div class="text-xs font-semibold text-gray-500 uppercase px-2 mb-2">Relatórios</div>
-                        <ul class="space-y-1">
-                            <li x-data="{ open: '{{ request.resolver_match.app_name }}' === 'conciliacao' }">
-                                <button @click="open = !open" class="group flex w-full items-center gap-x-3 rounded-md p-2 text-left text-sm font-semibold text-sidebar-text hover:bg-sidebar-hover-bg hover:text-sidebar-text-hover transition-colors duration-200">
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4Zm2 4a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H7a1 1 0 0 1-1-1Zm1 4a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2H7Z" clip-rule="evenodd" /></svg>
-                                    Conciliação
-                                    <svg class="ml-auto h-5 w-5 shrink-0 transition-transform duration-200" :class="{'rotate-90': open}" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" /></svg>
+
+                    <!-- Reports section -->
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3 px-3">
+                            <div class="w-1 h-6 bg-gradient-to-b from-purple-500 to-purple-600 rounded-full"></div>
+                            <h3 x-show="!sidebarCollapsed" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="text-xs font-bold text-gray-300 uppercase tracking-widest">
+                                Relatórios
+                            </h3>
+                        </div>
+                        <ul class="space-y-2">
+                            <li x-data="{ open: '{{ request.resolver_match.app_name }}' === 'conciliacao' }" class="stagger-item">
+                                <button 
+                                    @click="open = !open" 
+                                    class="group flex w-full items-center gap-x-4 rounded-2xl p-4 text-left text-sm font-semibold text-gray-300 hover:bg-gray-800/60 hover:text-white transition-all duration-300 focus-ring relative overflow-hidden sidebar-item ripple"
+                                    :title="sidebarCollapsed ? 'Relatórios' : ''">
+                                    <!-- Background glow -->
+                                    <div class="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    
+                                    <div class="relative z-10 flex items-center gap-x-4 w-full">
+                                        <div class="bg-gray-700 group-hover:bg-purple-500 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+                                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 4a1 1 0 100 2h4a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </div>
+                                        <span x-show="!sidebarCollapsed" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="flex-1">Conciliação</span>
+                                        <svg x-show="!sidebarCollapsed" class="h-5 w-5 shrink-0 transition-all duration-300 group-hover:scale-110" :class="{'rotate-90': open}" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
                                 </button>
-                                <ul x-show="open" x-transition class="mt-1 space-y-1 pl-5">
-                                    <li><a href="{% url 'conciliacao:pagina_upload' %}" class="flex items-center gap-x-2 rounded-md py-2 pr-2 pl-3 text-sm leading-6 {% if request.resolver_match.url_name == 'pagina_upload' %} text-sidebar-text-active {% else %} text-sidebar-text hover:text-sidebar-text-hover {% endif %}">
-                                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M9.25 13.25a.75.75 0 0 0 1.5 0V4.636l2.955 3.129a.75.75 0 0 0 1.09-1.03l-4.25-4.5a.75.75 0 0 0-1.09 0l-4.25 4.5a.75.75 0 1 0 1.09 1.03L9.25 4.636v8.614Z" /><path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" /></svg>
-                                        Nova Conciliação
-                                    </a></li>
-                                    <li><a href="{% url 'conciliacao:lista_relatorios' %}" class="flex items-center gap-x-2 rounded-md py-2 pr-2 pl-3 text-sm leading-6 {% if 'relatorio' in request.resolver_match.url_name %} text-sidebar-text-active {% else %} text-sidebar-text hover:text-sidebar-text-hover {% endif %}">
-                                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z" clip-rule="evenodd" /></svg>
-                                        Histórico
-                                    </a></li>
-                                    <li><a href="{% url 'conciliacao:instrucoes_ofx' %}" class="flex items-center gap-x-2 rounded-md py-2 pr-2 pl-3 text-sm leading-6 {% if request.resolver_match.url_name == 'instrucoes_ofx' %} text-sidebar-text-active {% else %} text-sidebar-text hover:text-sidebar-text-hover {% endif %}">
-                                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v.008c0 .414.336.75.75.75h.008a.75.75 0 0 1 0 1.5h-.008a.75.75 0 0 1-.75-.75v-.008a.75.75 0 0 1-.75-.75V5.75A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" /></svg>
-                                        Instruções OFX
-                                    </a></li>
+                                <ul x-show="open && !sidebarCollapsed" 
+                                    x-transition:enter="transition ease-out duration-300" 
+                                    x-transition:enter-start="opacity-0 transform -translate-y-4 scale-95" 
+                                    x-transition:enter-end="opacity-100 transform translate-y-0 scale-100" 
+                                    x-transition:leave="transition ease-in duration-200" 
+                                    x-transition:leave-start="opacity-100 transform translate-y-0 scale-100" 
+                                    x-transition:leave-end="opacity-0 transform -translate-y-4 scale-95" 
+                                    class="mt-3 space-y-2 pl-12">
+                                    <li>
+                                        <a href="{% url 'conciliacao:pagina_upload' %}" 
+                                           class="{% if request.resolver_match.url_name == 'pagina_upload' %}text-brand-400 bg-brand-500/10 border border-brand-500/20{% else %}text-gray-400 hover:text-white hover:bg-gray-800/40{% endif %} flex items-center gap-x-3 rounded-xl py-3 px-4 text-sm font-medium transition-all duration-300 focus-ring group">
+                                            <div class="w-2 h-2 bg-current rounded-full group-hover:scale-150 transition-transform duration-300"></div>
+                                            <svg class="h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                            </svg>
+                                            <span>Nova Conciliação</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'conciliacao:lista_relatorios' %}" 
+                                           class="{% if 'relatorio' in request.resolver_match.url_name %}text-brand-400 bg-brand-500/10 border border-brand-500/20{% else %}text-gray-400 hover:text-white hover:bg-gray-800/40{% endif %} flex items-center gap-x-3 rounded-xl py-3 px-4 text-sm font-medium transition-all duration-300 focus-ring group">
+                                            <div class="w-2 h-2 bg-current rounded-full group-hover:scale-150 transition-transform duration-300"></div>
+                                            <svg class="h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                            </svg>
+                                            <span>Histórico</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'conciliacao:instrucoes_ofx' %}" 
+                                           class="{% if request.resolver_match.url_name == 'instrucoes_ofx' %}text-brand-400 bg-brand-500/10 border border-brand-500/20{% else %}text-gray-400 hover:text-white hover:bg-gray-800/40{% endif %} flex items-center gap-x-3 rounded-xl py-3 px-4 text-sm font-medium transition-all duration-300 focus-ring group">
+                                            <div class="w-2 h-2 bg-current rounded-full group-hover:scale-150 transition-transform duration-300"></div>
+                                            <svg class="h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                                            </svg>
+                                            <span>Instruções OFX</span>
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                         </ul>
                     </div>
-                </ul>
+                </div>
 
-                <!-- Menu do Usuário -->
-                <div class="mt-auto p-4 border-t border-gray-800">
+                <!-- User menu premium -->
+                <div class="p-6 border-t border-gray-700/50 bg-gradient-to-t from-gray-800/50 to-transparent backdrop-blur-xl relative">
+                    <!-- Progress indicator -->
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-500 via-purple-500 to-brand-600 rounded-full opacity-50"></div>
                     <div x-data="{ open: false }" class="relative">
-                        <button @click="open = !open" class="w-full flex items-center gap-x-3 p-2 rounded-md hover:bg-sidebar-hover-bg transition-colors duration-200">
-                            <div class="h-9 w-9 rounded-full bg-brand-800 flex items-center justify-center shrink-0">
-                                <span class="font-medium text-sm text-white">{{ user.username.0|upper|default:'U' }}</span>
+                        <button 
+                            @click="open = !open" 
+                            class="w-full flex items-center gap-x-4 p-4 rounded-2xl hover:bg-gray-800/60 transition-all duration-300 focus-ring group"
+                            aria-expanded="false"
+                            aria-haspopup="true">
+                            <div class="relative">
+                                <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-brand-500 via-brand-600 to-brand-700 flex items-center justify-center shrink-0 shadow-glow-lg transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                    <span class="font-bold text-sm text-white group-hover:scale-110 transition-transform duration-300">{{ user.username.0|upper|default:'U' }}</span>
+                                </div>
+                                <!-- Online indicator -->
+                                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-gray-900 rounded-full animate-pulse group-hover:scale-125 transition-transform duration-300"></div>
+                                <!-- Hover glow effect -->
+                                <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-brand-400/20 to-purple-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"></div>
                             </div>
-                            <div class="text-left leading-4 truncate">
-                                <p class="text-sm font-semibold text-white">{{ user.get_full_name|default:user.username }}</p>
-                                <p class="text-xs text-gray-400">Opções</p>
+                            <div x-show="!sidebarCollapsed" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="text-left leading-5 truncate flex-1">
+                                <p class="text-sm font-bold text-white truncate group-hover:text-brand-300 transition-colors duration-300">{{ user.get_full_name|default:user.username }}</p>
+                                <p class="text-xs text-gray-400 truncate font-medium">Usuário Ativo</p>
                             </div>
-                            <svg class="ml-auto h-5 w-5 text-gray-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M14.77 12.79a.75.75 0 0 1-1.06-.02L10 8.832 6.29 12.77a.75.75 0 1 1-1.08-1.04l4.25-4.5a.75.75 0 0 1 1.08 0l4.25 4.5a.75.75 0 0 1-.02 1.06Z" clip-rule="evenodd" /></svg>
+                            <svg x-show="!sidebarCollapsed" class="h-5 w-5 text-gray-400 shrink-0 transition-all duration-300 group-hover:text-white" :class="{'rotate-180': open}" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
                         </button>
-                        <div x-show="open" @click.away="open = false" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="transform opacity-0 scale-95" x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="transform opacity-100 scale-100" x-transition:leave-end="transform opacity-0 scale-95"
-                               class="absolute bottom-full left-0 mb-2 w-full rounded-md bg-gray-800 py-2 shadow-lg ring-1 ring-black/10 z-50 origin-bottom">
-                            <form action="{% url 'logout' %}" method="post">
+                        <div 
+                            x-show="open" 
+                            @click.away="open = false" 
+                            x-transition:enter="transition ease-out duration-300" 
+                            x-transition:enter-start="opacity-0 scale-95 translate-y-2" 
+                            x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                            x-transition:leave="transition ease-in duration-200" 
+                            x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                            x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                            class="absolute bottom-full left-0 mb-3 w-full rounded-2xl bg-gray-800/95 backdrop-blur-xl py-3 shadow-soft-xl ring-1 ring-gray-700/50 z-50 origin-bottom">
+                            
+                            <!-- Logout simples e funcional -->
+                            <form action="{% url 'logout' %}" method="post" style="display:inline; margin-left: 1rem;">
                                 {% csrf_token %}
-                                <button type="submit" class="w-full flex items-center gap-x-3 px-4 py-2 text-sm text-red-400 hover:bg-gray-700 hover:text-red-300">
-                                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4.25A2.25 2.25 0 0 1 5.25 2h5.5A2.25 2.25 0 0 1 13 4.25v2a.75.75 0 0 1-1.5 0v-2a.75.75 0 0 0-.75-.75h-5.5a.75.75 0 0 0-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 0 0 .75-.75v-2a.75.75 0 0 1 1.5 0v2A2.25 2.25 0 0 1 10.75 18h-5.5A2.25 2.25 0 0 1 3 15.75V4.25Z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M19 10a.75.75 0 0 0-.75-.75H8.704l1.048-.943a.75.75 0 1 0-1.004-1.114l-2.5 2.25a.75.75 0 0 0 0 1.114l2.5 2.25a.75.75 0 1 0 1.004-1.114l-1.048-.943H18.25A.75.75 0 0 0 19 10Z" clip-rule="evenodd" /></svg>
-                                    Sair
-                                </button>
-                            </form>
-                        </div>
+                                <button type="submit" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition-all duration-200">
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
+                                </svg>
+                                Sair
+                            </button>
+                        </form>
                     </div>
                 </div>
             </nav>
         </aside>
 
-        <!-- Conteúdo Principal -->
-        <div class="lg:pl-64 flex flex-col flex-1 min-h-screen">
-            <!-- Cabeçalho Superior -->
-            <header class="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 px-4 shadow-sm backdrop-blur-lg sm:px-6 lg:px-8">
-                <button type="button" @click="sidebarOpen = true" class="p-2.5 text-gray-700 dark:text-gray-300 lg:hidden">
+        <!-- Main content -->
+        <div :class="sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-80'" class="flex flex-col flex-1 min-h-screen transition-all duration-500 ease-out">
+            <!-- Top header -->
+            <header class="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200/50 dark:border-gray-800/50 glass px-4 sm:px-6 lg:px-8" role="banner">
+                <button 
+                    type="button" 
+                    @click="openSidebar()" 
+                    class="p-2.5 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 focus-ring lg:hidden focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    aria-label="Abrir menu lateral">
                     <span class="sr-only">Abrir menu</span>
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+                    </svg>
                 </button>
                 
                 <div class="h-6 w-px bg-gray-900/10 dark:bg-white/10 lg:hidden" aria-hidden="true"></div>
 
                 <div class="flex flex-1 justify-end items-center gap-x-4 self-stretch lg:gap-x-6">
                     <div class="flex items-center gap-x-4 lg:gap-x-6">
-                        <button @click="toggleTheme" type="button" class="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
-                            <span class="sr-only">Mudar tema</span>
-                            <svg x-show="theme === 'light'" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.95-4.243l-1.59-1.591M5.25 12H3m4.243-4.95l-1.59-1.591M12 9a3 3 0 100 6 3 3 0 000-6z" /></svg>
-                            <svg x-show="theme === 'dark'" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" /></svg>
-                            <svg x-show="theme === 'system'" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01.879 2.121l.75.75a3 3 0 002.121.879H15.75a3 3 0 002.121-.879l.75-.75a3 3 0 01.879-2.121V17.25m-6 0H9m3 0c-.075 0-.272.008-.475.042C9.92 17.304 9 18.397 9 19.688V21.75c0 .207.118.394.309.49l3.25 1.732a.75.75 0 00.75 0l3.25-1.732a.75.75 0 00.309-.49V19.688c0-1.291-.92-2.384-2.525-2.646-.203-.034-.4-.042-.475-.042zM12 2.25l-.895-1.072a.75.75 0 00-1.091-.252L7.25 3.5h-.75A2.25 2.25 0 004.25 5.75v3.252a2.25 2.25 0 002.25 2.25h.75l2.155 2.155a2.25 2.25 0 003.25 0l2.155-2.155h.75a2.25 2.25 0 002.25-2.25V5.75A2.25 2.25 0 0016.5 3.5h-.75l-2.754-1.674a.75.75 0 00-1.091.252L12 2.25z" /></svg>
+                        <!-- Sidebar toggle (desktop) -->
+                        <button 
+                            @click="toggleSidebar()" 
+                            type="button" 
+                            class="flex p-3 text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-xl transition-all duration-300 focus-ring focus:outline-none focus:ring-2 focus:ring-brand-500 group border border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-600 shadow-sm hover:shadow-md header-button"
+                            :class="{'button-glow': !sidebarCollapsed}"
+                            :aria-label="sidebarCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'">
+                            <svg x-show="!sidebarCollapsed" class="h-6 w-6 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15V4.5a2.25 2.25 0 012.25-2.25h8.25a2.25 2.25 0 012.25 2.25v15a2.25 2.25 0 01-2.25 2.25h-8.25a2.25 2.25 0 01-2.25-2.25z"/>
+                            </svg>
+                            <svg x-show="sidebarCollapsed" class="h-6 w-6 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-180" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5"/>
+                            </svg>
                         </button>
+
+                        <!-- Theme toggle -->
+                        <div x-data="{ themeMenuOpen: false }" class="relative">
+                            <button 
+                                @click="themeMenuOpen = !themeMenuOpen" 
+                                type="button" 
+                                class="flex items-center gap-2 p-3 text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-xl transition-all duration-300 focus-ring focus:outline-none focus:ring-2 focus:ring-brand-500 group border border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-600 shadow-sm hover:shadow-md header-button"
+                                :aria-label="'Tema atual: ' + (theme === 'light' ? 'claro' : theme === 'dark' ? 'escuro' : 'sistema')">
+                                <!-- Light mode icon -->
+                                <svg x-show="theme === 'light'" class="h-6 w-6 transition-transform duration-300 group-hover:scale-110 text-yellow-500" fill="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.95-4.243l-1.59-1.591M5.25 12H3m4.243-4.95l-1.59-1.591M12 9a3 3 0 100 6 3 3 0 000-6z"/>
+                                </svg>
+                                <!-- Dark mode icon -->
+                                <svg x-show="theme === 'dark'" class="h-6 w-6 transition-transform duration-300 group-hover:scale-110 text-blue-500" fill="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>
+                                </svg>
+                                <!-- System mode icon -->
+                                <svg x-show="theme === 'system'" class="h-6 w-6 transition-transform duration-300 group-hover:scale-110 text-purple-500" fill="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01.879 2.121l.75.75a3 3 0 002.121.879H15.75a3 3 0 002.121-.879l.75-.75a3 3 0 01.879-2.121V17.25m-6 0H9m3 0c-.075 0-.272.008-.475.042C9.92 17.304 9 18.397 9 19.688V21.75c0 .207.118.394.309.49l3.25 1.732a.75.75 0 00.75 0l3.25-1.732a.75.75 0 00.309-.49V19.688c0-1.291-.92-2.384-2.525-2.646-.203-.034-.4-.042-.475-.042zM12 2.25l-.895-1.072a.75.75 0 00-1.091-.252L7.25 3.5h-.75A2.25 2.25 0 004.25 5.75v3.252a2.25 2.25 0 002.25 2.25h.75l2.155 2.155a2.25 2.25 0 003.25 0l2.155-2.155h.75a2.25 2.25 0 002.25-2.25V5.75A2.25 2.25 0 0016.5 3.5h-.75l-2.754-1.674a.75.75 0 00-1.091.252L12 2.25z"/>
+                                </svg>
+                                
+                                <!-- Theme label -->
+                                <span x-show="!sidebarCollapsed" class="text-sm font-medium">
+                                    <span x-show="theme === 'light'">Claro</span>
+                                    <span x-show="theme === 'dark'">Escuro</span>
+                                    <span x-show="theme === 'system'">Sistema</span>
+                                </span>
+                                
+                                <!-- Dropdown arrow -->
+                                <svg class="h-4 w-4 transition-transform duration-300 group-hover:scale-110" :class="{'rotate-180': themeMenuOpen}" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            
+                            <!-- Theme dropdown menu -->
+                            <div 
+                                x-show="themeMenuOpen" 
+                                @click.away="themeMenuOpen = false" 
+                                x-transition:enter="transition ease-out duration-200" 
+                                x-transition:enter-start="opacity-0 scale-95 translate-y-2" 
+                                x-transition:enter-end="opacity-100 scale-100 translate-y-0" 
+                                x-transition:leave="transition ease-in duration-150" 
+                                x-transition:leave-start="opacity-100 scale-100 translate-y-0" 
+                                x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+                                class="absolute right-0 mt-2 w-48 rounded-xl bg-white dark:bg-gray-800 shadow-soft-xl ring-1 ring-gray-200 dark:ring-gray-700 py-2 z-50 origin-top-right">
+                                
+                                <button 
+                                    @click="setTheme('light'); themeMenuOpen = false" 
+                                    class="w-full flex items-center gap-x-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 focus-ring group">
+                                    <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                                        <svg class="h-4 w-4 text-yellow-600 dark:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.95-4.243l-1.59-1.591M5.25 12H3m4.243-4.95l-1.59-1.591M12 9a3 3 0 100 6 3 3 0 000-6z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="text-left">
+                                        <span class="font-medium">Claro</span>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Tema claro</p>
+                                    </div>
+                                    <svg x-show="theme === 'light'" class="h-4 w-4 text-brand-500 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </button>
+                                
+                                <button 
+                                    @click="setTheme('dark'); themeMenuOpen = false" 
+                                    class="w-full flex items-center gap-x-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 focus-ring group">
+                                    <div class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                                        <svg class="h-4 w-4 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="text-left">
+                                        <span class="font-medium">Escuro</span>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Tema escuro</p>
+                                    </div>
+                                    <svg x-show="theme === 'dark'" class="h-4 w-4 text-brand-500 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </button>
+                                
+                                <button 
+                                    @click="setTheme('system'); themeMenuOpen = false" 
+                                    class="w-full flex items-center gap-x-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 focus-ring group">
+                                    <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                                        <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01.879 2.121l.75.75a3 3 0 002.121.879H15.75a3 3 0 002.121-.879l.75-.75a3 3 0 01.879-2.121V17.25m-6 0H9m3 0c-.075 0-.272.008-.475.042C9.92 17.304 9 18.397 9 19.688V21.75c0 .207.118.394.309.49l3.25 1.732a.75.75 0 00.75 0l3.25-1.732a.75.75 0 00.309-.49V19.688c0-1.291-.92-2.384-2.525-2.646-.203-.034-.4-.042-.475-.042zM12 2.25l-.895-1.072a.75.75 0 00-1.091-.252L7.25 3.5h-.75A2.25 2.25 0 004.25 5.75v3.252a2.25 2.25 0 002.25 2.25h.75l2.155 2.155a2.25 2.25 0 003.25 0l2.155-2.155h.75a2.25 2.25 0 002.25-2.25V5.75A2.25 2.25 0 0016.5 3.5h-.75l-2.754-1.674a.75.75 0 00-1.091.252L12 2.25z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="text-left">
+                                        <span class="font-medium">Sistema</span>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">Segue configuração do sistema</p>
+                                    </div>
+                                    <svg x-show="theme === 'system'" class="h-4 w-4 text-brand-500 ml-auto" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick theme toggle (alternative) -->
+                        <button 
+                            @click="toggleTheme()" 
+                            type="button" 
+                            class="flex items-center justify-center p-3 text-gray-700 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-xl transition-all duration-300 focus-ring focus:outline-none focus:ring-2 focus:ring-brand-500 group border border-gray-200 dark:border-gray-700 hover:border-brand-300 dark:hover:border-brand-600 shadow-sm hover:shadow-md header-button"
+                            :title="'Alternar para ' + (theme === 'light' ? 'modo escuro' : 'modo claro')">
+                            <!-- Sun icon for light mode -->
+                            <svg x-show="theme === 'light'" class="h-6 w-6 transition-transform duration-300 group-hover:scale-110 text-yellow-500" fill="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.95-4.243l-1.59-1.591M5.25 12H3m4.243-4.95l-1.59-1.591M12 9a3 3 0 100 6 3 3 0 000-6z"/>
+                            </svg>
+                            <!-- Moon icon for dark mode -->
+                            <svg x-show="theme === 'dark'" class="h-6 w-6 transition-transform duration-300 group-hover:scale-110 text-blue-500" fill="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>
+                            </svg>
+                            <!-- System icon -->
+                            <svg x-show="theme === 'system'" class="h-6 w-6 transition-transform duration-300 group-hover:scale-110 text-purple-500" fill="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01.879 2.121l.75.75a3 3 0 002.121.879H15.75a3 3 0 002.121-.879l.75-.75a3 3 0 01.879-2.121V17.25m-6 0H9m3 0c-.075 0-.272.008-.475.042C9.92 17.304 9 18.397 9 19.688V21.75c0 .207.118.394.309.49l3.25 1.732a.75.75 0 00.75 0l3.25-1.732a.75.75 0 00.309-.49V19.688c0-1.291-.92-2.384-2.525-2.646-.203-.034-.4-.042-.475-.042zM12 2.25l-.895-1.072a.75.75 0 00-1.091-.252L12 2.25z"/>
+                            </svg>
+                        </button>
+
+                        <!-- Logout button in header -->
+                        <form action="{% url 'logout' %}" method="post" style="display:inline; margin-left: 1rem;">
+                            {% csrf_token %}
+                            <button 
+                                type="submit" 
+                                onclick="console.log('Header logout button clicked');"
+                                class="flex items-center justify-center p-3 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-300 focus-ring focus:outline-none focus:ring-2 focus:ring-red-500 group border border-gray-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-600 shadow-sm hover:shadow-md header-button"
+                                title="Sair do Sistema"
+                                style="background: none; border: none; cursor: pointer;">
+                                <svg class="h-6 w-6 transition-transform duration-300 group-hover:scale-110 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </header>
 
-            <!-- Área de Conteúdo da Página -->
-            <main class="flex-1 py-8 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 bg-grid-pattern transition-colors duration-300 ease-in-out">
+            <!-- Notificações -->
+            <div id="notification-area" class="fixed top-4 right-4 z-50 space-y-2"></div>
+            <!-- Loading spinner global -->
+            <div id="global-loading" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm hidden">
+                <div class="w-12 h-12 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+
+            <!-- Page content -->
+            <main class="flex-1 py-8 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 bg-grid-pattern" role="main">
                 <div class="max-w-full mx-auto">
+                    <!-- Page header -->
                     <header class="mb-8">
-                        <div class="flex flex-wrap items-center justify-between gap-4">
-                            <div>
+                        <div class="flex flex-wrap items-center justify-between gap-6">
+                            <div class="min-w-0 flex-1">
                                 <h1 class="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:truncate sm:text-3xl sm:tracking-tight">
                                     {% block page_title %}Dashboard{% endblock %}
                                 </h1>
-                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
                                     {% block page_subtitle %}Visão geral do seu sistema financeiro.{% endblock %}
                                 </p>
                             </div>
@@ -223,7 +859,8 @@
                         </div>
                     </header>
                     
-                    <div class="mt-4"> 
+                    <!-- Page content -->
+                    <div class="space-y-6"> 
                         {% block content %}{% endblock %}
                     </div>
                 </div>
@@ -231,32 +868,95 @@
         </div>
     </div>
     
+    <!-- Alpine.js app logic -->
     <script>
         function appLayout() {
             return {
                 sidebarOpen: false,
-                theme: 'system', // 'light', 'dark', 'system'
+                sidebarCollapsed: false,
+                theme: 'system',
+                
                 initTheme() {
                     this.theme = localStorage.getItem('theme') || 'system';
+                    this.sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
                     this.applyTheme();
                 },
+                
                 applyTheme() {
-                    if (this.theme === 'dark' || (this.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                        document.documentElement.classList.add('dark');
-                    } else {
-                        document.documentElement.classList.remove('dark');
-                    }
+                    const isDark = this.theme === 'dark' || (this.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                    document.documentElement.classList.toggle('dark', isDark);
                 },
+                
+                setTheme(newTheme) {
+                    this.theme = newTheme;
+                    localStorage.setItem('theme', this.theme);
+                    this.applyTheme();
+                },
+                
                 toggleTheme() {
                     const themes = ['light', 'dark', 'system'];
                     const currentIndex = themes.indexOf(this.theme);
                     this.theme = themes[(currentIndex + 1) % themes.length];
                     localStorage.setItem('theme', this.theme);
                     this.applyTheme();
+                },
+                
+                toggleSidebar() {
+                    this.sidebarCollapsed = !this.sidebarCollapsed;
+                    localStorage.setItem('sidebarCollapsed', this.sidebarCollapsed);
+                },
+                
+                openSidebar() {
+                    this.sidebarOpen = true;
+                    document.body.style.overflow = 'hidden';
+                },
+                
+                closeSidebar() {
+                    this.sidebarOpen = false;
+                    document.body.style.overflow = '';
                 }
             }
         }
     </script>
+
+    <!-- Notificações e Loading Spinner (JS utilitário) -->
+    <script>
+    // Exemplo de uso: showNotification('Mensagem de sucesso!', 'success');
+    function showNotification(message, type = 'info', timeout = 4000) {
+        const area = document.getElementById('notification-area');
+        if (!area) return;
+        const colors = {
+            success: 'bg-feedback-success text-white',
+            error: 'bg-feedback-error text-white',
+            warning: 'bg-feedback-warning text-white',
+            info: 'bg-feedback-info text-white',
+        };
+        const icon = {
+            success: '✔️',
+            error: '❌',
+            warning: '⚠️',
+            info: 'ℹ️',
+        };
+        const div = document.createElement('div');
+        div.className = `flex items-center gap-2 px-4 py-3 rounded-lg shadow-soft-xl ${colors[type] || colors.info} animate-fade-in`;
+        div.innerHTML = `<span>${icon[type] || icon.info}</span><span>${message}</span>`;
+        area.appendChild(div);
+        setTimeout(() => {
+            div.classList.add('opacity-0');
+            setTimeout(() => div.remove(), 300);
+        }, timeout);
+    }
+    
+    // Exemplo de uso: setLoading(true) ou setLoading(false)
+    function setLoading(show = true) {
+        const spinner = document.getElementById('global-loading');
+        if (!spinner) return;
+        spinner.classList.toggle('hidden', !show);
+    }
+    
+
+    </script>
+    
     {% block body_extra %}{% endblock %}
 </body>
 </html>

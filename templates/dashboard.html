@@ -4,56 +4,415 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block page_title %}Bem-vindo de volta, {{ user.get_full_name|default:user.username }}!{% endblock %}
-{% block page_subtitle %}Visão geral e estratégica da saúde financeira do seu sistema.{% endblock %}
+{% block page_subtitle %}Visão geral estratégica da saúde financeira do seu sistema.{% endblock %}
 
 {% block page_actions %}
-    <a href="{% url 'conciliacao:pagina_upload' %}" class="inline-flex items-center gap-x-2 rounded-md bg-brand-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-colors duration-200">
-        <svg class="-ml-0.5 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" /></svg>
-        Nova Conciliação
+    <a href="{% url 'conciliacao:pagina_upload' %}" 
+       class="group inline-flex items-center gap-x-3 rounded-xl bg-gradient-to-r from-brand-600 via-brand-700 to-brand-800 px-6 py-3 text-sm font-semibold text-white shadow-soft-lg hover:shadow-glow-lg hover:scale-105 transition-all duration-300 focus-ring focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2">
+        <svg class="h-5 w-5 transition-transform duration-300 group-hover:rotate-90" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+        </svg>
+        <span>Nova Conciliação</span>
+        <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
     </a>
 {% endblock %}
 
 {% block content %}
 <div class="space-y-8">
+    <!-- Welcome Banner -->
+    <div class="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 p-8 text-white shadow-soft-xl hover:shadow-glow-lg transition-all duration-500">
+        <div class="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/10"></div>
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50"></div>
+        <div class="relative z-10">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">
+                        Dashboard Financeiro
+                    </h2>
+                    <p class="mt-3 text-lg text-brand-100/90">
+                        Acompanhe seus indicadores financeiros em tempo real
+                    </p>
+                </div>
+                <div class="hidden sm:block">
+                    <div class="flex items-center space-x-3 text-brand-100/90">
+                        <div class="flex h-3 w-3">
+                            <div class="animate-ping absolute h-3 w-3 rounded-full bg-green-400 opacity-75"></div>
+                            <div class="relative rounded-full h-3 w-3 bg-green-500"></div>
+                        </div>
+                        <span class="text-sm font-medium">Atualizado agora</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Decorative elements -->
+        <div class="absolute top-0 right-0 -mt-8 -mr-8 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
+        <div class="absolute bottom-0 left-0 -mb-8 -ml-8 h-32 w-32 rounded-full bg-white/5 blur-xl"></div>
+        <div class="absolute top-1/2 right-1/4 h-16 w-16 rounded-full bg-white/5 blur-lg"></div>
+    </div>
 
-    <!-- Seção de KPIs -->
+    <!-- KPIs Section -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-        <div class="group relative flex flex-col items-center justify-center rounded-xl p-6 text-center transition-all duration-300 bg-gradient-to-br from-red-50 to-white dark:from-red-950/50 dark:to-gray-900 ring-1 ring-red-200/50 dark:ring-red-800/50 hover:ring-red-500 hover:shadow-2xl hover:shadow-red-500/10 hover:scale-105">
-            <div class="mb-4 text-red-500 dark:text-red-400"><svg class="h-12 w-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15A2.25 2.25 0 0 0 2.25 6.75v10.5A2.25 2.25 0 0 0 4.5 21Z" /></svg></div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Saldo Devedor Total</p>
-            <p class="mt-1 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">R$ {{ saldo_devedor_total|intcomma }}</p>
+        <!-- Saldo Devedor Total -->
+        <div class="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-50 via-white to-red-50 dark:from-red-950/20 dark:via-gray-900/80 dark:to-red-950/20 p-8 shadow-soft-lg hover:shadow-glow-lg transition-all duration-500 card-hover border border-red-100/50 dark:border-red-900/30">
+            <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 via-transparent to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-500/10 to-transparent rounded-full blur-2xl group-hover:blur-3xl transition-all duration-500"></div>
+            <div class="relative z-10">
+                <div class="flex items-start justify-between mb-6">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/50 px-3 py-1 text-xs font-medium text-red-800 dark:text-red-200">
+                                Principal
+                            </span>
+                            <div class="flex h-2 w-2">
+                                <div class="animate-ping absolute h-2 w-2 rounded-full bg-red-400 opacity-75"></div>
+                                <div class="relative rounded-full h-2 w-2 bg-red-500"></div>
+                            </div>
+                        </div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                            Saldo Devedor Total
+                        </p>
+                        <p class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+                            R$ {{ saldo_devedor_total|intcomma }}
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-red-500 to-red-600 text-white shadow-glow group-hover:shadow-glow-lg transition-all duration-300 group-hover:scale-110">
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15A2.25 2.25 0 002.25 6.75v10.5A2.25 2.25 0 004.5 21z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-red-600 dark:text-red-400 font-medium">Valor Principal</span>
+                    <span class="text-gray-500 dark:text-gray-400">Sem juros</span>
+                </div>
+            </div>
         </div>
-        <div class="group relative flex flex-col items-center justify-center rounded-xl p-6 text-center transition-all duration-300 bg-gradient-to-br from-green-50 to-white dark:from-green-950/50 dark:to-gray-900 ring-1 ring-green-200/50 dark:ring-green-800/50 hover:ring-green-500 hover:shadow-2xl hover:shadow-green-500/10 hover:scale-105">
-            <div class="mb-4 text-green-500 dark:text-green-400"><svg class="h-12 w-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg></div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Lucro Potencial (Juros )</p>
-            <p class="mt-1 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">R$ {{ lucro_potencial|intcomma }}</p>
+
+        <!-- Lucro Potencial -->
+        <div class="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-green-50 via-white to-green-50 dark:from-green-950/20 dark:via-gray-900/80 dark:to-green-950/20 p-8 shadow-soft-lg hover:shadow-glow-lg transition-all duration-500 card-hover border border-green-100/50 dark:border-green-900/30">
+            <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-transparent rounded-full blur-2xl group-hover:blur-3xl transition-all duration-500"></div>
+            <div class="relative z-10">
+                <div class="flex items-start justify-between mb-6">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/50 px-3 py-1 text-xs font-medium text-green-800 dark:text-green-200">
+                                Juros
+                            </span>
+                            <div class="flex h-2 w-2">
+                                <div class="animate-ping absolute h-2 w-2 rounded-full bg-green-400 opacity-75"></div>
+                                <div class="relative rounded-full h-2 w-2 bg-green-500"></div>
+                            </div>
+                        </div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                            Lucro Potencial
+                        </p>
+                        <p class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+                            R$ {{ lucro_potencial|intcomma }}
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-glow group-hover:shadow-glow-lg transition-all duration-300 group-hover:scale-110">
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-green-600 dark:text-green-400 font-medium">Juros Aplicados</span>
+                    <span class="text-gray-500 dark:text-gray-400">Lucro estimado</span>
+                </div>
+            </div>
         </div>
-        <div class="group relative flex flex-col items-center justify-center rounded-xl p-6 text-center transition-all duration-300 bg-gradient-to-br from-blue-50 to-white dark:from-blue-950/50 dark:to-gray-900 ring-1 ring-blue-200/50 dark:ring-blue-800/50 hover:ring-blue-500 hover:shadow-2xl hover:shadow-blue-500/10 hover:scale-105">
-            <div class="mb-4 text-blue-500 dark:text-blue-400"><svg class="h-12 w-12" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m-7.512 2.72a3 3 0 0 1-4.682-2.72M12 18.72V15m0 3.72a9.094 9.094 0 0 1-3.741-.479 3 3 0 0 1-4.682-2.72M12 3c-1.818 0-3.516.455-5.012 1.255a3 3 0 0 0-2.976 2.732A9.05 9.05 0 0 0 5.472 9.75c1.144-.324 2.342-.479 3.528-.479m4.5 0c1.186 0 2.384.155 3.528.479a9.05 9.05 0 0 0 2.976-2.758 3 3 0 0 0-2.976-2.732A9.09 9.09 0 0 0 12 3Z" /></svg></div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Credores Ativos</p>
-            <p class="mt-1 text-3xl font-bold tracking-tight text-gray-900 dark:text-white">{{ total_credores_ativos }}</p>
+
+        <!-- Credores Ativos -->
+        <div class="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-blue-950/20 dark:via-gray-900/80 dark:to-blue-950/20 p-8 shadow-soft-lg hover:shadow-glow-lg transition-all duration-500 card-hover border border-blue-100/50 dark:border-blue-900/30">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-transparent rounded-full blur-2xl group-hover:blur-3xl transition-all duration-500"></div>
+            <div class="relative z-10">
+                <div class="flex items-start justify-between mb-6">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/50 px-3 py-1 text-xs font-medium text-blue-800 dark:text-blue-200">
+                                Ativos
+                            </span>
+                            <div class="flex h-2 w-2">
+                                <div class="animate-ping absolute h-2 w-2 rounded-full bg-blue-400 opacity-75"></div>
+                                <div class="relative rounded-full h-2 w-2 bg-blue-500"></div>
+                            </div>
+                        </div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                            Credores Ativos
+                        </p>
+                        <p class="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+                            {{ total_credores_ativos }}
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-glow group-hover:shadow-glow-lg transition-all duration-300 group-hover:scale-110">
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m-7.512 2.72a3 3 0 01-4.682-2.72M12 18.72V15m0 3.72a9.094 9.094 0 01-3.741-.479 3 3 0 01-4.682-2.72M12 3c-1.818 0-3.516.455-5.012 1.255a3 3 0 00-2.976 2.732A9.05 9.05 0 005.472 9.75c1.144-.324 2.342-.479 3.528-.479m4.5 0c1.186 0 2.384.155 3.528.479a9.05 9.05 0 002.976-2.758 3 3 0 00-2.976-2.732A9.09 9.09 0 0012 3z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-blue-600 dark:text-blue-400 font-medium">Em atividade</span>
+                    <span class="text-gray-500 dark:text-gray-400">Total registrado</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Seção de Gráficos -->
-    <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div class="rounded-xl bg-white dark:bg-gray-900/50 p-6 shadow-lg ring-1 ring-black/5 dark:ring-white/10 lg:col-span-3">
-            <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">Performance de Fluxo de Caixa Mensal</h3>
+    <!-- Charts Section -->
+    <div class="space-y-8">
+        <!-- Main Chart - Fluxo de Caixa -->
+        <div class="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-gray-50/50 to-white dark:from-gray-900/80 dark:via-gray-800/50 dark:to-gray-900/80 shadow-soft-xl hover:shadow-glow-lg transition-all duration-500 border border-gray-200/50 dark:border-gray-700/50">
+            <div class="absolute inset-0 bg-gradient-to-br from-brand-500/5 via-transparent to-brand-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-brand-500/10 to-transparent rounded-full blur-3xl group-hover:blur-2xl transition-all duration-500"></div>
+            <div class="relative z-10">
+                <div class="border-b border-gray-200/50 dark:border-gray-700/50 px-8 py-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-glow">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                                    Performance de Fluxo de Caixa Mensal
+                                </h3>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 ml-11">
+                                Análise comparativa entre pagamentos recebidos e juros aplicados
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-6">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="h-4 w-4 rounded-full bg-gradient-to-r from-green-500 to-green-600 shadow-glow"></div>
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Pagamentos</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="h-4 w-4 rounded-full bg-gradient-to-r from-red-500 to-red-600 shadow-glow"></div>
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Juros</span>
+                                </div>
+                            </div>
+                            <div class="hidden sm:flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span>Últimos 12 meses</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <div class="h-80">
+                        <canvas id="fluxoMensalChart"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="mt-6 h-80"><canvas id="fluxoMensalChart"></canvas></div>
         </div>
-        <div class="rounded-xl bg-white dark:bg-gray-900/50 p-6 shadow-lg ring-1 ring-black/5 dark:ring-white/10 lg:col-span-1">
-            <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">Composição da Dívida</h3>
+
+        <!-- Secondary Charts Grid -->
+        <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+            <!-- Composição da Dívida -->
+            <div class="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-gray-50/50 to-white dark:from-gray-900/80 dark:via-gray-800/50 dark:to-gray-900/80 shadow-soft-xl hover:shadow-glow-lg transition-all duration-500 border border-gray-200/50 dark:border-gray-700/50">
+                <div class="absolute inset-0 bg-gradient-to-br from-warning-500/5 via-transparent to-warning-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-warning-500/10 to-transparent rounded-full blur-3xl group-hover:blur-2xl transition-all duration-500"></div>
+                <div class="relative z-10">
+                    <div class="border-b border-gray-200/50 dark:border-gray-700/50 px-6 py-6">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-warning-500 to-warning-600 text-white shadow-glow">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l1 3m-8.5-3l1-3m0 0l1-3m-8.5 3l-1-3m0 0l-1-3m8.5 3l-1 3"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                                Composição da Dívida
+                            </h3>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 ml-11">
+                            Distribuição entre principal e juros
+                        </p>
+                    </div>
+                    <div class="p-6">
+                        <div class="h-80">
+                            <canvas id="composicaoChart"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="mt-6 h-80"><canvas id="composicaoChart"></canvas></div>
+
+            <!-- Top Credores -->
+            <div class="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-gray-50/50 to-white dark:from-gray-900/80 dark:via-gray-800/50 dark:to-gray-900/80 shadow-soft-xl hover:shadow-glow-lg transition-all duration-500 border border-gray-200/50 dark:border-gray-700/50 lg:col-span-2">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/10 to-transparent rounded-full blur-3xl group-hover:blur-2xl transition-all duration-500"></div>
+                <div class="relative z-10">
+                    <div class="border-b border-gray-200/50 dark:border-gray-700/50 px-6 py-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-glow">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m-7.512 2.72a3 3 0 01-4.682-2.72M12 18.72V15m0 3.72a9.094 9.094 0 01-3.741-.479 3 3 0 01-4.682-2.72M12 3c-1.818 0-3.516.455-5.012 1.255a3 3 0 00-2.976 2.732A9.05 9.05 0 005.472 9.75c1.144-.324 2.342-.479 3.528-.479m4.5 0c1.186 0 2.384.155 3.528.479a9.05 9.05 0 002.976-2.758 3 3 0 00-2.976-2.732A9.09 9.09 0 0012 3z"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+                                    Top 5 Credores por Saldo Devedor
+                                </h3>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+                                </svg>
+                                <span>Ordenados por valor</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 ml-11 mt-2">
+                            Principais credores ordenados por valor em dívida
+                        </p>
+                    </div>
+                    <div class="p-6">
+                        <div class="h-80">
+                            <canvas id="topCredoresChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="rounded-xl bg-white dark:bg-gray-900/50 p-6 shadow-lg ring-1 ring-black/5 dark:ring-white/10 lg:col-span-2">
-            <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold leading-6 text-gray-900 dark:text-white">Top 5 Credores por Saldo Devedor</h3>
+    </div>
+
+    <!-- Quick Actions Section -->
+    <div class="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900/80 dark:via-gray-800/50 dark:to-gray-900/80 p-8 shadow-soft-xl hover:shadow-glow-lg transition-all duration-500 border border-gray-200/50 dark:border-gray-700/50">
+        <div class="absolute inset-0 bg-gradient-to-br from-brand-500/5 via-transparent to-brand-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-brand-500/10 to-transparent rounded-full blur-3xl group-hover:blur-2xl transition-all duration-500"></div>
+        <div class="relative z-10">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center gap-4">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-glow">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 5.25h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                            Ações Rápidas
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            Acesse as funcionalidades principais do sistema
+                        </p>
+                    </div>
+                </div>
+                <div class="hidden sm:flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/>
+                    </svg>
+                    <span>Navegação rápida</span>
+                </div>
             </div>
-            <div class="mt-6 h-80"><canvas id="topCredoresChart"></canvas></div>
+            
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <!-- Gerenciar Credores -->
+                <a href="{% url 'credores:lista' %}" 
+                   class="group relative flex items-center space-x-4 rounded-2xl bg-gradient-to-br from-white via-gray-50/50 to-white dark:from-gray-800/80 dark:via-gray-700/50 dark:to-gray-800/80 p-6 shadow-soft hover:shadow-glow-lg transition-all duration-300 focus-ring focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 border border-gray-200/50 dark:border-gray-600/50 hover:scale-105 hover:-translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-br from-brand-500/5 via-transparent to-brand-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                    <div class="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-glow group-hover:shadow-glow-lg transition-all duration-300 group-hover:scale-110">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors duration-300">
+                            Gerenciar Credores
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-300">
+                            Visualizar e editar
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                        <svg class="h-5 w-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                        </svg>
+                    </div>
+                </a>
+
+                <!-- Planilhas -->
+                <a href="{% url 'planilhas:lista_anos' %}" 
+                   class="group relative flex items-center space-x-4 rounded-2xl bg-gradient-to-br from-white via-gray-50/50 to-white dark:from-gray-800/80 dark:via-gray-700/50 dark:to-gray-800/80 p-6 shadow-soft hover:shadow-glow-lg transition-all duration-300 focus-ring focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 border border-gray-200/50 dark:border-gray-600/50 hover:scale-105 hover:-translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                    <div class="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-glow group-hover:shadow-glow-lg transition-all duration-300 group-hover:scale-110">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 4a1 1 0 100 2h4a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors duration-300">
+                            Planilhas
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-300">
+                            Importar dados
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                        <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                        </svg>
+                    </div>
+                </a>
+
+                <!-- Relatórios -->
+                <a href="{% url 'conciliacao:lista_relatorios' %}" 
+                   class="group relative flex items-center space-x-4 rounded-2xl bg-gradient-to-br from-white via-gray-50/50 to-white dark:from-gray-800/80 dark:via-gray-700/50 dark:to-gray-800/80 p-6 shadow-soft hover:shadow-glow-lg transition-all duration-300 focus-ring focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 border border-gray-200/50 dark:border-gray-600/50 hover:scale-105 hover:-translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                    <div class="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-glow group-hover:shadow-glow-lg transition-all duration-300 group-hover:scale-110">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+                            Relatórios
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-300">
+                            Histórico completo
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                        <svg class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                        </svg>
+                    </div>
+                </a>
+
+                <!-- Ajuda -->
+                <a href="{% url 'conciliacao:instrucoes_ofx' %}" 
+                   class="group relative flex items-center space-x-4 rounded-2xl bg-gradient-to-br from-white via-gray-50/50 to-white dark:from-gray-800/80 dark:via-gray-700/50 dark:to-gray-800/80 p-6 shadow-soft hover:shadow-glow-lg transition-all duration-300 focus-ring focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 border border-gray-200/50 dark:border-gray-600/50 hover:scale-105 hover:-translate-y-1">
+                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                    <div class="relative z-10 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-glow group-hover:shadow-glow-lg transition-all duration-300 group-hover:scale-110">
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300">
+                            Ajuda
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors duration-300">
+                            Instruções OFX
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                        <svg class="h-5 w-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                        </svg>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -64,10 +423,15 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function ( ) {
+    document.addEventListener('DOMContentLoaded', function() {
         Chart.register(ChartDataLabels);
         
-        const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { 
+            style: 'currency', 
+            currency: 'BRL',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(value);
         
         let isDarkMode = document.documentElement.classList.contains('dark');
         const observer = new MutationObserver(() => {
@@ -80,47 +444,117 @@
             textColor: isDarkMode ? '#9ca3af' : '#374151',
             gridColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : '#e5e7eb',
             tooltipBg: isDarkMode ? '#1f2937' : '#111827',
+            tooltipBorder: isDarkMode ? '#374151' : '#e5e7eb',
             doughnutBorder: isDarkMode ? '#111827' : '#ffffff'
         });
 
-        const brand = { 500: '#6366f1', 700: '#4338ca' };
-        const success = { 500: '#10b981' };
-        const error = { 500: '#ef4444' };
-        const warning = { 500: '#f97316' };
+        const brand = { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' };
+        const success = { 500: '#10b981', 600: '#059669' };
+        const error = { 500: '#ef4444', 600: '#dc2626' };
+        const warning = { 500: '#f97316', 600: '#ea580c' };
 
         const charts = {};
 
         const getDefaultChartOptions = () => ({
-            responsive: true, maintainAspectRatio: false,
+            responsive: true, 
+            maintainAspectRatio: false,
             plugins: {
                 legend: { display: false },
                 tooltip: {
-                    enabled: true, backgroundColor: getThemeColors().tooltipBg, titleFont: { family: 'Inter', size: 14, weight: 'bold' },
-                    bodyFont: { family: 'Inter', size: 12 }, padding: 12, cornerRadius: 8, boxPadding: 4,
+                    enabled: true, 
+                    backgroundColor: getThemeColors().tooltipBg,
+                    titleColor: isDarkMode ? '#f9fafb' : '#ffffff',
+                    bodyColor: isDarkMode ? '#d1d5db' : '#f3f4f6',
+                    titleFont: { family: 'Inter', size: 14, weight: '600' },
+                    bodyFont: { family: 'Inter', size: 12 }, 
+                    padding: 12, 
+                    cornerRadius: 8, 
+                    boxPadding: 4,
+                    borderColor: getThemeColors().tooltipBorder,
+                    borderWidth: 1,
+                    displayColors: false
                 }
             },
             scales: {
-                x: { ticks: { color: getThemeColors().textColor, font: { family: 'Inter' } }, grid: { display: false }, border: { color: getThemeColors().gridColor } },
-                y: { ticks: { color: getThemeColors().textColor, font: { family: 'Inter' } }, grid: { color: getThemeColors().gridColor, drawBorder: false } }
+                x: { 
+                    ticks: { 
+                        color: getThemeColors().textColor, 
+                        font: { family: 'Inter', size: 12 } 
+                    }, 
+                    grid: { 
+                        display: false 
+                    }, 
+                    border: { 
+                        color: getThemeColors().gridColor 
+                    } 
+                },
+                y: { 
+                    ticks: { 
+                        color: getThemeColors().textColor, 
+                        font: { family: 'Inter', size: 12 } 
+                    }, 
+                    grid: { 
+                        color: getThemeColors().gridColor, 
+                        drawBorder: false,
+                        lineWidth: 0.5
+                    } 
+                }
             },
-            animation: { duration: 500 }
+            animation: { 
+                duration: 800,
+                easing: 'easeOutQuart'
+            },
+            elements: {
+                point: {
+                    radius: 4,
+                    hoverRadius: 6
+                }
+            }
         });
 
         const renderFluxoMensalChart = () => {
             const ctx = document.getElementById('fluxoMensalChart')?.getContext('2d');
             if (!ctx) return;
+            
             const options = getDefaultChartOptions();
             options.scales.y.ticks.callback = formatCurrency;
-            options.plugins.legend = { display: true, position: 'top', align: 'end', labels: { color: getThemeColors().textColor, usePointStyle: true, boxWidth: 8, font: { family: 'Inter' } } };
-            options.plugins.tooltip.callbacks = { label: (c) => ` ${c.dataset.label}: ${formatCurrency(c.raw)}` };
+            options.plugins.legend = { 
+                display: true, 
+                position: 'top', 
+                align: 'end', 
+                labels: { 
+                    color: getThemeColors().textColor, 
+                    usePointStyle: true, 
+                    boxWidth: 8, 
+                    font: { family: 'Inter', size: 12 },
+                    padding: 20
+                } 
+            };
+            options.plugins.tooltip.callbacks = { 
+                label: (c) => ` ${c.dataset.label}: ${formatCurrency(c.raw)}` 
+            };
             
             charts.fluxo = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: JSON.parse('{{ labels_meses_json|safe }}'),
                     datasets: [
-                        { label: 'Pagamentos Recebidos', data: JSON.parse('{{ dados_pagamentos_json|safe }}'), backgroundColor: success[500], borderRadius: { topLeft: 6, topRight: 6 } },
-                        { label: 'Juros Aplicados', data: JSON.parse('{{ dados_juros_json|safe }}'), backgroundColor: error[500], borderRadius: { topLeft: 6, topRight: 6 } }
+                        { 
+                            label: 'Pagamentos Recebidos', 
+                            data: JSON.parse('{{ dados_pagamentos_json|safe }}'), 
+                            backgroundColor: success[500],
+                            hoverBackgroundColor: success[600],
+                            borderRadius: { topLeft: 6, topRight: 6 },
+                            borderSkipped: false
+                        },
+                        { 
+                            label: 'Juros Aplicados', 
+                            data: JSON.parse('{{ dados_juros_json|safe }}'), 
+                            backgroundColor: error[500],
+                            hoverBackgroundColor: error[600],
+                            borderRadius: { topLeft: 6, topRight: 6 },
+                            borderSkipped: false
+                        }
                     ]
                 },
                 options: options
@@ -130,17 +564,47 @@
         const renderComposicaoChart = () => {
             const ctx = document.getElementById('composicaoChart')?.getContext('2d');
             if (!ctx) return;
+            
             const options = getDefaultChartOptions();
             options.scales = { x: { display: false }, y: { display: false } };
-            options.plugins.legend = { display: true, position: 'right', labels: { color: getThemeColors().textColor, usePointStyle: true, boxWidth: 8, font: { family: 'Inter' } } };
-            options.plugins.datalabels = { formatter: (v, c) => { const sum = c.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); return sum > 0 ? (v * 100 / sum).toFixed(0) + "%" : '0%'; }, color: '#fff', font: { weight: 'bold', size: 14 } };
-            options.plugins.tooltip.callbacks = { label: (c) => ` ${c.label}: ${formatCurrency(c.raw)}` };
+            options.plugins.legend = { 
+                display: true, 
+                position: 'right', 
+                labels: { 
+                    color: getThemeColors().textColor, 
+                    usePointStyle: true, 
+                    boxWidth: 8, 
+                    font: { family: 'Inter', size: 12 },
+                    padding: 20
+                } 
+            };
+            options.plugins.datalabels = { 
+                formatter: (v, c) => { 
+                    const sum = c.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); 
+                    return sum > 0 ? (v * 100 / sum).toFixed(0) + "%" : '0%'; 
+                }, 
+                color: '#ffffff', 
+                font: { weight: '600', size: 14 },
+                textStrokeColor: 'rgba(0,0,0,0.3)',
+                textStrokeWidth: 2
+            };
+            options.plugins.tooltip.callbacks = { 
+                label: (c) => ` ${c.label}: ${formatCurrency(c.raw)}` 
+            };
 
             charts.composicao = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Principal', 'Juros'],
-                    datasets: [{ data: JSON.parse('{{ composicao_divida_valores_json|safe }}'), backgroundColor: [brand[700], warning[500]], borderColor: getThemeColors().doughnutBorder, borderWidth: 4, hoverOffset: 15, cutout: '70%' }]
+                    datasets: [{ 
+                        data: JSON.parse('{{ composicao_divida_valores_json|safe }}'), 
+                        backgroundColor: [brand[700], warning[500]], 
+                        hoverBackgroundColor: [brand[600], warning[600]],
+                        borderColor: getThemeColors().doughnutBorder, 
+                        borderWidth: 4, 
+                        hoverOffset: 15, 
+                        cutout: '70%' 
+                    }]
                 },
                 options: options
             });
@@ -149,10 +613,13 @@
         const renderTopCredoresChart = () => {
             const ctx = document.getElementById('topCredoresChart')?.getContext('2d');
             if (!ctx) return;
+            
             const options = getDefaultChartOptions();
             options.indexAxis = 'y';
             options.scales.x.ticks.callback = (v) => 'R$ ' + (v/1000) + 'k';
-            options.plugins.tooltip.callbacks = { label: (c) => ' Saldo: ' + formatCurrency(c.raw) };
+            options.plugins.tooltip.callbacks = { 
+                label: (c) => ' Saldo: ' + formatCurrency(c.raw) 
+            };
 
             const gradient = ctx.createLinearGradient(0, 0, 300, 0);
             gradient.addColorStop(0, brand[700]);
@@ -162,7 +629,14 @@
                 type: 'bar',
                 data: {
                     labels: JSON.parse('{{ top_credores_labels_json|safe }}'),
-                    datasets: [{ label: 'Saldo Devedor', data: JSON.parse('{{ top_credores_valores_json|safe }}'), backgroundColor: gradient, borderRadius: 6 }]
+                    datasets: [{ 
+                        label: 'Saldo Devedor', 
+                        data: JSON.parse('{{ top_credores_valores_json|safe }}'), 
+                        backgroundColor: gradient,
+                        hoverBackgroundColor: brand[600],
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }]
                 },
                 options: options
             });
@@ -174,22 +648,42 @@
                 const chart = charts[chartKey];
                 if (chart) {
                     const chartOptions = chart.config.options;
-                    chartOptions.plugins.legend.labels.color = theme.textColor;
-                    chartOptions.scales.x.ticks.color = theme.textColor;
-                    chartOptions.scales.x.border.color = theme.gridColor;
-                    chartOptions.scales.y.ticks.color = theme.textColor;
-                    chartOptions.scales.y.grid.color = theme.gridColor;
+                    
+                    // Update legend colors
+                    if (chartOptions.plugins.legend) {
+                        chartOptions.plugins.legend.labels.color = theme.textColor;
+                    }
+                    
+                    // Update scale colors
+                    if (chartOptions.scales.x) {
+                        chartOptions.scales.x.ticks.color = theme.textColor;
+                        chartOptions.scales.x.border.color = theme.gridColor;
+                    }
+                    if (chartOptions.scales.y) {
+                        chartOptions.scales.y.ticks.color = theme.textColor;
+                        chartOptions.scales.y.grid.color = theme.gridColor;
+                    }
+                    
+                    // Update tooltip colors
+                    chartOptions.plugins.tooltip.backgroundColor = theme.tooltipBg;
+                    chartOptions.plugins.tooltip.borderColor = theme.tooltipBorder;
+                    
+                    // Update doughnut border
                     if (chart.config.type === 'doughnut') {
                         chart.data.datasets[0].borderColor = theme.doughnutBorder;
                     }
+                    
                     chart.update('none');
                 }
             }
         };
 
-        renderFluxoMensalChart();
-        renderComposicaoChart();
-        renderTopCredoresChart();
+        // Initialize charts with animation
+        setTimeout(() => {
+            renderFluxoMensalChart();
+            renderComposicaoChart();
+            renderTopCredoresChart();
+        }, 100);
     });
 </script>
 {% endblock %}

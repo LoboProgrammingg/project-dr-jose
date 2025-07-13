@@ -3,63 +3,351 @@
 
 {% block title %}Gerenciamento de Planilhas{% endblock %}
 
-{% block page_title %}Gerenciamento de Planilhas{% endblock %}
-{% block page_subtitle %}Organize e acesse suas planilhas por ano de referência.{% endblock %}
-
 {% block content %}
-<div class="mx-auto max-w-7xl space-y-8">
-
-    <!-- Formulário para Criar Novo Ano -->
-    <div class="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-soft-xl ring-1 ring-gray-900/5 dark:ring-white/10">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Adicionar Novo Ano de Referência</h2>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">Crie uma nova pasta anual para organizar suas planilhas. Use um formato de quatro dígitos (ex: 2025).</p>
-        <form method="post" action="{% url 'planilhas:criar_ano' %}" class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            {% csrf_token %}
-            <div class="flex-grow w-full">
-                <label for="{{ form.ano.id_for_label }}" class="sr-only">{{ form.ano.label }}</label>
-                {{ form.ano }}
-                {% if form.ano.errors %}
-                    <p class="mt-2 text-sm text-red-500">{{ form.ano.errors|first }}</p>
-                {% endif %}
-            </div>
-            <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-x-2 rounded-xl bg-brand-600 dark:bg-brand-500 px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-all duration-300 transform hover:-translate-y-0.5">
-                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5V4.75z" />
-                </svg>
-                Criar Ano
-            </button>
-        </form>
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-950 relative overflow-hidden">
+    <!-- Animated Background Elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-indigo-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-pink-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-green-400/10 to-emerald-500/10 rounded-full blur-3xl animate-pulse delay-500"></div>
     </div>
 
-    <!-- Listagem dos Anos Cadastrados -->
-    <div class="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-soft-xl ring-1 ring-gray-900/5 dark:ring-white/10">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Anos Disponíveis</h2>
-        
-        {% if anos %}
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                {% for ano_obj in anos %}
-                    <a href="{% url 'planilhas:detalhe_ano' ano=ano_obj.ano %}" class="group block text-center bg-gray-50 dark:bg-gray-800/50 p-6 rounded-xl border border-gray-200 dark:border-gray-700/50 hover:border-brand-500 dark:hover:border-brand-400 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                        <div class="flex justify-center items-center mb-4">
-                            <svg class="h-12 w-12 text-gray-400 dark:text-gray-500 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 00-1 1v2a1 1 0 001 1h6a1 1 0 001-1V5a1 1 0 00-1-1H7z" clip-rule="evenodd" />
+    <!-- Header Section -->
+    <div class="relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50 shadow-lg">
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-indigo-600/5 to-purple-600/5"></div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center space-y-6">
+                <div class="flex items-center justify-center gap-4">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl blur-lg opacity-75 animate-pulse"></div>
+                        <div class="relative p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-2xl transform hover:scale-105 transition-all duration-300">
+                            <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                             </svg>
                         </div>
-                        <p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ ano_obj.ano }}</p>
-                        <p class="text-sm font-medium text-brand-600 dark:text-brand-400 mt-1">Ver planilhas</p>
-                    </a>
-                {% endfor %}
+                    </div>
+                    <h1 class="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-slate-900 via-blue-800 to-indigo-900 dark:from-white dark:via-blue-200 dark:to-indigo-200 bg-clip-text text-transparent leading-tight">
+                        Gerenciamento de Planilhas
+                    </h1>
+                </div>
+                <p class="text-xl lg:text-2xl text-slate-600 dark:text-slate-400 max-w-4xl mx-auto leading-relaxed">
+                    Organize e acesse suas planilhas por ano de referência. Crie novos anos e gerencie seus dados de forma eficiente e intuitiva.
+                </p>
+                <div class="flex items-center justify-center gap-6 text-sm text-slate-500 dark:text-slate-400">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span>Sistema Ativo</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Tempo Real</span>
+                    </div>
+                </div>
             </div>
-        {% else %}
-            <!-- Estado Vazio -->
-            <div class="text-center py-12 px-6 bg-gray-50 dark:bg-gray-800/50 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-700">
-                <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.08a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6.226c0-1.232.996-2.226 2.226-2.226h12.048c1.23 0 2.226.994 2.226 2.226v3.55M13.5 12h-3v3h3v-3z" />
-                </svg>
-                <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">Nenhum ano cadastrado</h3>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Comece criando o primeiro ano de referência no formulário acima.</p>
-            </div>
-        {% endif %}
+        </div>
     </div>
 
+    <!-- Main Content -->
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+        <!-- Create New Year Section -->
+        <div class="group bg-white/90 dark:bg-slate-800/90 rounded-3xl shadow-2xl ring-1 ring-slate-200/50 dark:ring-slate-700/50 backdrop-blur-xl overflow-hidden transform hover:scale-[1.02] transition-all duration-500">
+            <div class="absolute inset-0 bg-gradient-to-r from-green-500/5 via-emerald-500/5 to-teal-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="relative">
+                <div class="px-8 py-6 border-b border-slate-200/50 dark:border-slate-700/50">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">
+                                Adicionar Novo Ano de Referência
+                            </h2>
+                            <p class="text-slate-600 dark:text-slate-400 mt-1">
+                                Crie uma nova pasta anual para organizar suas planilhas. Use um formato de quatro dígitos (ex: 2025).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <form method="post" action="{% url 'planilhas:criar_ano' %}" class="space-y-6">
+                        {% csrf_token %}
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-end">
+                            <div class="lg:col-span-2">
+                                <label for="{{ form.ano.id_for_label }}" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                                    Ano de Referência
+                                </label>
+                                <div class="relative group">
+                                    {{ form.ano }}
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                                        <svg class="w-6 h-6 text-slate-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                {% if form.ano.errors %}
+                                    <div class="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                                        <p class="text-sm text-red-600 dark:text-red-400 flex items-center gap-2">
+                                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            {{ form.ano.errors|first }}
+                                        </p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <button type="submit" 
+                                    class="group relative w-full lg:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white shadow-xl ring-1 ring-green-500/30 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 focus:outline-none focus:ring-4 focus:ring-green-500/50">
+                                <div class="absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <svg class="relative w-6 h-6 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                <span class="relative font-bold text-lg">Criar Ano</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Years List Section -->
+        <div class="bg-white/90 dark:bg-slate-800/90 rounded-3xl shadow-2xl ring-1 ring-slate-200/50 dark:ring-slate-700/50 backdrop-blur-xl overflow-hidden">
+            <div class="px-8 py-6 border-b border-slate-200/50 dark:border-slate-700/50">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 dark:text-white">
+                            Anos Disponíveis
+                        </h2>
+                        <p class="text-slate-600 dark:text-slate-400 mt-1">
+                            Clique em um ano para visualizar e gerenciar suas planilhas
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-8">
+                {% if anos %}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
+                        {% for ano_obj in anos %}
+                            <a href="{% url 'planilhas:detalhe_ano' ano=ano_obj.ano %}" 
+                               class="group relative block bg-gradient-to-br from-slate-50 via-blue-50/50 to-indigo-50/30 dark:from-slate-700/50 dark:via-slate-600/50 dark:to-slate-500/50 p-8 rounded-3xl border border-slate-200/50 dark:border-slate-600/50 hover:border-blue-500/50 dark:hover:border-blue-400/50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden transform hover:scale-105">
+                                <!-- Animated Background -->
+                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <div class="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                                
+                                <!-- Content -->
+                                <div class="relative z-10">
+                                    <div class="flex justify-center items-center mb-6">
+                                        <div class="relative">
+                                            <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                            <div class="relative p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-xl group-hover:scale-110 transition-transform duration-500">
+                                                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="text-center space-y-3">
+                                        <p class="text-4xl font-black text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-500">
+                                            {{ ano_obj.ano }}
+                                        </p>
+                                        <p class="text-sm font-semibold text-slate-600 dark:text-slate-400 group-hover:text-blue-500 dark:group-hover:text-blue-300 transition-colors duration-500 uppercase tracking-wide">
+                                            Ver planilhas
+                                        </p>
+                                    </div>
+                                    
+                                    <!-- Arrow Icon -->
+                                    <div class="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
+                                        <div class="p-2 bg-white/20 dark:bg-slate-700/20 backdrop-blur-sm rounded-full">
+                                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Hover Effect -->
+                                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-indigo-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:via-indigo-500/10 group-hover:to-purple-500/10 transition-all duration-700 rounded-3xl"></div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <!-- Enhanced Empty State -->
+                    <div class="text-center py-20 px-6">
+                        <div class="max-w-lg mx-auto">
+                            <div class="relative mb-8">
+                                <div class="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-600 dark:to-slate-700 rounded-full w-24 h-24 mx-auto blur-xl opacity-50"></div>
+                                <div class="relative p-6 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-full w-24 h-24 mx-auto flex items-center justify-center shadow-xl">
+                                    <svg class="w-12 h-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.08a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6.226c0-1.232.996-2.226 2.226-2.226h12.048c1.23 0 2.226.994 2.226 2.226v3.55M13.5 12h-3v3h3v-3z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <h3 class="text-3xl font-bold text-slate-900 dark:text-white">Nenhum ano cadastrado</h3>
+                                <p class="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+                                    Comece criando o primeiro ano de referência no formulário acima para organizar suas planilhas de forma eficiente.
+                                </p>
+                            </div>
+                            
+                            <div class="mt-10">
+                                <div class="inline-flex items-center gap-3 px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-600 dark:text-blue-400 rounded-2xl border border-blue-200/50 dark:border-blue-800/50 shadow-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span class="font-semibold">Dica: Use o formato YYYY (ex: 2025)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Enhanced Statistics Section -->
+        {% if anos %}
+        <div class="bg-white/90 dark:bg-slate-800/90 rounded-3xl shadow-2xl ring-1 ring-slate-200/50 dark:ring-slate-700/50 backdrop-blur-xl overflow-hidden">
+            <div class="px-8 py-6 border-b border-slate-200/50 dark:border-slate-700/50">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-lg">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 dark:text-white">
+                            Resumo do Sistema
+                        </h2>
+                        <p class="text-slate-600 dark:text-slate-400 mt-1">
+                            Estatísticas e informações sobre seus anos de referência
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="group relative p-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 rounded-2xl border border-blue-200/50 dark:border-blue-800/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Total de Anos</p>
+                                <p class="text-3xl font-black text-slate-900 dark:text-white">{{ anos|length }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="group relative p-6 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-green-900/20 dark:via-emerald-900/20 dark:to-teal-900/20 rounded-2xl border border-green-200/50 dark:border-green-800/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Ano Mais Recente</p>
+                                <p class="text-3xl font-black text-slate-900 dark:text-white">{{ anos|first|default:"-" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="group relative p-6 bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50 dark:from-purple-900/20 dark:via-pink-900/20 dark:to-rose-900/20 rounded-2xl border border-purple-200/50 dark:border-purple-800/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                        <div class="flex items-center gap-4">
+                            <div class="relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="relative p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-lg">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Última Atualização</p>
+                                <p class="text-3xl font-black text-slate-900 dark:text-white">Hoje</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
 </div>
+
+<!-- Enhanced Loading Spinner -->
+<div id="loading-spinner" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+    <div class="relative">
+        <div class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+        <div class="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-indigo-600 rounded-full animate-spin animation-delay-150"></div>
+        <div class="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-purple-600 rounded-full animate-spin animation-delay-300"></div>
+    </div>
+</div>
+
+<script>
+// Enhanced form submission with loading spinner
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    
+    if (form) {
+        form.addEventListener('submit', function() {
+            loadingSpinner.classList.remove('hidden');
+            loadingSpinner.classList.add('flex');
+        });
+    }
+    
+    // Enhanced hover effects for year cards
+    const yearCards = document.querySelectorAll('a[href*="detalhe_ano"]');
+    yearCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px) scale(1.05)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+    
+    // Enhanced button interactions
+    const submitButton = document.querySelector('button[type="submit"]');
+    if (submitButton) {
+        submitButton.addEventListener('click', function(e) {
+            // Add ripple effect
+            const ripple = document.createElement('span');
+            ripple.classList.add('absolute', 'bg-white/30', 'rounded-full', 'animate-ping');
+            ripple.style.width = '100px';
+            ripple.style.height = '100px';
+            ripple.style.left = '50%';
+            ripple.style.top = '50%';
+            ripple.style.transform = 'translate(-50%, -50%)';
+            ripple.style.pointerEvents = 'none';
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 1000);
+        });
+    }
+});
+</script>
 {% endblock %}

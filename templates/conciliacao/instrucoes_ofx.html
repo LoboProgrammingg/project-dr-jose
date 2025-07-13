@@ -3,119 +3,376 @@
 
 {% block title %}Instruções para Converter PDF para OFX{% endblock %}
 
+{% block head_extra %}
+<style>
+    /* Custom animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    @keyframes pulseGlow {
+        0%, 100% {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+        50% {
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+        }
+    }
+    
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .animate-fadeInUp {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+    
+    .animate-slideInRight {
+        animation: slideInRight 0.6s ease-out forwards;
+    }
+    
+    .animate-scaleIn {
+        animation: scaleIn 0.5s ease-out forwards;
+    }
+    
+    .animate-pulseGlow {
+        animation: pulseGlow 2s ease-in-out infinite;
+    }
+    
+    .animate-float {
+        animation: float 3s ease-in-out infinite;
+    }
+
+    /* Step card hover effects */
+    .step-card {
+        transition: all 0.3s ease-in-out;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .step-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+        transition: left 0.6s;
+    }
+    
+    .step-card:hover::before {
+        left: 100%;
+    }
+    
+    .step-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .dark .step-card:hover {
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Timeline connector */
+    .timeline-connector {
+        position: relative;
+    }
+    
+    .timeline-connector::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 100%;
+        width: 2px;
+        height: 40px;
+        background: linear-gradient(to bottom, #3b82f6, #1d4ed8);
+        transform: translateX(-50%);
+    }
+    
+    .timeline-connector:last-child::after {
+        display: none;
+    }
+
+    /* Image hover effects */
+    .instruction-image {
+        transition: all 0.3s ease-in-out;
+    }
+    
+    .instruction-image:hover {
+        transform: scale(1.05);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+    
+    .dark .instruction-image:hover {
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+</style>
+{% endblock %}
+
 {% block page_title %}Como Converter seu Extrato PDF para OFX{% endblock %}
-{% block page_subtitle %}Siga este guia para usar o site OFX Fácil e preparar seu arquivo para a conciliação.{% endblock %}
+{% block page_subtitle %}Siga este guia passo a passo para usar o site OFX Fácil e preparar seu arquivo para a conciliação bancária.{% endblock %}
 
 {% block content %}
-<div class="mx-auto max-w-5xl space-y-12 animate-fadeIn">
-
-    <div class="bg-white dark:bg-gray-800 p-6 sm:p-10 rounded-2xl shadow-soft-xl ring-1 ring-gray-900/5 dark:ring-white/10 transition-colors duration-300">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
-        <!-- Introdução -->
-        <div class="prose prose-lg dark:prose-invert max-w-none text-center">
-            <div class="inline-flex items-center justify-center bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-300 rounded-full p-3 mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+        <!-- Header Section -->
+        <div class="text-center mb-12 animate-fadeInUp">
+            <div class="inline-flex items-center justify-center w-28 h-28 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mb-8 shadow-2xl animate-float">
+                <svg class="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                 </svg>
             </div>
-            <p class="lead">
-                Para realizar a conciliação bancária em nosso sistema, seu extrato precisa estar no formato <strong>OFX</strong>. Como os bancos geralmente o fornecem em PDF, você precisará convertê-lo primeiro.
-            </p>
-            <p>
-                Recomendamos o site <a href="https://www.ofxfacil.com.br/" target="_blank" class="text-brand-500 dark:text-brand-400 font-semibold hover:underline">OFX Fácil</a>, uma ferramenta gratuita e eficiente. Siga os passos abaixo.
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                Guia de Conversão PDF → OFX
+            </h1>
+            <p class="text-xl text-gray-600 dark:text-gray-400 max-w-4xl mx-auto leading-relaxed">
+                Para realizar a conciliação bancária em nosso sistema, seu extrato precisa estar no formato <span class="font-semibold text-blue-600 dark:text-blue-400">OFX</span>. 
+                Como os bancos geralmente fornecem em PDF, você precisará convertê-lo primeiro.
             </p>
         </div>
 
-        <hr class="my-10 border-gray-200 dark:border-gray-700">
+        <!-- Navigation -->
+        <nav class="flex items-center justify-between mb-8 animate-slideInRight">
+            <div class="flex items-center space-x-2 text-sm">
+                <a href="{% url 'conciliacao:pagina_upload' %}" 
+                   class="group flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 font-medium transition-all duration-200">
+                    <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span class="hidden sm:inline">Upload</span>
+                </a>
+                <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span class="font-semibold text-gray-900 dark:text-white">Instruções</span>
+            </div>
+        </nav>
 
-        <!-- Passo a Passo -->
-        <div class="relative">
-            <!-- Linha do tempo vertical -->
-            <div class="absolute left-8 top-8 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700" aria-hidden="true"></div>
-
-            <div class="space-y-12">
-                <!-- Passo 1 -->
-                <div class="relative flex items-start gap-x-6">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white font-bold text-2xl ring-8 ring-gray-50 dark:ring-gray-900 flex-shrink-0">1</div>
-                    <div class="flex-grow pt-1.5">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Acesse o OFX Fácil</h3>
-                        <p class="text-gray-600 dark:text-gray-400 mb-4">
-                            Clique no link para abrir o site em uma nova aba: 
-                            <a href="https://www.ofxfacil.com.br/" target="_blank" class="text-brand-500 dark:text-brand-400 font-semibold hover:underline">https://www.ofxfacil.com.br/</a>
-                        </p>
-                        <div class="p-2 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                            <img src="{% static 'img/site_ofx.png' %}" alt="Página inicial do site OFX Fácil" class="rounded-md shadow-md w-full transition-transform duration-300 hover:scale-105">
-                        </div>
+        <!-- Main Content Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-scaleIn">
+            
+            <!-- Header Card -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white mb-2">Recomendamos o OFX Fácil</h2>
+                        <p class="text-blue-100">Ferramenta gratuita e eficiente para conversão</p>
                     </div>
-                </div>
-
-                <!-- Passo 2 -->
-                <div class="relative flex items-start gap-x-6">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white font-bold text-2xl ring-8 ring-gray-50 dark:ring-gray-900 flex-shrink-0">2</div>
-                    <div class="flex-grow pt-1.5">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Selecione o Banco Correto</h3>
-                        <p class="text-gray-600 dark:text-gray-400 mb-4">
-                            Na lista de bancos, é crucial selecionar o do seu extrato (<strong>Sicoob</strong> ou <strong>Banco do Brasil</strong>). Escolher o banco correto garante a conversão perfeita.
-                        </p>
-                        <div class="p-2 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                            <img src="{% static 'img/escolha_banco.png' %}" alt="Seleção de bancos no OFX Fácil" class="rounded-md shadow-md w-full transition-transform duration-300 hover:scale-105">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Passo 3 -->
-                <div class="relative flex items-start gap-x-6">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white font-bold text-2xl ring-8 ring-gray-50 dark:ring-gray-900 flex-shrink-0">3</div>
-                    <div class="flex-grow pt-1.5">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Faça o Upload do seu Extrato PDF</h3>
-                        <p class="text-gray-600 dark:text-gray-400">
-                            Após selecionar o banco, clique no botão para escolher o arquivo e selecione o extrato em PDF que você baixou do site do seu banco.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Passo 4 -->
-                <div class="relative flex items-start gap-x-6">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white font-bold text-2xl ring-8 ring-gray-50 dark:ring-gray-900 flex-shrink-0">4</div>
-                    <div class="flex-grow pt-1.5">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Converta e Baixe o Arquivo .ofx</h3>
-                        <p class="text-gray-600 dark:text-gray-400">
-                            O site irá processar seu PDF e gerar um arquivo <strong>.ofx</strong>. Clique no botão de download para salvá-lo.
-                        </p>
+                    <div class="hidden md:block">
+                        <a href="https://www.ofxfacil.com.br/" target="_blank" 
+                           class="inline-flex items-center space-x-2 px-6 py-3 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                            <span>Acessar Site</span>
+                        </a>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Dica Importante -->
-        <div class="mt-12 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4 rounded-r-lg">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-yellow-500 dark:text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm text-yellow-800 dark:text-yellow-200">
-                        <strong>Dica:</strong> Após o download, abra o arquivo .ofx em um editor de texto simples (como o Bloco de Notas) para verificar rapidamente se as datas e valores parecem corretos.
+            <div class="p-8">
+                <!-- Introduction -->
+                <div class="text-center mb-12">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-6">
+                        <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                        Siga os passos abaixo para converter seu extrato PDF em um arquivo OFX que poderá ser usado em nosso sistema de conciliação.
                     </p>
                 </div>
-            </div>
-        </div>
 
-        <!-- Conclusão e CTA -->
-        <div class="mt-12 text-center">
-            <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Tudo Pronto!</h3>
-            <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">
-                Agora você pode usar o arquivo convertido em nosso sistema.
-            </p>
-            <div class="mt-6">
-                <a href="{% url 'conciliacao:pagina_upload' %}" class="inline-flex items-center gap-x-2 rounded-xl bg-green-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all duration-300 transform hover:-translate-y-0.5">
-                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M15.59 4.73a.75.75 0 011.06 1.06l-6.25 6.25a.75.75 0 01-1.06 0l-3-3a.75.75 0 111.06-1.06l2.47 2.47 5.72-5.72z" clip-rule="evenodd" />
-                    </svg>
-                    Ir para a Página de Upload
-                </a>
+                <!-- Steps Timeline -->
+                <div class="relative">
+                    <div class="space-y-12">
+                        
+                        <!-- Step 1 -->
+                        <div class="step-card timeline-connector relative flex flex-col lg:flex-row items-start gap-8 p-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border border-blue-200 dark:border-blue-800">
+                            <div class="flex-shrink-0">
+                                <div class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold text-3xl shadow-lg ring-4 ring-blue-100 dark:ring-blue-900/30">
+                                    1
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Acesse o OFX Fácil</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-6 text-lg">
+                                    Clique no link para abrir o site em uma nova aba: 
+                                    <a href="https://www.ofxfacil.com.br/" target="_blank" 
+                                       class="text-blue-600 dark:text-blue-400 font-semibold hover:underline transition-colors">
+                                        https://www.ofxfacil.com.br/
+                                    </a>
+                                </p>
+                                <div class="bg-white dark:bg-gray-700 rounded-xl p-4 shadow-lg overflow-hidden">
+                                    <img src="{% static 'img/site_ofx.png' %}" 
+                                         alt="Página inicial do site OFX Fácil" 
+                                         class="instruction-image rounded-lg w-full">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="step-card timeline-connector relative flex flex-col lg:flex-row items-start gap-8 p-8 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl border border-green-200 dark:border-green-800">
+                            <div class="flex-shrink-0">
+                                <div class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-green-600 to-emerald-600 text-white font-bold text-3xl shadow-lg ring-4 ring-green-100 dark:ring-green-900/30">
+                                    2
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Selecione o Banco Correto</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-6 text-lg">
+                                    Na lista de bancos, é <strong>crucial</strong> selecionar o do seu extrato (<strong>Sicoob</strong> ou <strong>Banco do Brasil</strong>). 
+                                    Escolher o banco correto garante a conversão perfeita.
+                                </p>
+                                <div class="bg-white dark:bg-gray-700 rounded-xl p-4 shadow-lg overflow-hidden">
+                                    <img src="{% static 'img/escolha_banco.png' %}" 
+                                         alt="Seleção de bancos no OFX Fácil" 
+                                         class="instruction-image rounded-lg w-full">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="step-card timeline-connector relative flex flex-col lg:flex-row items-start gap-8 p-8 bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-2xl border border-purple-200 dark:border-purple-800">
+                            <div class="flex-shrink-0">
+                                <div class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-violet-600 text-white font-bold text-3xl shadow-lg ring-4 ring-purple-100 dark:ring-purple-900/30">
+                                    3
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Faça o Upload do seu Extrato PDF</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-6 text-lg">
+                                    Após selecionar o banco, clique no botão para escolher o arquivo e selecione o extrato em PDF que você baixou do site do seu banco.
+                                </p>
+                                <div class="bg-white dark:bg-gray-700 rounded-xl p-6 shadow-lg">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                                            <svg class="w-8 h-8 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-900 dark:text-white">Arquivo PDF</h4>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">Selecione o extrato do seu banco</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="step-card relative flex flex-col lg:flex-row items-start gap-8 p-8 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl border border-orange-200 dark:border-orange-800">
+                            <div class="flex-shrink-0">
+                                <div class="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-orange-600 to-red-600 text-white font-bold text-3xl shadow-lg ring-4 ring-orange-100 dark:ring-orange-900/30">
+                                    4
+                                </div>
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Converta e Baixe o Arquivo .ofx</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-6 text-lg">
+                                    O site irá processar seu PDF e gerar um arquivo <strong>.ofx</strong>. Clique no botão de download para salvá-lo.
+                                </p>
+                                <div class="bg-white dark:bg-gray-700 rounded-xl p-6 shadow-lg">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+                                            <svg class="w-8 h-8 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-900 dark:text-white">Arquivo OFX</h4>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">Download do arquivo convertido</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Important Tip -->
+                <div class="mt-12 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border-l-4 border-yellow-400 p-6 rounded-r-2xl animate-scaleIn">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <div class="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+                                <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-2">Dica Importante</h4>
+                            <p class="text-yellow-700 dark:text-yellow-300">
+                                Após o download, abra o arquivo .ofx em um editor de texto simples (como o Bloco de Notas) para verificar rapidamente se as datas e valores parecem corretos.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conclusion and CTA -->
+                <div class="mt-12 text-center animate-fadeInUp">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full mb-6 shadow-lg">
+                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">Tudo Pronto!</h3>
+                    <p class="text-xl text-gray-600 dark:text-gray-400 mb-8">
+                        Agora você pode usar o arquivo convertido em nosso sistema de conciliação.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="{% url 'conciliacao:pagina_upload' %}" 
+                           class="inline-flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 animate-pulseGlow">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                            <span>Ir para Upload</span>
+                        </a>
+                        <a href="https://www.ofxfacil.com.br/" target="_blank" 
+                           class="inline-flex items-center space-x-2 px-8 py-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                            <span>Abrir OFX Fácil</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

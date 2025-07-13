@@ -4,42 +4,19 @@
 
 {% block head_extra %}
 <style>
-    /* Definir variáveis CSS para cores da marca para uso em box-shadow (já deve estar no base.html) */
-    :root {
-        --brand-500-rgb: 99, 102, 241; /* brand-500 em RGB */
-        --brand-600-rgb: 79, 70, 229;  /* brand-600 em RGB */
-    }
-    .dark:root {
-        --brand-500-rgb: 139, 92, 246; /* brand-500 light (para dark mode) em RGB */
-        --brand-600-rgb: 124, 58, 237; /* brand-600 light (para dark mode) em RGB */
-    }
-
-    /* Animações (certifique-se de que estão no seu tailwind.config.js também, como no base.html) */
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    @keyframes popIn {
-        0% { transform: scale(0.95); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
-    }
-    .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
-    .animate-popIn { animation: popIn 0.3s ease-out forwards; }
-
-    /* Estilos para o select customizado do filtro (reafirmados aqui para clareza) */
+    /* Custom select styling */
     .select-custom {
         display: block;
         width: 100%;
-        padding: 0.75rem 1rem; /* py-3 px-4 */
-        font-size: 1rem; /* text-base */
-        line-height: 1.5rem; /* leading-normal */
-        color: #1f2937; /* text-gray-900 */
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        color: #1f2937;
         background-color: #ffffff;
-        border-width: 2px; /* border-2 */
-        border-color: #d1d5db; /* gray-300 */
-        border-radius: 0.5rem; /* rounded-lg */
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
-        appearance: none; /* Remove seta padrão */
+        border: 2px solid #d1d5db;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        appearance: none;
         -webkit-appearance: none;
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3e%3cpath d='M7 8l3 3 3-3' stroke='%236B7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
         background-repeat: no-repeat;
@@ -47,27 +24,120 @@
         background-size: 1.5em 1.5em;
         transition: all 0.2s ease-in-out;
     }
+    
     .dark .select-custom {
-        background-color: #1F2937; /* gray-800 */
-        color: #E5E7EB; /* gray-200 */
-        border-color: #4B5563; /* gray-700 */
+        background-color: #1F2937;
+        color: #E5E7EB;
+        border-color: #4B5563;
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3e%3cpath d='M7 8l3 3 3-3' stroke='%239CA3AF' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
     }
+    
     .select-custom:focus {
         outline: none;
-        border-color: transparent;
-        box-shadow: 0 0 0 3px var(--brand-500-rgb, rgba(99, 102, 241, 0.5)), 0 0 0 2px var(--brand-600-rgb, #4f46e5);
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1), 0 0 0 2px #6366f1;
     }
-    .dark .select-custom:focus {
-        box-shadow: 0 0 0 3px var(--brand-500-rgb, rgba(139, 92, 246, 0.5)), 0 0 0 2px var(--brand-600-rgb, #8b5cf6);
-    }
+    
     .select-custom option {
-        color: #1f2937; /* Default text color */
-        background-color: #ffffff; /* Default background */
+        color: #1f2937;
+        background-color: #ffffff;
     }
+    
     .dark .select-custom option {
-        color: #E5E7EB; /* Dark mode text color */
-        background-color: #1F2937; /* Dark mode background */
+        color: #E5E7EB;
+        background-color: #1F2937;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .animate-fadeInUp {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+    
+    .animate-slideInRight {
+        animation: slideInRight 0.5s ease-out forwards;
+    }
+    
+    .animate-scaleIn {
+        animation: scaleIn 0.4s ease-out forwards;
+    }
+
+    /* Status badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .status-success {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+    
+    .dark .status-success {
+        background-color: #064e3b;
+        color: #4ade80;
+    }
+    
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    
+    .dark .status-pending {
+        background-color: #451a03;
+        color: #fbbf24;
+    }
+
+    /* Table row hover effects */
+    .table-row-hover {
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .table-row-hover:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dark .table-row-hover:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 </style>
 {% endblock %}
@@ -76,179 +146,377 @@
 {% block page_subtitle %}Acesse qualquer conciliação realizada anteriormente para rever os detalhes.{% endblock %}
 
 {% block page_actions %}
-    <a href="{% url 'conciliacao:pagina_upload' %}" class="inline-flex items-center gap-x-2 rounded-xl bg-brand-600 dark:bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-all duration-300 transform hover:-translate-y-0.5">
-        <svg class="-ml-0.5 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v2.5h-2.5a.75.75 0 000 1.5h2.5v2.5a.75.75 0 001.5 0v-2.5h2.5a.75.75 0 000-1.5h-2.5v-2.5z" clip-rule="evenodd" />
+    <a href="{% url 'conciliacao:pagina_upload' %}" 
+       class="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
         </svg>
-        Nova Conciliação
+        <span>Nova Conciliação</span>
     </a>
 {% endblock %}
 
-
 {% block content %}
-<div class="space-y-8 animate-fadeIn"> {# Mais espaço entre os blocos #}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        <!-- Header Section -->
+        <div class="text-center mb-8 animate-fadeInUp">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full mb-6">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                Histórico de Conciliações
+            </h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                Acesse qualquer conciliação realizada anteriormente para rever os detalhes e resultados.
+            </p>
+        </div>
 
-    <div class="rounded-2xl bg-white dark:bg-gray-800 shadow-xl ring-1 ring-gray-900/5 dark:ring-white/5 p-6 transition-colors duration-300 animate-popIn">
-        <form method="GET" action="{% url 'conciliacao:lista_relatorios' %}" class="flex flex-col sm:flex-row items-end sm:items-center gap-6">
-            <div class="flex-grow w-full sm:w-auto">
-                <label for="mes_ano" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Filtrar por período de referência</label>
-                <div class="relative">
-                    <select name="mes_ano" id="mes_ano" class="select-custom" onchange="this.form.submit()">
-                        <option value="">-- Mostrar Todos os Relatórios --</option>
-                        {% for mes in meses_disponiveis %}
-                            <option value="{{ mes }}" {% if mes == mes_ano_selecionado %}selected{% endif %}>
-                                {{ mes }} {# Preservando o formato do mês do backend #}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
+        <!-- Navigation -->
+        <nav class="flex items-center justify-between mb-8 animate-slideInRight">
+            <div class="flex items-center space-x-2 text-sm">
+                <a href="#" 
+                   class="group flex items-center space-x-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 font-medium transition-all duration-200">
+                    <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span class="hidden sm:inline">Dashboard</span>
+                </a>
+                <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span class="font-semibold text-gray-900 dark:text-white">Conciliações</span>
+            </div>
+        </nav>
+
+        <!-- Filter Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-scaleIn">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+                <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"/>
+                    </svg>
+                    <span>Filtros</span>
+                </h2>
             </div>
             
-            {% if mes_ano_selecionado %}
-            <div class="flex-shrink-0 w-full sm:w-auto">
-                <a href="{% url 'conciliacao:lista_relatorios' %}" class="inline-flex w-full justify-center items-center gap-x-2 rounded-xl bg-gray-100 dark:bg-gray-700 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-white/10 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 transform hover:-translate-y-0.5">
-                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
-                    Limpar Filtro
-                </a>
-            </div>
-            {% endif %}
-        </form>
-    </div>
-
-    <div class="overflow-hidden shadow-xl ring-1 ring-black/5 dark:ring-white/10 rounded-2xl bg-white dark:bg-gray-800 transition-colors duration-300">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-white/10">
-            <thead class="bg-gray-50 dark:bg-white/5">
-                <tr>
-                    <th scope="col" class="py-3.5 pl-6 pr-3 text-left text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">Data da Execução</th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">Mês de Referência</th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-extrabold text-gray-900 dark:text-white uppercase tracking-wider hidden md:table-cell">Executado Por</th> {# Esconder em telas pequenas #}
-                    <th scope="col" class="relative py-3.5 pl-3 pr-6">
-                        <span class="sr-only">Ações</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-white/10 bg-white dark:bg-gray-800">
-                {% for relatorio in relatorios %}
-                <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors duration-150">
-                    <td class="whitespace-nowrap py-4 pl-6 pr-3 text-sm font-medium text-gray-900 dark:text-white">{{ relatorio.data_execucao|date:"d/m/Y H:i" }}</td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-400 font-semibold">{{ relatorio.mes_ano_referencia }}</td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600 dark:text-gray-400 hidden md:table-cell">{{ relatorio.executado_por.get_full_name|default:relatorio.executado_por.username|default:"N/A" }}</td>
-                    <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
-                        <a href="{% url 'conciliacao:detalhe_relatorio' relatorio.pk %}" class="text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 font-semibold transition-colors">Ver Detalhes<span class="sr-only">, {{ relatorio.mes_ano_referencia }}</span></a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4">
-                        <div class="text-center py-16 px-6 bg-white dark:bg-gray-800 transition-colors duration-300">
-                            <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                            </svg>
-                            <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
-                                {% if mes_ano_selecionado %}
-                                    Nenhum relatório encontrado
-                                {% else %}
-                                    Nenhum relatório aqui
-                                {% endif %}
-                            </h3>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                {% if mes_ano_selecionado %}
-                                    Tente selecionar outro período ou limpar o filtro.
-                                {% else %}
-                                    Comece por iniciar uma nova conciliação.
-                                {% endif %}
-                            </p>
-                            {% if not mes_ano_selecionado %}
-                            <div class="mt-6">
-                                <a href="{% url 'conciliacao:pagina_upload' %}" class="inline-flex items-center rounded-xl bg-brand-600 dark:bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-colors">
-                                    <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" /></svg>
-                                    Nova Conciliação
-                                </a>
-                            </div>
-                            {% endif %}
+            <div class="p-6">
+                <form method="GET" action="{% url 'conciliacao:lista_relatorios' %}" class="flex flex-col lg:flex-row items-end lg:items-center gap-6">
+                    <div class="flex-grow w-full lg:w-auto">
+                        <label for="mes_ano" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Filtrar por período de referência
+                        </label>
+                        <div class="relative">
+                            <select name="mes_ano" id="mes_ano" class="select-custom" onchange="this.form.submit()">
+                                <option value="">-- Mostrar Todos os Relatórios --</option>
+                                {% for mes in meses_disponiveis %}
+                                    <option value="{{ mes }}" {% if mes == mes_ano_selecionado %}selected{% endif %}>
+                                        {{ mes }}
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    {# ======================= INÍCIO DA PAGINAÇÃO ======================= #}
-    {% if relatorios.has_other_pages %}
-    <div class="mt-6 flex items-center justify-between border-t border-gray-200 dark:border-white/10 bg-white dark:bg-gray-800 px-4 py-3 sm:px-6 rounded-2xl shadow-xl ring-1 ring-black/5 dark:ring-white/10">
-        <div class="flex flex-1 justify-between sm:hidden">
-            {% if relatorios.has_previous %}
-                <a href="?page={{ relatorios.previous_page_number }}{% if mes_ano_selecionado %}&mes_ano={{ mes_ano_selecionado }}{% endif %}" class="relative inline-flex items-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Anterior</a>
-            {% else %}
-                <span class="relative inline-flex items-center rounded-md border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-400 dark:text-gray-600 cursor-not-allowed">Anterior</span>
-            {% endif %}
-            {% if relatorios.has_next %}
-                <a href="?page={{ relatorios.next_page_number }}{% if mes_ano_selecionado %}&mes_ano={{ mes_ano_selecionado }}{% endif %}" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">Próxima</a>
-            {% else %}
-                <span class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-400 dark:text-gray-600 cursor-not-allowed">Próxima</span>
-            {% endif %}
-        </div>
-        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-            <div>
-                <p class="text-sm text-gray-700 dark:text-gray-400">
-                    Mostrando
-                    <span class="font-medium">{{ relatorios.start_index }}</span>
-                    a
-                    <span class="font-medium">{{ relatorios.end_index }}</span>
-                    de
-                    <span class="font-medium">{{ relatorios.paginator.count }}</span>
-                    resultados
-                </p>
+                    </div>
+                    
+                    {% if mes_ano_selecionado %}
+                    <div class="flex-shrink-0 w-full lg:w-auto">
+                        <a href="{% url 'conciliacao:lista_relatorios' %}" 
+                           class="w-full lg:w-auto flex items-center justify-center space-x-2 px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            <span>Limpar Filtro</span>
+                        </a>
+                    </div>
+                    {% endif %}
+                </form>
             </div>
-            <div>
-                <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                    {# Botão Anterior #}
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeInUp">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex items-center">
+                    <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Relatórios</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ relatorios.paginator.count|default:"0" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex items-center">
+                    <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                        <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Conciliações Concluídas</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ relatorios.paginator.count|default:"0" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex items-center">
+                    <div class="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8a7 7 0 0 1 14 0c0 3.866-3.134 7-7 7s-7-3.134-7-7zm9 4h2a2 2 0 0 0 2-2v-2"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Períodos Únicos</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ meses_disponiveis|length }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Table Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-scaleIn">
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
+                <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <span>Relatórios de Conciliação</span>
+                </h2>
+            </div>
+
+            <div class="overflow-hidden">
+                {% if relatorios %}
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        <div class="flex items-center space-x-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8a7 7 0 0 1 14 0c0 3.866-3.134 7-7 7s-7-3.134-7-7zm9 4h2a2 2 0 0 0 2-2v-2"/>
+                                            </svg>
+                                            <span>Data da Execução</span>
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        <div class="flex items-center space-x-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8a7 7 0 0 1 14 0c0 3.866-3.134 7-7 7s-7-3.134-7-7zm9 4h2a2 2 0 0 0 2-2v-2"/>
+                                            </svg>
+                                            <span>Período de Referência</span>
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell">
+                                        <div class="flex items-center space-x-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                            </svg>
+                                            <span>Executado Por</span>
+                                        </div>
+                                    </th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        <div class="flex items-center space-x-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                            </svg>
+                                            <span>Ações</span>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                {% for relatorio in relatorios %}
+                                <tr class="table-row-hover hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10">
+                                                <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
+                                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                                    {{ relatorio.data_execucao|date:"d/m/Y" }}
+                                                </div>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                                    {{ relatorio.data_execucao|date:"H:i" }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <span class="status-badge status-success">
+                                                {{ relatorio.mes_ano_referencia }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 hidden lg:table-cell">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-8 w-8">
+                                                <div class="h-8 w-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                                                    <svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <div class="ml-3">
+                                                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                                    {{ relatorio.executado_por.get_full_name|default:relatorio.executado_por.username|default:"N/A" }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <a href="{% url 'conciliacao:detalhe_relatorio' relatorio.pk %}" 
+                                           class="inline-flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 font-semibold transition-all duration-200 hover:scale-105">
+                                            <span>Ver Detalhes</span>
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                            </svg>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <!-- Empty State -->
+                    <div class="text-center py-16 px-6">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full mb-6">
+                            <svg class="w-8 h-8 text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                            {% if mes_ano_selecionado %}
+                                Nenhum relatório encontrado
+                            {% else %}
+                                Nenhum relatório disponível
+                            {% endif %}
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                            {% if mes_ano_selecionado %}
+                                Não foram encontrados relatórios para o período selecionado. Tente outro período ou limpe o filtro.
+                            {% else %}
+                                Comece criando sua primeira conciliação bancária para ver os relatórios aqui.
+                            {% endif %}
+                        </p>
+                        {% if not mes_ano_selecionado %}
+                        <a href="{% url 'conciliacao:pagina_upload' %}" 
+                           class="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            <span>Criar Primeira Conciliação</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if relatorios.has_other_pages %}
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-scaleIn">
+            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+                <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">Navegação de Páginas</h3>
+            </div>
+            
+            <div class="px-6 py-4">
+                <!-- Mobile Pagination -->
+                <div class="flex items-center justify-between lg:hidden">
                     {% if relatorios.has_previous %}
                         <a href="?page={{ relatorios.previous_page_number }}{% if mes_ano_selecionado %}&mes_ano={{ mes_ano_selecionado }}{% endif %}" 
-                           class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 focus:z-20 focus:outline-offset-0 transition-colors">
-                            <span class="sr-only">Anterior</span>
-                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" /></svg>
+                           class="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                            <span>Anterior</span>
                         </a>
                     {% else %}
-                        <span class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 dark:text-gray-600 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 bg-gray-50 dark:bg-gray-800 cursor-not-allowed">
-                            <span class="sr-only">Anterior</span>
-                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" /></svg>
+                        <span class="flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-600 font-medium rounded-lg cursor-not-allowed">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                            <span>Anterior</span>
                         </span>
                     {% endif %}
-
-                    {# Números das Páginas #}
-                    {% for i in relatorios.paginator.page_range %}
-                        {% if relatorios.number == i %}
-                            <a href="#" aria-current="page" class="relative z-10 inline-flex items-center bg-brand-600 dark:bg-brand-500 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-colors">
-                                {{ i }}
-                            </a>
-                        {% else %}
-                            <a href="?page={{ i }}{% if mes_ano_selecionado %}&mes_ano={{ mes_ano_selecionado }}{% endif %}" 
-                               class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 dark:text-gray-200 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 focus:z-20 focus:outline-offset-0 transition-colors">
-                                {{ i }}
-                            </a>
-                        {% endif %}
-                    {% endfor %}
-
-                    {# Botão Próxima #}
+                    
+                    <span class="text-sm text-gray-600 dark:text-gray-400">
+                        Página {{ relatorios.number }} de {{ relatorios.paginator.num_pages }}
+                    </span>
+                    
                     {% if relatorios.has_next %}
                         <a href="?page={{ relatorios.next_page_number }}{% if mes_ano_selecionado %}&mes_ano={{ mes_ano_selecionado }}{% endif %}" 
-                           class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 dark:text-gray-500 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 focus:z-20 focus:outline-offset-0 transition-colors">
-                            <span class="sr-only">Próxima</span>
-                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" /></svg>
+                           class="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+                            <span>Próxima</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
                         </a>
                     {% else %}
-                        <span class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 dark:text-gray-600 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 bg-gray-50 dark:bg-gray-800 cursor-not-allowed">
-                            <span class="sr-only">Próxima</span>
-                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" /></svg>
+                        <span class="flex items-center space-x-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-600 font-medium rounded-lg cursor-not-allowed">
+                            <span>Próxima</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
                         </span>
                     {% endif %}
-                </nav>
+                </div>
+
+                <!-- Desktop Pagination -->
+                <div class="hidden lg:flex items-center justify-between">
+                    <div class="text-sm text-gray-700 dark:text-gray-400">
+                        Mostrando <span class="font-medium">{{ relatorios.start_index }}</span> a 
+                        <span class="font-medium">{{ relatorios.end_index }}</span> de 
+                        <span class="font-medium">{{ relatorios.paginator.count }}</span> resultados
+                    </div>
+                    
+                    <nav class="flex items-center space-x-1">
+                        {% if relatorios.has_previous %}
+                            <a href="?page={{ relatorios.previous_page_number }}{% if mes_ano_selecionado %}&mes_ano={{ mes_ano_selecionado }}{% endif %}" 
+                               class="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                </svg>
+                            </a>
+                        {% endif %}
+                        
+                        {% for i in relatorios.paginator.page_range %}
+                            {% if relatorios.number == i %}
+                                <span class="px-3 py-2 bg-indigo-600 text-white font-medium rounded-lg">{{ i }}</span>
+                            {% else %}
+                                <a href="?page={{ i }}{% if mes_ano_selecionado %}&mes_ano={{ mes_ano_selecionado }}{% endif %}" 
+                                   class="px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 font-medium rounded-lg transition-colors">
+                                    {{ i }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if relatorios.has_next %}
+                            <a href="?page={{ relatorios.next_page_number }}{% if mes_ano_selecionado %}&mes_ano={{ mes_ano_selecionado }}{% endif %}" 
+                               class="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        {% endif %}
+                    </nav>
+                </div>
             </div>
         </div>
+        {% endif %}
     </div>
-    {% endif %}
-    {# ======================== FIM DA PAGINAÇÃO ========================= #}
 </div>
 {% endblock %}

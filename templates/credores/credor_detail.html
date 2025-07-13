@@ -4,353 +4,431 @@
 
 {% block title %}Detalhes de {{ credor.nome }}{% endblock %}
 
-{% block head_extra %}
-<style>
-    /* Ajustes das cores da marca (brand) para ficar consistente com o base.html */
-    :root {
-        --brand-500-rgb: 99, 102, 241; /* Exemplo: primary-500 em RGB */
-        --brand-600-rgb: #4f46e5;      /* Exemplo: primary-600 */
-    }
-    .dark:root {
-        --brand-500-rgb: 139, 92, 246; /* primary-500 light do base.html no dark mode */
-        --brand-600-rgb: #8b5cf6;      /* primary-500 do base.html no dark mode */
-    }
-
-    /* Estilização para os campos do formulário Django para claro e escuro */
-    /* Isso aplica classes a elementos que vêm de {{ pagamento_form.as_p }} */
-    .form-field-group div { /* Target the div wrapping the input/label */
-        margin-bottom: 1.5rem; /* Mais espaço entre os campos */
-    }
-    .form-field-group label {
-        display: block;
-        font-size: 0.875rem; /* text-sm */
-        line-height: 1.25rem; /* leading-tight */
-        font-weight: 600; /* font-semibold */
-        color: #374151; /* text-gray-700 */
-        margin-bottom: 0.5rem; /* mb-2 */
-        transition: color 0.2s ease-in-out;
-    }
-    .dark .form-field-group label {
-        color: #D1D5DB; /* gray-300 para o dark mode */
-    }
-    
-    .form-field-group input[type="text"],
-    .form-field-group input[type="number"],
-    .form-field-group input[type="date"],
-    .form-field-group input[type="file"],
-    .form-field-group textarea,
-    .form-field-group select {
-        display: block;
-        width: 100%;
-        padding: 0.75rem 1rem; /* py-3 px-4 */
-        font-size: 1rem; /* text-base */
-        line-height: 1.5rem; /* leading-normal */
-        color: #1f2937; /* text-gray-900 */
-        background-color: #ffffff; /* Fundo branco no light mode */
-        border-width: 2px; /* border-2 */
-        border-color: #d1d5db; /* border-gray-300 */
-        border-radius: 0.5rem; /* rounded-lg */
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
-        transition: all 0.2s ease-in-out; /* transições suaves */
-    }
-
-    /* Estilos Dark Mode para Inputs e Textareas */
-    .dark .form-field-group input[type="text"],
-    .dark .form-field-group input[type="number"],
-    .dark .form-field-group input[type="date"],
-    .dark .form-field-group input[type="file"],
-    .dark .form-field-group textarea,
-    .dark .form-field-group select {
-        background-color: #1F2937; /* gray-800 para dark mode */
-        color: #E5E7EB; /* gray-200 para o texto no dark mode */
-        border-color: #4B5563; /* gray-700 para a borda no dark mode */
-    }
-
-    /* Estilo de Placeholders */
-    .form-field-group input::placeholder,
-    .form-field-group textarea::placeholder,
-    .form-field-group select option[value=""] {
-        color: #9CA3AF; /* gray-400 */
-        transition: color 0.2s ease-in-out;
-    }
-    .dark .form-field-group input::placeholder,
-    .dark .form-field-group textarea::placeholder,
-    .dark .form-field-group select option[value=""] {
-        color: #6B7280; /* gray-500 no dark mode */
-    }
-
-    /* Foco dos Inputs */
-    .form-field-group input[type="text"]:focus,
-    .form-field-group input[type="number"]:focus,
-    .form-field-group input[type="date"]:focus,
-    .form-field-group input[type="file"]:focus,
-    .form-field-group textarea:focus,
-    .form-field-group select:focus {
-        outline: none;
-        border-color: transparent; /* Remove a borda padrão */
-        /* Usa variáveis CSS para as cores da marca no anel de foco */
-        box-shadow: 0 0 0 3px var(--brand-500-rgb, rgba(99, 102, 241, 0.5)), 0 0 0 2px var(--brand-600-rgb, #4f46e5); 
-    }
-
-    /* Estilos específicos para input de arquivo */
-    .form-field-group input[type="file"] {
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-        line-height: normal; /* Override py-3 px-4 for file input */
-        cursor: pointer;
-        border-style: dashed; /* Bordas tracejadas */
-        border-color: #9CA3AF; /* gray-400 */
-    }
-    .dark .form-field-group input[type="file"] {
-        border-color: #6B7280; /* gray-500 no dark mode */
-    }
-    .form-field-group input[type="file"]:hover {
-        border-color: #4f46e5; /* brand-600 */
-    }
-    .dark .form-field-group input[type="file"]:hover {
-        border-color: #8b5cf6; /* primary-500 no dark mode */
-    }
-
-    /* Mensagens de ajuda e erro dos campos */
-    .form-field-group .helptext {
-        margin-top: 0.5rem;
-        font-size: 0.75rem; /* text-xs */
-        color: #6b7280; /* text-gray-500 */
-    }
-    .dark .form-field-group .helptext {
-        color: #9CA3AF; /* gray-400 no dark mode */
-    }
-    .form-field-group .errorlist {
-        list-style: none;
-        padding: 0;
-        margin-top: 0.5rem;
-        color: #ef4444; /* text-red-500 */
-        font-size: 0.875rem; /* text-sm */
-        font-weight: 500; /* font-medium */
-    }
-    .dark .form-field-group .errorlist {
-        color: #fca5a5; /* red-300 no dark mode */
-    }
-
-    /* Animações (certifique-se de que estão no seu tailwind.config.js também, como no base.html) */
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    @keyframes popIn {
-        0% { transform: scale(0.95); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
-    }
-    @keyframes slideInRight {
-        0% { transform: translateX(20px); opacity: 0; }
-        100% { transform: translateX(0); opacity: 1; }
-    }
-    .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
-    .animate-popIn { animation: popIn 0.3s ease-out forwards; }
-    .animate-slideInRight { animation: slideInRight 0.4s ease-out forwards; }
-
-</style>
-{% endblock %}
-
-{% block page_title %}Detalhes do Credor: {{ credor.nome }}{% endblock %}
-
 {% block content %}
-<div class="mx-auto max-w-6xl px-4 sm:px-8 py-10 space-y-10 animate-fadeIn">
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-950 relative overflow-hidden">
+    <!-- Animated Background Elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-indigo-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-pink-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-green-400/10 to-emerald-500/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+    </div>
 
-    <nav class="flex flex-wrap items-center justify-between gap-4 mb-8 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg ring-1 ring-gray-50/50 dark:ring-white/5 animate-popIn transition-colors duration-300">
-        <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-            <a href="{% url 'credores:lista' %}" class="flex items-center gap-1 text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-200 font-semibold transition-colors group">
-                <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
-                <span class="hidden sm:inline">Voltar para</span> Lista de Credores
+    <!-- Main Content -->
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        <!-- Enhanced Breadcrumb Navigation -->
+        <nav class="flex items-center justify-between bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-4 shadow-xl ring-1 ring-slate-200/50 dark:ring-slate-700/50" aria-label="Breadcrumb">
+            <div class="flex items-center space-x-3">
+                <a href="{% url 'credores:lista' %}" 
+                   class="group flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 font-semibold transition-all duration-300 hover:-translate-x-1">
+                    <div class="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg group-hover:bg-indigo-200 dark:group-hover:bg-indigo-800/50 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </div>
+                    <span class="hidden sm:inline">Credores</span>
+                </a>
+                <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span class="font-bold text-slate-900 dark:text-white truncate text-lg">{{ credor.nome }}</span>
+            </div>
+            
+            <a href="{% url 'credores:editar' credor.pk %}" 
+               class="group inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg ring-1 ring-indigo-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-indigo-500/50">
+                <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                <span>Editar Credor</span>
             </a>
-            <span aria-hidden="true" class="mx-2 text-gray-300 dark:text-gray-600">/</span>
-            <span class="font-bold text-gray-800 dark:text-gray-200">{{ credor.nome }}</span>
-        </div>
-        <a href="{% url 'credores:editar' credor.pk %}" class="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg hover:bg-brand-600 dark:bg-brand-600 dark:hover:bg-brand-700 transition-all duration-300 transform hover:-translate-y-0.5 ring-2 ring-brand-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-400">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 3.487a2.143 2.143 0 1 1 3.03 3.03L7.227 19.182a4.286 4.286 0 0 1-1.91 1.122l-3.047.87a.75.75 0 0 1-.924-.924l.87-3.048a4.286 4.286 0 0 1 1.122-1.91L16.862 3.487z"/></svg>
-            Editar Credor
-        </a>
-    </nav>
+        </nav>
 
-    {% if messages %}
-        <ul class="space-y-4 animate-popIn">
-        {% for message in messages %}
-            {% if message.tags == 'success' %}
-                <li class="flex items-center bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-700/50 px-6 py-4 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg">
-                    <svg class="w-6 h-6 mr-3 text-green-500 dark:text-green-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="text-base font-semibold">{{ message }}</span>
-                </li>
-            {% elif message.tags == 'error' %}
-                <li class="flex items-center bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-700/50 px-6 py-4 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg">
-                    <svg class="w-6 h-6 mr-3 text-red-500 dark:text-red-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="text-base font-semibold">{{ message }}</span>
-                </li>
-            {% else %} {# Default ou 'info', 'warning' etc. #}
-                <li class="flex items-center bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700/50 px-6 py-4 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg">
-                    <svg class="w-6 h-6 mr-3 text-blue-500 dark:text-blue-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9.25 10.75a.75.75 0 101.5 0v-3.5a.75.75 0 00-1.5 0v3.5z" clip-rule="evenodd" />
-                    </svg>
-                    <span class="text-base font-semibold">{{ message }}</span>
-                </li>
-            {% endif %}
-        {% endfor %}
-        </ul>
-    {% endif %}
-
-    <section aria-labelledby="resumo-divida" class="bg-gradient-to-br from-brand-50 via-white to-white dark:from-gray-800 dark:via-gray-800 dark:to-gray-800 shadow-2xl ring-1 ring-brand-100 dark:ring-gray-700 rounded-3xl p-8 transform transition-all duration-300 hover:scale-[1.005] animate-popIn">
-        <h2 id="resumo-divida" class="text-3xl font-extrabold text-brand-900 dark:text-brand-100 flex items-center gap-3 mb-8 tracking-tight">
-            <svg class="w-9 h-9 text-brand-600 dark:text-brand-400 animate-pulse" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h4v4m0-4V8"/></svg>
-            Visão Geral da Dívida
-        </h2>
-        <dl class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-8 gap-x-12">
-            <div class="flex flex-col gap-1.5 p-4 rounded-lg bg-white dark:bg-gray-700 shadow-sm ring-1 ring-gray-100 dark:ring-gray-600 transition-colors duration-300">
-                <dt class="text-gray-500 dark:text-gray-300 font-medium text-sm">Valor Principal Inicial</dt>
-                <dd class="text-2xl font-extrabold text-gray-900 dark:text-white">R$ {{ credor.valor_inicial|floatformat:2|intcomma }}</dd>
-            </div>
-            <div class="flex flex-col gap-1.5 p-4 rounded-lg bg-white dark:bg-gray-700 shadow-sm ring-1 ring-gray-100 dark:ring-gray-600 transition-colors duration-300">
-                <dt class="text-gray-500 dark:text-gray-300 font-medium text-sm">Juros Iniciais Aplicados</dt>
-                <dd class="text-2xl font-extrabold text-orange-600 dark:text-orange-300">R$ {{ credor.juros_iniciais_aplicados|floatformat:2|intcomma }}</dd>
-            </div>
-            <div class="flex flex-col gap-1.5 p-4 rounded-lg bg-white dark:bg-gray-700 shadow-sm ring-1 ring-gray-100 dark:ring-gray-600 transition-colors duration-300">
-                <dt class="text-gray-500 dark:text-gray-300 font-medium text-sm">Juros Adicionais (Manuais/Mensais)</dt>
-                <dd class="text-2xl font-extrabold text-red-600 dark:text-red-300">R$ {{ credor.total_juros_adicionais|floatformat:2|intcomma }}</dd>
-            </div>
-            <div class="flex flex-col gap-1.5 p-4 rounded-lg bg-white dark:bg-gray-700 shadow-sm ring-1 ring-gray-100 dark:ring-gray-600 transition-colors duration-300">
-                <dt class="text-gray-500 dark:text-gray-300 font-medium text-sm">Total de Pagamentos Realizados</dt>
-                <dd class="text-2xl font-extrabold text-green-600 dark:text-green-300">R$ {{ credor.total_pagamentos|floatformat:2|intcomma }}</dd>
-            </div>
-            <div class="flex flex-col gap-1.5 p-4 rounded-lg bg-white dark:bg-gray-700 shadow-sm ring-1 ring-gray-100 dark:ring-gray-600 transition-colors duration-300">
-                <dt class="text-gray-500 dark:text-gray-300 font-medium text-sm">Valor Atualizado da Dívida</dt>
-                <dd class="text-2xl font-extrabold text-brand-800 dark:text-brand-200">R$ {{ credor.valor_atualizado_divida|floatformat:2|intcomma }}</dd>
-            </div>
-            <div class="md:col-span-2 lg:col-span-3 pt-6 mt-4 border-t-2 border-brand-200 dark:border-brand-700 flex flex-col items-center justify-center text-center transition-colors duration-300">
-                <dt class="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-wider mb-2">Saldo Devedor Final</dt>
-                <dd class="text-6xl font-black {% if credor.saldo_devedor > 0 %}text-red-700 dark:text-red-400{% else %}text-green-700 dark:text-green-400{% endif %} drop-shadow-xl animate-popIn">
-                    R$ {{ credor.saldo_devedor|floatformat:2|intcomma }}
-                </dd>
-            </div>
-        </dl>
-    </section>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-
-        <section aria-labelledby="adicionar-pagamento" class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl ring-1 ring-brand-100 dark:ring-gray-700 p-8 flex flex-col transform transition-all duration-300 hover:scale-[1.005] animate-popIn">
-            <h3 id="adicionar-pagamento" class="text-2xl font-bold text-brand-900 dark:text-brand-100 mb-8 flex items-center gap-3">
-                <svg class="w-7 h-7 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                Registrar Novo Pagamento
-            </h3>
-            <form action="{% url 'credores:adicionar_pagamento' credor.pk %}" method="post" enctype="multipart/form-data" class="space-y-6">
-                {% csrf_token %}
-                
-                {% if pagamento_form.non_field_errors %}
-                    <div class="rounded-md bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-700/50">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-red-400 dark:text-red-300" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Erros no formulário de pagamento:</h3>
-                                <div class="mt-2 text-sm text-red-700 dark:text-red-300">
-                                    <ul role="list" class="list-disc space-y-1 pl-5">
-                                        {% for error in pagamento_form.non_field_errors %}
-                                            <li>{{ error }}</li>
-                                        {% endfor %}
-                                    </ul>
+        <!-- Enhanced Messages -->
+        {% if messages %}
+            <div class="space-y-4">
+                {% for message in messages %}
+                    <div class="flex items-center p-6 rounded-2xl shadow-xl border-l-4 backdrop-blur-xl {% if message.tags == 'success' %}bg-green-50/90 dark:bg-green-900/20 border-green-400 text-green-800 dark:text-green-200{% elif message.tags == 'error' %}bg-red-50/90 dark:bg-red-900/20 border-red-400 text-red-800 dark:text-red-200{% else %}bg-blue-50/90 dark:bg-blue-900/20 border-blue-400 text-blue-800 dark:text-blue-200{% endif %} animate-fadeInUp">
+                        <div class="flex-shrink-0">
+                            {% if message.tags == 'success' %}
+                                <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                    <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
                                 </div>
+                            {% elif message.tags == 'error' %}
+                                <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                                    <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                            {% else %}
+                                <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                                    <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-base font-semibold">{{ message }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Enhanced Debt Overview Card -->
+        <section class="group bg-white/90 dark:bg-slate-800/90 rounded-3xl shadow-2xl ring-1 ring-slate-200/50 dark:ring-slate-700/50 backdrop-blur-xl overflow-hidden transform hover:scale-[1.01] transition-all duration-500">
+            <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="relative">
+                <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-8 py-6">
+                    <h2 class="text-2xl font-bold text-white flex items-center space-x-3">
+                        <div class="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </div>
+                        <span>Visão Geral da Dívida</span>
+                    </h2>
+                </div>
+                
+                <div class="p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Initial Value -->
+                        <div class="group relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 rounded-2xl p-6 border border-blue-200/50 dark:border-blue-700/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div class="relative z-10">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p class="text-sm font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-2">Valor Principal</p>
+                                <p class="text-3xl font-black text-blue-900 dark:text-blue-100">R$ {{ credor.valor_inicial|floatformat:2|intcomma }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Additional Interest -->
+                        <div class="group relative bg-gradient-to-br from-red-50 via-pink-50 to-rose-50 dark:from-red-900/20 dark:via-pink-900/20 dark:to-rose-900/20 rounded-2xl p-6 border border-red-200/50 dark:border-red-700/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div class="relative z-10">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p class="text-sm font-semibold text-red-600 dark:text-red-400 uppercase tracking-wide mb-2">Juros Adicionais</p>
+                                <p class="text-3xl font-black text-red-900 dark:text-red-100">R$ {{ credor.total_juros_adicionais|floatformat:2|intcomma }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Total Payments -->
+                        <div class="group relative bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-green-900/20 dark:via-emerald-900/20 dark:to-teal-900/20 rounded-2xl p-6 border border-green-200/50 dark:border-green-700/50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div class="relative z-10">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p class="text-sm font-semibold text-green-600 dark:text-green-400 uppercase tracking-wide mb-2">Pagamentos</p>
+                                <p class="text-3xl font-black text-green-900 dark:text-green-100">R$ {{ credor.total_pagamentos|floatformat:2|intcomma }}</p>
                             </div>
                         </div>
                     </div>
-                {% endif %}
 
-                <div class="form-field-group">
-                    {% for field in pagamento_form %}
-                        <div>
-                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                            <div class="mt-2">{{ field }}</div>
-                            {% if field.help_text %}<p class="helptext">{{ field.help_text }}</p>{% endif %}
-                            {% if field.errors %}<ul class="errorlist">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+                    <!-- Final Balance - Enhanced -->
+                    <div class="mt-8 group relative bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50 dark:from-slate-700 dark:via-gray-700 dark:to-slate-700 rounded-3xl p-8 border-2 border-dashed border-slate-300 dark:border-slate-600 hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-r from-slate-500/5 via-gray-500/5 to-slate-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="relative z-10 text-center">
+                            <div class="flex items-center justify-center mb-4">
+                                <div class="p-4 {% if credor.saldo_devedor > 0 %}bg-red-100 dark:bg-red-900/30{% else %}bg-green-100 dark:bg-green-900/30{% endif %} rounded-2xl">
+                                    {% if credor.saldo_devedor > 0 %}
+                                        <svg class="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                                        </svg>
+                                    {% else %}
+                                        <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <p class="text-xl font-bold text-slate-700 dark:text-slate-300 mb-3">Saldo Devedor Final</p>
+                            <p class="text-5xl md:text-6xl font-black {% if credor.saldo_devedor > 0 %}text-red-600 dark:text-red-400{% else %}text-green-600 dark:text-green-400{% endif %} mb-4">
+                                R$ {{ credor.saldo_devedor|floatformat:2|intcomma }}
+                            </p>
+                            <div class="inline-flex items-center px-6 py-3 rounded-2xl text-lg font-semibold {% if credor.saldo_devedor > 0 %}bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200{% else %}bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200{% endif %}">
+                                {% if credor.saldo_devedor > 0 %}
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                                    </svg>
+                                    Dívida Pendente
+                                {% else %}
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Dívida Quitada
+                                {% endif %}
+                            </div>
                         </div>
-                    {% endfor %}
+                    </div>
                 </div>
-                
-                <button type="submit" class="w-full flex items-center justify-center gap-2 rounded-lg bg-brand-600 dark:bg-brand-500 px-6 py-3 text-xl font-bold text-white shadow-lg hover:bg-brand-700 dark:hover:bg-brand-600 transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-400">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                        <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z" clip-rule="evenodd" />
-                    </svg>
-                    Adicionar Pagamento
-                </button>
-            </form>
-        </section>
-
-        <section aria-labelledby="historico-pagamentos" class="flex flex-col animate-slideInRight">
-            <h3 id="historico-pagamentos" class="text-2xl font-bold text-brand-900 dark:text-brand-100 mb-8 flex items-center gap-3">
-                <svg class="w-7 h-7 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8a7 7 0 0 1 14 0c0 3.866-3.134 7-7 7s-7-3.134-7-7zm9 4h2a2 2 0 0 0 2-2v-2"/></svg>
-                Histórico de Pagamentos e Juros
-            </h3>
-            <div class="flex-1 overflow-hidden rounded-2xl shadow-xl ring-1 ring-brand-100 dark:ring-gray-700 bg-white dark:bg-gray-800 transition-colors duration-300">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-base">
-                    <thead class="bg-brand-50 dark:bg-gray-700">
-                        <tr>
-                            <th scope="col" class="py-4 pl-6 pr-3 text-left font-extrabold text-brand-800 dark:text-brand-200 uppercase tracking-wider">Data</th>
-                            <th scope="col" class="px-3 py-4 text-right font-extrabold text-brand-800 dark:text-brand-200 uppercase tracking-wider">Valor</th>
-                            <th scope="col" class="px-3 py-4 text-left font-extrabold text-brand-800 dark:text-brand-200 uppercase tracking-wider hidden md:table-cell">Tipo</th>
-                            <th scope="col" class="px-3 py-4 text-left font-extrabold text-brand-800 dark:text-brand-200 uppercase tracking-wider">Observação</th>
-                            <th scope="col" class="px-3 py-4 text-left font-extrabold text-brand-800 dark:text-brand-200 uppercase tracking-wider">Recibo</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700 bg-white dark:bg-gray-800">
-                        {% for pagamento in pagamentos %}
-                        <tr class="hover:bg-brand-50 dark:hover:bg-gray-700 transition-colors duration-150">
-                            <td class="whitespace-nowrap py-4 pl-6 pr-3 text-gray-700 dark:text-gray-300 font-semibold">{{ pagamento.data_pagamento|date:"d/m/Y" }}</td>
-                            <td class="whitespace-nowrap px-3 py-4 text-right font-mono text-lg font-bold
-                                {% if pagamento.valor > 0 %}text-green-600 dark:text-green-300{% else %}text-red-600 dark:text-red-300{% endif %}">
-                                R$ {{ pagamento.valor|floatformat:2|intcomma }}
-                            </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-gray-600 dark:text-gray-400 font-medium hidden md:table-cell">
-                                {% if pagamento.tipo_transacao == 'pagamento' %}
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200">Pagamento</span>
-                                {% elif pagamento.tipo_transacao == 'juros_manual' %}
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200">Juros Manual</span>
-                                {% elif pagamento.tipo_transacao == 'juros_mensal' %}
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-200">Juros Mensal</span>
-                                {% else %}
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">Outro</span>
-                                {% endif %}
-                            </td>
-                            <td class="px-3 py-4 text-gray-500 dark:text-gray-400 font-medium max-w-xs truncate" title="{{ pagamento.observacao|default:"-" }}">
-                                {{ pagamento.observacao|default:"-" }}
-                            </td>
-                            <td class="whitespace-nowrap px-3 py-4">
-                                {% if pagamento.recibo %}
-                                    <a href="{{ pagamento.recibo.url }}" target="_blank" class="inline-flex items-center gap-1 text-brand-700 dark:text-brand-300 hover:text-brand-900 dark:hover:text-brand-100 font-semibold hover:underline transition-colors duration-200">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0H15M21 3v6"></path></svg>
-                                        Ver
-                                    </a>
-                                {% else %}
-                                    <span class="text-gray-300 dark:text-gray-600">-</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center py-10 text-gray-400 dark:text-gray-500 text-lg">
-                                <svg class="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                    <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                                </svg>
-                                <p class="mt-2">Nenhuma transação registrada para este credor ainda.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
             </div>
         </section>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            
+            <!-- Enhanced Payment Form Card -->
+            <section class="group bg-white/90 dark:bg-slate-800/90 rounded-3xl shadow-2xl ring-1 ring-slate-200/50 dark:ring-slate-700/50 backdrop-blur-xl overflow-hidden transform hover:scale-[1.02] transition-all duration-500">
+                <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-teal-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="relative">
+                    <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 px-8 py-6">
+                        <h3 class="text-xl font-bold text-white flex items-center space-x-3">
+                            <div class="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                            </div>
+                            <span>Registrar Novo Pagamento</span>
+                        </h3>
+                    </div>
+                    
+                    <div class="p-8">
+                        <form action="{% url 'credores:adicionar_pagamento' credor.pk %}" method="post" enctype="multipart/form-data" class="space-y-6">
+                            {% csrf_token %}
+                            
+                            {% if pagamento_form.non_field_errors %}
+                                <div class="bg-red-50/90 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-2xl p-6 backdrop-blur-xl">
+                                    <div class="flex">
+                                        <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                                            <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h3 class="text-base font-semibold text-red-800 dark:text-red-200">Erros no formulário:</h3>
+                                            <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+                                                <ul class="list-disc space-y-1 pl-5">
+                                                    {% for error in pagamento_form.non_field_errors %}
+                                                        <li>{{ error }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <div class="space-y-6">
+                                {% for field in pagamento_form %}
+                                    <div class="group">
+                                        <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                                            {{ field.label }}
+                                        </label>
+                                        <div class="relative">
+                                            {{ field }}
+                                            {% if field.help_text %}
+                                                <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">{{ field.help_text }}</p>
+                                            {% endif %}
+                                            {% if field.errors %}
+                                                <div class="mt-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl">
+                                                    <ul class="text-xs text-red-600 dark:text-red-400 space-y-1">
+                                                        {% for error in field.errors %}
+                                                            <li class="flex items-center gap-2">
+                                                                <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                                </svg>
+                                                                {{ error }}
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <button type="submit" 
+                                    class="group relative w-full inline-flex items-center justify-center space-x-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl ring-1 ring-emerald-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-emerald-500/50">
+                                <div class="absolute inset-0 bg-gradient-to-r from-emerald-700 to-teal-700 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <svg class="relative w-6 h-6 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                                <span class="relative text-lg">Adicionar Pagamento</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Enhanced Payment History Card -->
+            <section class="group bg-white/90 dark:bg-slate-800/90 rounded-3xl shadow-2xl ring-1 ring-slate-200/50 dark:ring-slate-700/50 backdrop-blur-xl overflow-hidden h-full transform hover:scale-[1.02] transition-all duration-500">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="relative h-full flex flex-col">
+                    <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-8 py-6">
+                        <h3 class="text-xl font-bold text-white flex items-center space-x-3">
+                            <div class="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                            </div>
+                            <span>Histórico de Transações</span>
+                        </h3>
+                    </div>
+                    
+                    <div class="flex-1 overflow-hidden">
+                        {% if pagamentos %}
+                            <div class="overflow-x-auto h-full">
+                                <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                                    <thead class="bg-slate-50 dark:bg-slate-700/50">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Data</th>
+                                            <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Valor</th>
+                                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-300 uppercase tracking-wider hidden lg:table-cell">Tipo</th>
+                                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Obs</th>
+                                            <th scope="col" class="px-6 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Recibo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white/50 dark:bg-slate-800/50 divide-y divide-slate-200 dark:divide-slate-700">
+                                        {% for pagamento in pagamentos %}
+                                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors duration-200">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900 dark:text-white">
+                                                {{ pagamento.data_pagamento|date:"d/m/Y" }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right">
+                                                <span class="text-sm font-bold {% if pagamento.valor > 0 %}text-green-600 dark:text-green-400{% else %}text-red-600 dark:text-red-400{% endif %}">
+                                                    R$ {{ pagamento.valor|floatformat:2|intcomma }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400 hidden lg:table-cell">
+                                                {% if pagamento.tipo_transacao == 'pagamento' %}
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
+                                                        Pagamento
+                                                    </span>
+                                                {% elif pagamento.tipo_transacao == 'juros_manual' %}
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">
+                                                        Juros Manual
+                                                    </span>
+                                                {% elif pagamento.tipo_transacao == 'juros_mensal' %}
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200">
+                                                        Juros Mensal
+                                                    </span>
+                                                {% else %}
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200">
+                                                        Outro
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 max-w-xs truncate" title="{{ pagamento.observacao|default:'-' }}">
+                                                {{ pagamento.observacao|default:"-" }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                {% if pagamento.recibo %}
+                                                    <a href="{{ pagamento.recibo.url }}" target="_blank" 
+                                                       class="group inline-flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 font-semibold transition-all duration-300 hover:-translate-y-1">
+                                                        <div class="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg group-hover:bg-indigo-200 dark:group-hover:bg-indigo-800/50 transition-colors">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                                            </svg>
+                                                        </div>
+                                                        <span class="hidden sm:inline">Ver</span>
+                                                    </a>
+                                                {% else %}
+                                                    <span class="text-slate-400 dark:text-slate-600">-</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-16 px-6">
+                                <div class="max-w-md mx-auto">
+                                    <div class="relative mb-6">
+                                        <div class="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-600 dark:to-slate-700 rounded-full w-20 h-20 mx-auto blur-xl opacity-50"></div>
+                                        <div class="relative p-4 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 rounded-full w-20 h-20 mx-auto flex items-center justify-center shadow-xl">
+                                            <svg class="w-10 h-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Nenhuma transação</h3>
+                                    <p class="text-slate-600 dark:text-slate-400">Comece registrando o primeiro pagamento.</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+        </div>
     </div>
 </div>
+
+<!-- Enhanced Loading Spinner -->
+<div id="loading-spinner" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+    <div class="relative">
+        <div class="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
+        <div class="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-teal-600 rounded-full animate-spin animation-delay-150"></div>
+        <div class="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-cyan-600 rounded-full animate-spin animation-delay-300"></div>
+    </div>
+</div>
+
+<script>
+// Enhanced form submission with loading spinner
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    
+    if (form) {
+        form.addEventListener('submit', function() {
+            loadingSpinner.classList.remove('hidden');
+            loadingSpinner.classList.add('flex');
+        });
+    }
+    
+    // Enhanced hover effects for cards
+    const cards = document.querySelectorAll('.group');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+    
+    // Enhanced button interactions
+    const submitButton = document.querySelector('button[type="submit"]');
+    if (submitButton) {
+        submitButton.addEventListener('click', function(e) {
+            // Add ripple effect
+            const ripple = document.createElement('span');
+            ripple.classList.add('absolute', 'bg-white/30', 'rounded-full', 'animate-ping');
+            ripple.style.width = '100px';
+            ripple.style.height = '100px';
+            ripple.style.left = '50%';
+            ripple.style.top = '50%';
+            ripple.style.transform = 'translate(-50%, -50%)';
+            ripple.style.pointerEvents = 'none';
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 1000);
+        });
+    }
+});
+</script>
 {% endblock %}

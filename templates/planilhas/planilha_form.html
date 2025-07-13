@@ -8,35 +8,229 @@
     {% endif %}
 {% endblock %}
 
-{% block page_title %}
-    {% if object %}
-        Editar Planilha
-    {% else %}
-        Adicionar Nova Planilha
-    {% endif %}
-{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-950">
+    <!-- Header Section -->
+    <div class="relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50">
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-indigo-600/5"></div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div class="space-y-2">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl shadow-lg">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-200 bg-clip-text text-transparent">
+                                {% if object %}
+                                    Editar Planilha
+                                {% else %}
+                                    Adicionar Nova Planilha
+                                {% endif %}
+                            </h1>
+                            <p class="text-slate-600 dark:text-slate-400 text-lg mt-1">
+                                {% if object %}
+                                    Atualize os detalhes da planilha "{{ object.nome }}" para o ano de {{ object.ano_referencia.ano }}.
+                                {% else %}
+                                    Faça o upload de um novo arquivo de planilha para o ano de {{ ano.ano }}.
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <a href="{% if object %}{% url 'planilhas:detalhe_ano' ano=object.ano_referencia.ano %}{% else %}{% url 'planilhas:detalhe_ano' ano=ano.ano %}{% endif %}" 
+                       class="group inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/90 dark:bg-slate-700/90 shadow-lg ring-1 ring-slate-200/50 dark:ring-slate-600/50 backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:bg-slate-50 dark:hover:bg-slate-600/90">
+                        <svg class="w-5 h-5 text-slate-600 dark:text-slate-300 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        <span class="font-semibold text-slate-700 dark:text-slate-200">Cancelar</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-{% block page_subtitle %}
-    {% if object %}
-        Atualize os detalhes da planilha "{{ object.nome }}" para o ano de {{ object.ano_referencia.ano }}.
-    {% else %}
-        Faça o upload de um novo arquivo de planilha para o ano de {{ ano.ano }}.
-    {% endif %}
-{% endblock %}
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <form method="post" enctype="multipart/form-data" class="bg-white/80 dark:bg-slate-800/80 rounded-2xl shadow-xl ring-1 ring-slate-200/50 dark:ring-slate-700/50 backdrop-blur-sm overflow-hidden">
+            {% csrf_token %}
 
-{% block page_actions %}
-{# CORREÇÃO: A URL agora usa 'object.ano_referencia.ano' se o objeto existir, ou 'ano.ano' caso contrário #}
-<a href="{% if object %}{% url 'planilhas:detalhe_ano' ano=object.ano_referencia.ano %}{% else %}{% url 'planilhas:detalhe_ano' ano=ano.ano %}{% endif %}" class="inline-flex items-center gap-x-2 rounded-xl bg-white dark:bg-gray-700 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 transition-all duration-150 hover:bg-gray-50 dark:hover:bg-gray-600">
-    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
-    </svg>
-    Cancelar
-</a>
-{% endblock %}
+            <!-- Form Header -->
+            <div class="px-6 py-5 border-b border-slate-200/50 dark:border-slate-700/50">
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Detalhes da Planilha
+                </h2>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                    Preencha os campos abaixo para {% if object %}atualizar{% else %}criar{% endif %} sua planilha
+                </p>
+            </div>
 
-{% block head_extra %}
+            <div class="p-6 space-y-8">
+                <!-- Erros gerais do formulário -->
+                {% if form.non_field_errors %}
+                    <div class="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0">
+                                <svg class="w-5 h-5 text-red-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Erro no formulário</h3>
+                                <div class="mt-1 text-sm text-red-700 dark:text-red-300">{{ form.non_field_errors }}</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="space-y-6">
+                    <!-- Campo Ano de Referência -->
+                    <div class="space-y-2">
+                        <label for="{{ form.ano_referencia.id_for_label }}" class="block text-sm font-semibold text-slate-900 dark:text-white">
+                            Ano de Referência
+                        </label>
+                        <div class="relative">
+                            {{ form.ano_referencia }}
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        {% if form.ano_referencia.errors %}
+                            <p class="text-sm text-red-500 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                {{ form.ano_referencia.errors|first }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Campo Nome da Planilha -->
+                    <div class="space-y-2">
+                        <label for="{{ form.nome.id_for_label }}" class="block text-sm font-semibold text-slate-900 dark:text-white">
+                            Nome da Planilha
+                        </label>
+                        <div class="relative">
+                            {{ form.nome }}
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        {% if form.nome.errors %}
+                            <p class="text-sm text-red-500 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                {{ form.nome.errors|first }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Campo de Upload de Arquivo -->
+                    <div x-data="{ fileName: '{{ form.arquivo.value|default:'' }}', isDragging: false }" class="space-y-2">
+                        <label for="{{ form.arquivo.id_for_label }}" class="block text-sm font-semibold text-slate-900 dark:text-white">
+                            Arquivo da Planilha
+                        </label>
+                        
+                        <div class="relative">
+                            <div class="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 transition-all duration-200"
+                                 :class="{ 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20': isDragging }"
+                                 @dragover.prevent="isDragging = true"
+                                 @dragleave.prevent="isDragging = false"
+                                 @drop.prevent="isDragging = false; let files = $event.dataTransfer.files; if (files.length) { $refs.fileInput.files = files; fileName = files[0].name; }">
+                                
+                                <div class="text-center">
+                                    <div class="mx-auto w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mb-4">
+                                        <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m.75 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path>
+                                        </svg>
+                                    </div>
+                                    
+                                    <div class="space-y-2">
+                                        <div class="flex items-center justify-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                                            <label for="{{ form.arquivo.id_for_label }}" class="relative cursor-pointer rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-2 text-white font-medium transition-colors duration-200">
+                                                <span>Selecione um arquivo</span>
+                                                <input x-ref="fileInput" 
+                                                       @change="fileName = $event.target.files.length ? $event.target.files[0].name : ''" 
+                                                       id="{{ form.arquivo.id_for_label }}" 
+                                                       name="{{ form.arquivo.name }}" 
+                                                       type="file" 
+                                                       accept=".xlsx,.csv"
+                                                       class="sr-only">
+                                            </label>
+                                            <span>ou arraste e solte aqui</span>
+                                        </div>
+                                        
+                                        <p class="text-xs text-slate-500 dark:text-slate-400">
+                                            Formatos aceitos: XLSX, CSV • Tamanho máximo: 10MB
+                                        </p>
+                                    </div>
+                                    
+                                    <!-- Arquivo selecionado -->
+                                    <div x-show="fileName" x-transition class="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                                        <div class="flex items-center gap-3">
+                                            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <div>
+                                                <p class="text-sm font-medium text-green-800 dark:text-green-200">Arquivo selecionado</p>
+                                                <p class="text-sm text-green-700 dark:text-green-300" x-text="fileName"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if form.arquivo.errors %}
+                            <p class="text-sm text-red-500 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                {{ form.arquivo.errors|first }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="pt-8 border-t border-slate-200/50 dark:border-slate-700/50">
+                    <div class="flex flex-col sm:flex-row items-center justify-end gap-4">
+                        <a href="{% if object %}{% url 'planilhas:detalhe_ano' ano=object.ano_referencia.ano %}{% else %}{% url 'planilhas:detalhe_ano' ano=ano.ano %}{% endif %}" 
+                           class="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/90 dark:bg-slate-700/90 shadow-lg ring-1 ring-slate-200/50 dark:ring-slate-600/50 backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:bg-slate-50 dark:hover:bg-slate-600/90">
+                            <svg class="w-5 h-5 text-slate-600 dark:text-slate-300 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            <span class="font-semibold text-slate-700 dark:text-slate-200">Cancelar</span>
+                        </a>
+                        
+                        <button type="submit" 
+                                class="group w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 text-white shadow-lg ring-1 ring-blue-500/30 backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:from-blue-700 hover:via-blue-600 hover:to-indigo-700">
+                            <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span class="font-semibold">Salvar Planilha</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <style>
-    /* Estilos para os campos do formulário para garantir consistência */
+    /* Estilos para os campos do formulário */
     .form-input, .form-select {
         display: block;
         width: 100%;
@@ -45,100 +239,35 @@
         line-height: 1.5rem;
         color: #1f2937;
         background-color: #ffffff;
-        border-width: 2px;
-        border-color: #d1d5db;
-        border-radius: 0.5rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 0.75rem;
         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         transition: all 0.2s ease-in-out;
     }
+    
     .dark .form-input, .dark .form-select {
-        background-color: #1F2937;
-        color: #E5E7EB;
-        border-color: #4B5563;
+        background-color: #1e293b;
+        color: #e2e8f0;
+        border-color: #475569;
     }
+    
     .form-input:focus, .form-select:focus {
         outline: none;
-        border-color: transparent;
-        --tw-ring-color: rgba(99, 102, 241, 0.5);
-        box-shadow: 0 0 0 3px var(--tw-ring-color);
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
+    
     .dark .form-input:focus, .dark .form-select:focus {
-        --tw-ring-color: rgba(139, 92, 246, 0.5);
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+    }
+    
+    .form-input::placeholder {
+        color: #9ca3af;
+    }
+    
+    .dark .form-input::placeholder {
+        color: #64748b;
     }
 </style>
-{% endblock %}
-
-{% block content %}
-<div class="mx-auto max-w-4xl">
-    <form method="post" enctype="multipart/form-data" class="bg-white dark:bg-gray-800 p-6 sm:p-10 rounded-2xl shadow-soft-xl ring-1 ring-gray-900/5 dark:ring-white/10 space-y-8">
-        {% csrf_token %}
-
-        <!-- Erros gerais do formulário -->
-        {% if form.non_field_errors %}
-            <div class="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
-                    </div>
-                    <div class="ml-3">
-                        <div class="text-sm text-red-700 dark:text-red-200">{{ form.non_field_errors }}</div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-
-        <div class="space-y-6">
-            <!-- Campo Ano de Referência -->
-            <div>
-                <label for="{{ form.ano_referencia.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100">Ano de Referência</label>
-                <div class="mt-2">
-                    {{ form.ano_referencia }}
-                </div>
-                {% if form.ano_referencia.errors %}<p class="mt-2 text-sm text-red-600">{{ form.ano_referencia.errors|first }}</p>{% endif %}
-            </div>
-
-            <!-- Campo Nome da Planilha -->
-            <div>
-                <label for="{{ form.nome.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100">Nome da Planilha</label>
-                <div class="mt-2">
-                    {{ form.nome }}
-                </div>
-                {% if form.nome.errors %}<p class="mt-2 text-sm text-red-600">{{ form.nome.errors|first }}</p>{% endif %}
-            </div>
-
-            <!-- Campo de Upload de Arquivo -->
-            <div x-data="{ fileName: '{{ form.arquivo.value|default:'' }}' }">
-                <label for="{{ form.arquivo.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100">Arquivo da Planilha (.xlsx ou .csv)</label>
-                <div class="mt-2 flex justify-center rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 px-6 py-10"
-                     @dragover.prevent @dragenter.prevent @drop.prevent="let files = $event.dataTransfer.files; if (files.length) { $refs.fileInput.files = files; fileName = files[0].name; }">
-                    <div class="text-center">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m.75 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                        </svg>
-                        <div class="mt-4 flex text-sm leading-6 text-gray-600 dark:text-gray-400">
-                            <label for="{{ form.arquivo.id_for_label }}" class="relative cursor-pointer rounded-md bg-white dark:bg-gray-800 font-semibold text-brand-600 dark:text-brand-400 focus-within:outline-none focus-within:ring-2 focus-within:ring-brand-600 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-800 hover:text-brand-500">
-                                <span>Selecione um arquivo</span>
-                                <input x-ref="fileInput" @change="fileName = $event.target.files.length ? $event.target.files[0].name : ''" id="{{ form.arquivo.id_for_label }}" name="{{ form.arquivo.name }}" type="file" class="sr-only">
-                            </label>
-                            <p class="pl-1">ou arraste e solte aqui</p>
-                        </div>
-                        <p class="text-xs leading-5 text-gray-500">XLSX, CSV até 10MB</p>
-                        <p x-show="fileName" class="mt-2 text-sm font-medium text-gray-800 dark:text-gray-200" x-text="`Arquivo selecionado: ${fileName}`"></p>
-                    </div>
-                </div>
-                {% if form.arquivo.errors %}<p class="mt-2 text-sm text-red-600">{{ form.arquivo.errors|first }}</p>{% endif %}
-            </div>
-        </div>
-
-        <!-- Botões de Ação -->
-        <div class="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700 flex items-center justify-end gap-x-4">
-            {# CORREÇÃO: A URL agora usa 'object.ano_referencia.ano' se o objeto existir, ou 'ano.ano' caso contrário #}
-            <a href="{% if object %}{% url 'planilhas:detalhe_ano' ano=object.ano_referencia.ano %}{% else %}{% url 'planilhas:detalhe_ano' ano=ano.ano %}{% endif %}" class="rounded-xl bg-white dark:bg-gray-700 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-600 transition-all duration-150 hover:bg-gray-50 dark:hover:bg-gray-600">Cancelar</a>
-            <button type="submit" class="inline-flex justify-center rounded-xl bg-brand-600 dark:bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all duration-150 hover:bg-brand-700 dark:hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
-                <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
-                Salvar Planilha
-            </button>
-        </div>
-    </form>
-</div>
 {% endblock %}
