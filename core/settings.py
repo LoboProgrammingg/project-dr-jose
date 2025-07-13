@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+# ✅ CORRETO: Como settings.py está em 'core/', sobe dois níveis para a raiz.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -39,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
 
-
+    # ✅ CORRETO: Seus apps registrados.
     'conciliacao',
     'credores',
     'planilhas',
@@ -60,7 +61,9 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        # ✅ AJUSTADO: Aponta para a pasta 'templates' na raiz do projeto.
+        #    Usando pathlib (BASE_DIR / 'templates') para consistência.
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -110,33 +113,46 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'pt-br'
 
-TIME_ZONE = 'America/Sao_Paulo'
+TIME_ZONE = 'America/Cuiaba' # Ajustado para sua localização atual.
 
 USE_I18N = True
 
-USE_L10N = True
+USE_L10N = True # Nota: USE_L10N está obsoleto desde o Django 4.0 e será removido no 5.0.
 
 USE_TZ = True
 
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
+# ✅ CORRETO: Aponta para a pasta 'static' na raiz para seus arquivos globais.
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
+# ✅ CORRETO: Pasta que o `collectstatic` usará para agrupar arquivos em produção.
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+
+# Media files (User uploads)
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
+
+MEDIA_URL = '/media/'
+
+# ✅ AJUSTADO: Aponta para a pasta 'media' na raiz.
+#    Usando pathlib para consistência.
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+# Login / Logout URLs
 LOGIN_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
