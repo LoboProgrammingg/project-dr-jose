@@ -1,5 +1,3 @@
-# conciliacao/views.py
-
 import json
 from datetime import datetime
 from decimal import Decimal
@@ -15,20 +13,13 @@ from django.contrib.auth import views as auth_views
 from django.db.models import Sum
 from django.core.paginator import Paginator
 
-# Importa o services.py que contém toda a lógica de negócio
 from . import services
 from .models import RelatorioConciliacao, Transacao
 from credores.models import Credor, Pagamento
 
 
-# ==============================================================================
-# --- VIEWS DE PÁGINA E LÓGICA DE NEGÓCIO ---
-# ==============================================================================
-
-
 @login_required
 def dashboard(request):
-    """(SEM ALTERAÇÕES) Exibe o painel principal com as métricas de negócio."""
     credores_ativos = Credor.objects.filter(ativo=True)
     total_credores_ativos = credores_ativos.count()
     saldo_devedor_total = sum(c.saldo_devedor for c in credores_ativos)
@@ -95,11 +86,6 @@ def dashboard(request):
 
 @login_required
 def pagina_upload(request):
-    """
-    (ATUALIZADO)
-    Processa o upload MENSAL, usando o services.py para conciliar
-    e salvar o resultado no banco de dados, utilizando os nomes de coluna corretos.
-    """
     if request.method == 'POST':
         arquivo_ofx = request.FILES.get('arquivo_ofx')
         arquivo_csv = request.FILES.get('arquivo_csv')
@@ -123,7 +109,6 @@ def pagina_upload(request):
             )
 
         try:
-            # 1. Usa as funções do nosso services.py robusto
             df_banco = services.processar_banco_ofx(arquivo_ofx)
             df_egestor = services.carregar_egestor_csv(arquivo_csv)
             df_relatorio = services.gerar_dataframe_conciliacao(
@@ -139,20 +124,17 @@ def pagina_upload(request):
                     },
                 )
 
-            # 2. Salva o resultado no banco de dados
             novo_relatorio = RelatorioConciliacao.objects.create(
                 mes_ano_referencia=mes_ano_formatado,
                 executado_por=request.user,
             )
 
-            # ATENÇÃO: Os nomes das colunas (ex: 'Data', 'Histórico Banco') devem ser EXATAMENTE os mesmos
-            # retornados pelo DataFrame da função 'gerar_dataframe_conciliacao' em services.py.
             transacoes_para_criar = [
                 Transacao(
                     relatorio=novo_relatorio,
                     data=row[
                         'Data'
-                    ],  # O DataFrame já retorna um objeto datetime
+                    ],
                     historico=row['Histórico Banco']
                     or row['Histórico Gestor'],
                     valor_banco=row['Valor Banco'],
@@ -178,11 +160,6 @@ def pagina_upload(request):
 
 @login_required
 def upload_relatorio_anual(request):
-    """
-    (SEM ALTERAÇÕES SIGNIFICATIVAS)
-    Processa o upload ANUAL e gera um relatório Excel para download direto.
-    Esta view já estava correta, pois passa o DataFrame diretamente para a função de criação do Excel.
-    """
     if request.method == 'POST':
         arquivo_ofx = request.FILES.get('arquivo_ofx')
         arquivo_csv = request.FILES.get('arquivo_csv')
@@ -210,7 +187,6 @@ def upload_relatorio_anual(request):
                     },
                 )
 
-            # Usa a função de criação de Excel do nosso services.py
             buffer_excel = services.criar_arquivo_excel(df_relatorio)
 
             response = HttpResponse(
@@ -234,7 +210,6 @@ def upload_relatorio_anual(request):
 
 @login_required
 def lista_relatorios(request):
-    """(SEM ALTERAÇÕES) Exibe o histórico de conciliações mensais salvas."""
     mes_ano_filtro = request.GET.get('mes_ano')
     queryset = RelatorioConciliacao.objects.all().order_by('-data_execucao')
     if mes_ano_filtro:
@@ -256,16 +231,9 @@ def lista_relatorios(request):
 
 @login_required
 def detalhe_relatorio(request, pk):
-    """
-    (ATUALIZADO)
-    Mostra o resultado de uma conciliação mensal específica.
-    Os filtros de status foram corrigidos para usar os nomes exatos gerados pelo services.py.
-    """
     relatorio = get_object_or_404(RelatorioConciliacao, pk=pk)
     transacoes_qs = relatorio.transacoes.all().order_by('data', 'id')
 
-    # --- CORREÇÃO PRINCIPAL ---
-    # Os status aqui devem ser EXATAMENTE os mesmos gerados em 'gerar_dataframe_conciliacao'
     total_divergencias = transacoes_qs.filter(
         status='DIVERGÊNCIA DE VALOR'
     ).count()
@@ -275,7 +243,6 @@ def detalhe_relatorio(request, pk):
     total_pendente_gestor = transacoes_qs.filter(
         status='PENDENTE (APENAS NO GESTOR)'
     ).count()
-    # -------------------------------------------------------------------------
 
     contexto = {
         'relatorio': relatorio,
@@ -289,11 +256,6 @@ def detalhe_relatorio(request, pk):
 
 @login_required
 def download_relatorio_excel(request, pk):
-    """
-    (ATUALIZADO)
-    Gera o download de um relatório MENSAL já salvo no banco, convertendo
-    os dados do modelo para o formato de DataFrame que a função de criação de Excel espera.
-    """
     relatorio = get_object_or_404(RelatorioConciliacao, pk=pk)
     transacoes_qs = (
         relatorio.transacoes.all()
@@ -309,21 +271,17 @@ def download_relatorio_excel(request, pk):
     )
 
     if not transacoes_qs:
-        # Lidar com o caso de não haver transações, talvez redirecionar com uma mensagem
         return redirect('conciliacao:detalhe_relatorio', pk=pk)
 
     df_from_db = pd.DataFrame(list(transacoes_qs))
 
-    # Prepara o DataFrame para a função criar_arquivo_excel
-    # Renomeia as colunas do banco de dados para os nomes de coluna esperados pelo service
     df_relatorio = pd.DataFrame()
     df_relatorio['Data'] = df_from_db['data']
-    # Assume que o histórico salvo é o do banco e cria uma coluna vazia para o gestor
     df_relatorio['Histórico Banco'] = df_from_db['historico']
     df_relatorio['Valor Banco'] = df_from_db['valor_banco']
     df_relatorio[
         'Histórico Gestor'
-    ] = ''   # Coluna necessária para a função de excel
+    ] = ''
     df_relatorio['Valor Gestor'] = df_from_db['valor_gestor']
     df_relatorio['Diferença'] = df_from_db['diferenca']
     df_relatorio['Status da Conciliação'] = df_from_db['status']
@@ -339,8 +297,6 @@ def download_relatorio_excel(request, pk):
     return response
 
 
-# --- VIEWS DE AUTENTICAÇÃO E PÁGINAS ESTÁTICAS (Sem alterações) ---
-
 
 class PaginaLoginView(auth_views.LoginView):
     template_name = 'login.html'
@@ -353,5 +309,4 @@ class PaginaLogoutView(auth_views.LogoutView):
 
 @login_required
 def instrucoes_ofx(request):
-    """Exibe a página com instruções detalhadas."""
     return render(request, 'conciliacao/instrucoes_ofx.html')

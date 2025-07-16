@@ -7,13 +7,8 @@ from .models import RelatorioConciliacao, Transacao
 
 
 class TransacaoInline(admin.TabularInline):
-    """
-    Permite visualizar as transações de um relatório diretamente na página
-    de detalhes do RelatorioConciliacao.
-    """
 
     model = Transacao
-    # Define os campos que serão exibidos para cada transação
     fields = (
         'data',
         'historico',
@@ -22,7 +17,6 @@ class TransacaoInline(admin.TabularInline):
         'valor_gestor',
         'diferenca',
     )
-    # Torna todos os campos somente leitura
     readonly_fields = fields
     extra = 0
     can_delete = False
@@ -33,9 +27,6 @@ class TransacaoInline(admin.TabularInline):
 
 @admin.register(RelatorioConciliacao)
 class RelatorioConciliacaoAdmin(admin.ModelAdmin):
-    """
-    Configuração avançada para a interface de administração do modelo RelatorioConciliacao.
-    """
 
     inlines = [TransacaoInline]
     list_display = (
@@ -61,6 +52,3 @@ class RelatorioConciliacaoAdmin(admin.ModelAdmin):
         return 0
 
     total_divergencias.short_description = 'Nº de Divergências'
-
-
-# A classe TransacaoAdmin foi removida conforme solicitado.

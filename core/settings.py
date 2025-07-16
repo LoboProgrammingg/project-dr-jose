@@ -21,7 +21,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-o_)=g@hy+#krwt644tpim=ghl6rigj6^gm_+e&_9nvb_r=37n^'
+SECRET_KEY = (
+    'django-insecure-o_)=g@hy+#krwt644tpim=ghl6rigj6^gm_+e&_9nvb_r=37n^'
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -39,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-
     # ✅ CORRETO: Seus apps registrados.
     'conciliacao',
     'credores',
@@ -113,11 +114,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'pt-br'
 
-TIME_ZONE = 'America/Cuiaba' # Ajustado para sua localização atual.
+TIME_ZONE = 'America/Cuiaba'   # Ajustado para sua localização atual.
 
 USE_I18N = True
 
-USE_L10N = True # Nota: USE_L10N está obsoleto desde o Django 4.0 e será removido no 5.0.
+USE_L10N = True   # Nota: USE_L10N está obsoleto desde o Django 4.0 e será removido no 5.0.
 
 USE_TZ = True
 
