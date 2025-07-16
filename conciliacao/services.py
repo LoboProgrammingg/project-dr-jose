@@ -3,7 +3,7 @@
 import pandas as pd
 from ofxparse import OfxParser
 import re
-import io
+import io # Import 'io' para lidar com arquivos em memória
 
 # --- FUNÇÕES DE LEITURA E LIMPEZA (Helpers) ---
 
@@ -21,11 +21,41 @@ def limpar_valor_csv(valor_str: str) -> float | None:
         return None
 
 def processar_banco_ofx(arquivo_ofx_em_memoria) -> pd.DataFrame:
-    """Lê um arquivo OFX em memória e o transforma em um DataFrame do Pandas."""
+    """
+    Lê um arquivo OFX em memória e o transforma em um DataFrame do Pandas.
+    Implementa uma lógica robusta de decodificação para evitar erros de 'charmap'.
+    """
     print("Iniciando processamento do extrato OFX em memória...")
+    
+    # 1. Lê todo o conteúdo do arquivo em memória como bytes.
+    #    Isso é crucial para podermos tentar diferentes decodificações.
+    arquivo_ofx_em_memoria.seek(0) # Garante que a leitura comece do início
+    conteudo_bytes = arquivo_ofx_em_memoria.read()
+    
+    conteudo_texto = None
     try:
+        # 2. Tenta decodificar os bytes usando a codificação mais moderna (UTF-8).
+        conteudo_texto = conteudo_bytes.decode('utf-8')
+        print("Arquivo OFX decodificado com sucesso usando UTF-8.")
+    except UnicodeDecodeError:
+        # 3. Se UTF-8 falhar, tenta latin-1, comum em sistemas legados no Brasil.
+        print("Falha ao decodificar como UTF-8. Tentando como 'latin-1'...")
+        try:
+            conteudo_texto = conteudo_bytes.decode('latin-1')
+            print("Arquivo OFX decodificado com sucesso usando latin-1.")
+        except Exception as e:
+            print(f"ERRO CRÍTICO: Não foi possível decodificar o arquivo OFX com as codificações testadas. Erro: {e}")
+            return pd.DataFrame() # Retorna DataFrame vazio em caso de falha total
+            
+    if not conteudo_texto:
+        print("ERRO CRÍTICO: O conteúdo do arquivo OFX está vazio ou não pôde ser lido.")
+        return pd.DataFrame()
+
+    try:
+        # 4. Usa io.StringIO para que a biblioteca 'ofxparse' leia o texto decodificado como se fosse um arquivo.
+        ofx = OfxParser.parse(io.StringIO(conteudo_texto))
+        
         transacoes = []
-        ofx = OfxParser.parse(arquivo_ofx_em_memoria)
         # Itera sobre todas as contas no arquivo OFX
         for conta in ofx.accounts:
             extrato = conta.statement
@@ -36,14 +66,17 @@ def processar_banco_ofx(arquivo_ofx_em_memoria) -> pd.DataFrame:
                     "Valor_Banco": float(transacao.amount),
                     "Codigo_Banco": transacao.id
                 })
+        
         if not transacoes:
             return pd.DataFrame(columns=["Data", "Historico_Banco", "Valor_Banco", "Codigo_Banco"])
         
         df_banco = pd.DataFrame(transacoes)
         df_banco['Data'] = pd.to_datetime(df_banco['Data'])
+        print(f"Processamento do OFX concluído. Encontradas {len(df_banco)} transações.")
         return df_banco.sort_values(by="Data").reset_index(drop=True)
+
     except Exception as e:
-        print(f"ERRO CRÍTICO ao processar arquivo OFX: {e}")
+        print(f"ERRO CRÍTICO ao fazer o parse do conteúdo OFX: {e}")
         # Retorna um DataFrame vazio em caso de qualquer erro de parsing
         return pd.DataFrame()
 
@@ -52,6 +85,8 @@ def carregar_egestor_csv(arquivo_csv_em_memoria) -> pd.DataFrame:
     """Lê um arquivo CSV em memória e o transforma em um DataFrame do Pandas."""
     print("Lendo o arquivo CSV em memória...")
     try:
+        # Garante que a leitura comece do início do arquivo em memória
+        arquivo_csv_em_memoria.seek(0)
         df = pd.read_csv(arquivo_csv_em_memoria, sep=',', encoding='utf-8', header=0, dtype={'Cód.': str})
         
         # Garante que a coluna 'Descrição' exista para evitar erros
@@ -90,18 +125,21 @@ def gerar_dataframe_conciliacao(df_banco: pd.DataFrame, df_egestor: pd.DataFrame
     """
     print("Executando motor de conciliação de precisão...")
     
+    # Verifica se os dataframes estão vazios antes de prosseguir
+    if df_banco.empty or df_egestor.empty:
+        print("AVISO: Um dos DataFrames está vazio. Não é possível realizar a conciliação.")
+        # Pode retornar um dataframe vazio ou uma estrutura específica indicando o erro
+        return pd.DataFrame()
+
     # 1. Prepara os DataFrames para a conciliação, arredondando os valores
     df_banco['Valor_Match'] = df_banco['Valor_Banco'].round(2)
     df_egestor['Valor_Match'] = df_egestor['Valor_eGestor'].round(2)
     
     # 2. Primeira mesclagem: Encontra todas as correspondências exatas de Data e Valor.
-    #    'indicator=True' cria a coluna '_merge' que nos diz a origem de cada linha.
     df_merged = pd.merge(df_banco.reset_index(), df_egestor.reset_index(), on=['Data', 'Valor_Match'], how='outer', suffixes=('_Banco', '_Gestor'), indicator=True)
     
     # 3. Separa os resultados:
-    #    - Conciliados: Itens que existem em ambos os arquivos com mesmo valor e data.
     conciliados = df_merged[df_merged['_merge'] == 'both']
-    #    - a_analisar: Itens que não tiveram uma correspondência exata.
     a_analisar = df_merged[df_merged['_merge'] != 'both']
     
     # 4. Isola os itens pendentes de cada fonte.
@@ -109,7 +147,6 @@ def gerar_dataframe_conciliacao(df_banco: pd.DataFrame, df_egestor: pd.DataFrame
     pendentes_gestor = a_analisar[a_analisar['_merge'] == 'right_only']
     
     # 5. Segunda mesclagem: Tenta encontrar divergências de valor.
-    #    Une os itens pendentes pela DATA para ver se há lançamentos no mesmo dia com valores diferentes.
     divergencias = pd.merge(pendentes_banco, pendentes_gestor, on='Data', how='outer', suffixes=('_Banco', '_Gestor'))
     
     # 6. Inicia a construção do relatório final em formato de lista de dicionários.
@@ -134,7 +171,6 @@ def gerar_dataframe_conciliacao(df_banco: pd.DataFrame, df_egestor: pd.DataFrame
         
         status = 'DIVERGÊNCIA DE VALOR' if banco_presente and gestor_presente else ('PENDENTE (APENAS NO BANCO)' if banco_presente else 'PENDENTE (APENAS NO GESTOR)')
         
-        # Tratamento robusto para evitar erros de 'NaN'
         valor_banco = row['Valor_Banco_Banco'] if banco_presente else 0.0
         valor_gestor = row['Valor_eGestor_Gestor'] if gestor_presente else 0.0
         
@@ -153,10 +189,11 @@ def gerar_dataframe_conciliacao(df_banco: pd.DataFrame, df_egestor: pd.DataFrame
         
     # 9. Converte a lista final em um DataFrame, ordena e formata para exibição.
     if not relatorio_final:
-        return pd.DataFrame() # Retorna DataFrame vazio se não houver transações
+        return pd.DataFrame()
         
     df_relatorio = pd.DataFrame(relatorio_final).sort_values(by='Data').reset_index(drop=True)
-    df_relatorio['Data'] = pd.to_datetime(df_relatorio['Data']).dt.strftime('%d/%m/%Y')
+    # A conversão para string é feita no final, antes de gerar o Excel
+    # df_relatorio['Data'] = pd.to_datetime(df_relatorio['Data']).dt.strftime('%d/%m/%Y')
     
     return df_relatorio
 
@@ -169,71 +206,54 @@ def criar_arquivo_excel(df_relatorio: pd.DataFrame) -> io.BytesIO:
     """
     output_em_memoria = io.BytesIO()
     
-    # Usa o XlsxWriter como motor para ter acesso às funcionalidades de formatação
-    with pd.ExcelWriter(output_em_memoria, engine='xlsxwriter') as writer:
-        # Escreve o DataFrame na planilha, sem o cabeçalho padrão do pandas
-        df_relatorio.to_excel(writer, sheet_name='Painel de Conciliação', index=False, header=False, startrow=1)
+    # Formata a coluna de data para o padrão brasileiro ANTES de salvar no Excel
+    df_relatorio_formatado = df_relatorio.copy()
+    df_relatorio_formatado['Data'] = pd.to_datetime(df_relatorio_formatado['Data']).dt.strftime('%d/%m/%Y')
+
+    with pd.ExcelWriter(output_em_memoria, engine='xlsxwriter', datetime_format='dd/mm/yyyy') as writer:
+        df_relatorio_formatado.to_excel(writer, sheet_name='Painel de Conciliação', index=False, header=False, startrow=1)
         
-        # Pega os objetos workbook e worksheet para trabalhar com eles
         workbook = writer.book
         worksheet = writer.sheets['Painel de Conciliação']
 
         # --- DEFINIÇÃO DOS ESTILOS DE FORMATAÇÃO ---
-
-        # Formato do cabeçalho: negrito, fundo cinza, texto branco
         header_format = workbook.add_format({
-            'bold': True,
-            'text_wrap': True,
-            'valign': 'top',
-            'fg_color': '#333F4F',
-            'font_color': 'white',
-            'border': 1
+            'bold': True, 'text_wrap': True, 'valign': 'top',
+            'fg_color': '#333F4F', 'font_color': 'white', 'border': 1
         })
-
-        # Formato para valores monetários
         money_format = workbook.add_format({'num_format': 'R$ #,##0.00', 'border': 1})
-        
-        # Formato padrão para células de texto
         text_format = workbook.add_format({'border': 1})
-
-        # Formatos para status (formatação condicional)
+        date_format = workbook.add_format({'num_format': 'dd/mm/yyyy', 'border': 1})
+        
         status_conciliado_format = workbook.add_format({'bg_color': '#C6EFCE', 'font_color': '#006100', 'border': 1})
         status_divergencia_format = workbook.add_format({'bg_color': '#FFC7CE', 'font_color': '#9C0006', 'border': 1})
         status_pendente_format = workbook.add_format({'bg_color': '#FFEB9C', 'font_color': '#9C6500', 'border': 1})
 
         # --- APLICAÇÃO DOS ESTILOS ---
-
-        # Escreve o cabeçalho da tabela com o formato personalizado
-        for col_num, value in enumerate(df_relatorio.columns.values):
+        for col_num, value in enumerate(df_relatorio_formatado.columns.values):
             worksheet.write(0, col_num, value, header_format)
 
-        # Ajusta a largura das colunas com base no conteúdo
-        for idx, col in enumerate(df_relatorio):
-            series = df_relatorio[col]
-            max_len = max((
-                series.astype(str).map(len).max(),
-                len(str(series.name))
-            )) + 2  # Adiciona um espaço extra
-            worksheet.set_column(idx, idx, max_len)
+        # Ajusta a largura das colunas
+        worksheet.set_column('A:A', 12, date_format)  # Data
+        worksheet.set_column('B:B', 40, text_format)  # Histórico Banco
+        worksheet.set_column('C:C', 15, money_format) # Valor Banco
+        worksheet.set_column('D:D', 40, text_format)  # Histórico Gestor
+        worksheet.set_column('E:E', 15, money_format) # Valor Gestor
+        worksheet.set_column('F:F', 15, money_format) # Diferença
+        worksheet.set_column('G:G', 25, text_format)  # Status
 
-        # Aplica os formatos de moeda e texto às colunas correspondentes
-        worksheet.set_column('B:B', None, money_format) # Valor Banco
-        worksheet.set_column('D:D', None, money_format) # Valor Gestor
-        worksheet.set_column('E:E', None, money_format) # Diferença
-        worksheet.set_column('A:A', None, text_format) # Histórico Banco
-        worksheet.set_column('C:C', None, text_format) # Histórico Gestor
-
-        # Aplica a formatação condicional na coluna de Status
-        status_col = df_relatorio.columns.get_loc('Status da Conciliação')
-        worksheet.conditional_format(1, status_col, len(df_relatorio), status_col, 
+        # Aplica formatação condicional na coluna de Status
+        status_col_letter = 'G'
+        worksheet.conditional_format(f'{status_col_letter}2:{status_col_letter}{len(df_relatorio_formatado)+1}', 
                                      {'type': 'cell', 'criteria': '==', 'value': '"Conciliado"', 'format': status_conciliado_format})
-        worksheet.conditional_format(1, status_col, len(df_relatorio), status_col, 
+        worksheet.conditional_format(f'{status_col_letter}2:{status_col_letter}{len(df_relatorio_formatado)+1}', 
                                      {'type': 'cell', 'criteria': '==', 'value': '"DIVERGÊNCIA DE VALOR"', 'format': status_divergencia_format})
-        worksheet.conditional_format(1, status_col, len(df_relatorio), status_col, 
+        worksheet.conditional_format(f'{status_col_letter}2:{status_col_letter}{len(df_relatorio_formatado)+1}', 
                                      {'type': 'text', 'criteria': 'containing', 'value': 'PENDENTE', 'format': status_pendente_format})
 
-        # Congela a linha do cabeçalho para que ela fique visível ao rolar
         worksheet.freeze_panes(1, 0)
 
     print("Arquivo Excel formatado gerado em memória com sucesso!")
+    # Retorna ao início do stream para que o Django possa lê-lo para a resposta HTTP
+    output_em_memoria.seek(0)
     return output_em_memoria
